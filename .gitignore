@@ -2,3 +2,7 @@
 /.settings/
 /.cproject
 /.project
+/master/dep/
+/master/obj/
+/slave/dep/
+/slave/obj/
