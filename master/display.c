@@ -4,7 +4,7 @@
 #include "display.h"
 
 //set registers for window option 2 
-#define WINDOW_SETOPTIONS_RAM	0b10001001		//ram access control (cmd13)
+#define WINDOW_SETOPTIONS_RAM	0b10001011		//ram access control (cmd13)
 #define WINDOW_SETOPTIONS_LCD	0b11000110		//lcd mapping control (cmd19)
 
 #define WINDOW_ENABLE			0b11111001		//(cmd 34)
