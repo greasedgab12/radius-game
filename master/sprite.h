@@ -23,10 +23,10 @@ struct Sprite_Struct
     uint8_t y;
     uint8_t lx;
     uint8_t ly;
-    uint8_t *data;
+    const uint8_t *data;
     //methods
     void (*setXY)(Sprite self, uint8_t x, uint8_t y);
-    void (*setData)(Sprite self, uint8_t *data);
+    void (*setData)(Sprite self, const uint8_t *data);
 };
 
 struct Blank_Struct
@@ -44,7 +44,7 @@ struct Blank_Struct
  * uint8_t *data: pointer to data array in memory
  * return Sprite: returns pointer to newly allocated sprite.
  */
-Sprite newSprite(uint8_t x, uint8_t y, uint8_t *data);
+Sprite newSprite(uint8_t x, uint8_t y, const uint8_t *data);
 
 /* Setter methods for Sprite
  * setSpriteXY: Change position values of Sprite. This is does not equal moving the sprite.
