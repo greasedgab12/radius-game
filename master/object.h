@@ -1,12 +1,9 @@
-/*
- * object.h
- *
- *  Created on: Jan 3, 2018
- *      Author: root
- */
-#include "sprite.h"
 #ifndef MASTER_OBJECT_H_
 #define MASTER_OBJECT_H_
+
+#include "block.h"
+
+struct Environment;
 
 typedef struct Object_Struct* Object;
 
@@ -40,6 +37,9 @@ Object newObject(uint8_t x, uint8_t y, uint8_t type);
  */
 void setSpriteXY(Object self, uint8_t x, uint8_t y);
 void setSpriteData(Object self, const uint8_t *data);
+
+//Create new Block from Object instance
+Block mapObject(Object instance);
 
 
 

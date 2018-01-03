@@ -3,7 +3,6 @@
 
 #include <inttypes.h>
 #include <avr/pgmspace.h>
-
 #define MAXSPRITES 32
 #define MAXDELETES 32
 #define MAXOBJECTS 32
