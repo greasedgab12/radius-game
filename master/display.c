@@ -33,7 +33,7 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, uint8_t *data)
 	sendbyte(WINDOW_ENDCOL,0);
 	sendbyte(x+lx,0);
 	sendbyte(WINDOW_ENDPAGE,0);
-	sendbyte(y+ly,0);
+	sendbyte(y+ly-1,0);
 
 	sendbyte(WINDOW_ENABLE,0);
 

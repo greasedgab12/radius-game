@@ -37,30 +37,32 @@ Blank newBlank(Sprite instance){
 }
 
 Sprite mapSprite(Sprite instance){
-	uint8_t offset,x,y;
+	uint8_t offset,x,y, lx ,ly;
 	uint8_t *ndata;
 	offset = (instance->y%4)*2;
 	if(offset){
+		lx = instance->lx;
+		ly = instance->ly+1;
 		//Allocate memory for ndata array.
-		ndata = calloc((instance->lx*(instance->ly+1) + 2)*sizeof(uint8_t));
+		ndata = calloc((lx*(ly) + 2),sizeof(uint8_t));
 		//Set first two entries to width of sprite and overall length of the array.
-		ndata[0] = instance->lx;
-		ndata[1] = ndata[0]*(instance->ly+1);
-		for(x=0; x<instance->lx; x++){
-			//Set the first row to the orignal data shifted to the right by offset.
-			ndata[2 + x*instance->ly] = instance->data[2+ x*instance->ly]<<offset;
+		ndata[0] = lx;
+		ndata[1] = ndata[0]*(ly);
+		for(x=0; x<lx; x++){
+			//Set the first row to the orignal data shifted to the left by offset.
+			ndata[2 + x*(ly)] = instance->data[2+ x*instance->ly]<<(8-offset);
 			for(y=1; y<instance->ly; y++){
 				//Set all but last row to the union of the current and previos row of the original data, shifted left and right by offset.
-				ndata[2 + x*instance->ly +y] = (instance->data[2+ x*instance->ly +y-1]>>offset)|(instance->data[2+ x*instance->ly +y]<<offset);
+				ndata[2 + x*(ly) +y] = (instance->data[2+ x*instance->ly +y-1]>>offset)|(instance->data[2+ x*instance->ly +y]<<(8-offset));
 			}
 			//Set the last row to the orignal data shifted to the left by offset.
-			ndata[2 + (x+1)*instance->ly] = (instance->data[2+ x*instance->ly +y]<<offset);
+			ndata[2 + (x+1)*ly -1] = (instance->data[2+ x*instance->ly +y -1]>>offset);
 		}
 	}
 	else{
-		//Without any offset, the isntance ist returned.
-		return instance;
+		//Without offset only the y coordinate is mapped.
+		return newSprite(instance->x, instance->y/4, instance->data);
 	}
 	//return new Sprite from values of instance and ndata.
-	return newSprite(instance->x, instance->y - offset/2, ndata);
+	return newSprite(instance->x, instance->y/2 - offset/2, ndata);
 }

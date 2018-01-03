@@ -50,7 +50,7 @@ Sprite newSprite(uint8_t x, uint8_t y, const uint8_t *data);
  * setSpriteXY: Change position values of Sprite. This is does not equal moving the sprite.
  */
 void setSpriteXY(Sprite self, uint8_t x, uint8_t y);
-void setSpriteData(Sprite self, uint8_t *data);
+void setSpriteData(Sprite self, const uint8_t *data);
 
 /* delSprite: Remove Sprite from spriteList and add deletion entry to delList
  * Sprite instance: Sprite to be deleted
