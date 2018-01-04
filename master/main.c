@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <inttypes.h>
@@ -6,7 +7,7 @@
 #include "adc.h"
 #include "timer.h"
 #include "buttons.h"
-#include <stdlib.h>
+
 
 #include "display.h"
 #include "object.h"
@@ -65,7 +66,7 @@ int main(void)
 		for(i=0; i<env->oPos; i++){
 			env->objectList[i]->think(objectList[i], env);
 		}
-		Block* overlaps = checkBlockCollision(env->blockList, env->bPos);
+		Block* overlaps = checkBlockCollision(env->blockList,env->bPos);
 		for(i=0; i<env->bPos; i++){
 			drawBlock(env->blockList[i]);
 		}
@@ -75,6 +76,7 @@ int main(void)
 			free(&overlaps[i]);
 			i++;
 		}
+		free(&overlaps[i]);
 		free(overlaps);
 
 	}

@@ -27,6 +27,9 @@ struct Block_struct{
 */
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data);
 
+/* releaseBlock: free memory of a block.
+ * Block instance: Block to be freed.
+ */
 void releaseBlock(Block instance);
 
 /* checkBlockCollision: Check list of Blocks for collisions.
@@ -35,6 +38,13 @@ void releaseBlock(Block instance);
  * return Block*: List of fused overlapping Blocks terminated with a nullptr!
 */
 Block* checkBlockCollision(Block* blockList, uint8_t length);
+
+/* getOverlap: Calculate and allocate overlapping block.
+ * Block b1: first Block
+ * Block b2: second Block
+ * return Block: Resulting Block with the dimensions of the overlapping area.
+ */
+Block getOverlap(Block b1, Block b2);
 
 /* drawBlock: Draws Block with either page or window function, depending on size of block.
  * Block instance: Block to draw.
