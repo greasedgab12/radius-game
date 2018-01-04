@@ -8,7 +8,6 @@
 #include "buttons.h"
 
 #include "display.h"
-#include "environment.h"
 #include "object.h"
 #include "block.h"
 
