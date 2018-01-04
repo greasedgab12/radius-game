@@ -1,6 +1,30 @@
 #include "object.h"
 #include "block.h"
-#include "environment.h"
+#include <stdlib.h>
+
+Object newObject(uint8_t x, uint8_t y, const uint8_t *data){
+
+    Object self = (Object)malloc(sizeof(struct Object_Struct));
+
+    self->x = x;
+    self->y = y;
+
+    self->setData = &setObjectData;
+    self->setData(self, data);
+    self->setXY = &setObjectXY;
+    return self;
+}
+
+void setObjectXY(Object self, uint8_t x, uint8_t y){
+    self->x = x;
+    self->y = y;
+}
+
+void setObjectData(Object self, const uint8_t *data){
+    self->lx = data[0];
+    self->ly = data[1]/data[0];
+    self->data= data;
+}
 
 Block mapObject(Object instance){
 	uint8_t offset,x,y;
@@ -14,7 +38,7 @@ Block mapObject(Object instance){
 		block->ly = instance->ly+1;
 		//Allocate memory for ndata array.
 		ndata = calloc((block->lx*(block->ly) + 2),sizeof(uint8_t));
-		//Set first two entries to width of sprite and overall length of the array.
+		//Set first two entries to width of Object and overall length of the array.
 		ndata[0] = block->lx;
 		ndata[1] = ndata[0]*(block->ly);
 		for(x=0; x<block->lx; x++){

@@ -11,6 +11,8 @@ struct Environment_struct{
 	uint8_t gameState;
 	Object* objectList;
 	uint8_t oPos;
+	Block* blockList;
+	uint8_t bPos;
 };
 
 typedef struct Object_Struct* Object;
