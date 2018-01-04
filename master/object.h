@@ -2,7 +2,16 @@
 #define MASTER_OBJECT_H_
 
 #include "block.h"
-#include "environment.h"
+
+typedef struct Environment_struct* Environment;
+
+struct Environment_struct{
+	uint8_t buttons;
+	uint32_t time;
+	uint8_t gameState;
+	Object* objectList;
+	uint8_t oPos;
+};
 
 typedef struct Object_Struct* Object;
 
