@@ -8,9 +8,6 @@
 #include "block.h"
 #include <stdlib.h>
 
-
-
-
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data){
 	Block block = (Block)malloc(sizeof(struct Block_struct));
 	block->x = x;
