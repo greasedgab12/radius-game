@@ -6,6 +6,7 @@
 #include "adc.h"
 #include "timer.h"
 #include "buttons.h"
+#include <stdlib.h>
 
 #include "display.h"
 #include "object.h"
@@ -16,11 +17,7 @@
 #define MAXOVERLAPS 16
 
 volatile Object objectList[MAXOBJECTS];
-volatile uint8_t oPos=0;
 volatile Block blockList[MAXBLOCKS];
-volatile uint8_t bPos=0;
-volatile Block overlapList[MAXOVERLAPS];
-volatile uint8_t ovPos=0;
 
 
 //The Buttons are assigned to the inputBuffer in the following order (Most significant Bit first):
@@ -29,6 +26,18 @@ volatile uint8_t inputBuffer;
 volatile Environment env;
 
 void init();
+
+
+
+void initEnvironment(Object* objectList, Block* blockList){
+    env->buttons =0;
+    env->time = getMsTimer();
+    env->gameState =0;
+    env->blockList = blockList;
+    env->bPos = 0;
+    env->objectList = objectList;
+    env->oPos = 0;
+}
 
 void updateEnvironment(){
 	cli();
@@ -39,11 +48,12 @@ void updateEnvironment(){
 
 
 
+
+
 SIGNAL (TIMER0_COMPA_vect){
 	inputBuffer  = (B_UP<<7)| (B_DOWN<<6)| (B_LEFT<<5)| (B_RIGHT<<4);
 	inputBuffer |= (B_A<<3)| (B_B<<2)| (B_PAUSE<<1)| (B_SELECT<<0);
 }
-
 
 int main(void)
 {
@@ -51,6 +61,21 @@ int main(void)
 	init();
 	while(1){
 		updateEnvironment();
+		uint8_t i;
+		for(i=0; i<env->oPos; i++){
+			env->objectList[i]->think(objectList[i], env);
+		}
+		Block* overlaps = checkBlockCollision(env->blockList, env->bPos);
+		for(i=0; i<env->bPos; i++){
+			drawBlock(env->blockList[i]);
+		}
+		i=0;
+		while(overlaps[i]!=0){
+			drawBlock(overlaps[i]);
+			free(&overlaps[i]);
+			i++;
+		}
+		free(overlaps);
 
 	}
 
@@ -74,9 +99,9 @@ void init()
     TIMSK0 |= (1<<OCIE0A);
     OCR0A = 255;
     //Environment Initialization
-    env->buttons =0;
-    env->time = getMsTimer();
-    env->gameState =0;
+    Object objectList[MAXOBJECTS];
+    Block blockList[MAXBLOCKS];
+    initEnvironment(objectList, blockList);
 }
 
 

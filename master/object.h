@@ -3,18 +3,8 @@
 
 #include "block.h"
 
+
 typedef struct Environment_struct* Environment;
-
-struct Environment_struct{
-	uint8_t buttons;
-	uint32_t time;
-	uint8_t gameState;
-	Object* objectList;
-	uint8_t oPos;
-	Block* blockList;
-	uint8_t bPos;
-};
-
 typedef struct Object_Struct* Object;
 
 struct Object_Struct{
@@ -40,13 +30,29 @@ struct Object_Struct{
     void (*think)(Object self, Environment mainEnv);
     void (*collide)(Object self, Object other);
 };
+
+
+struct Environment_struct{
+	uint8_t buttons;
+	uint32_t time;
+	uint8_t gameState;
+	Object* objectList;
+	uint8_t oPos;
+	Block* blockList;
+	uint8_t bPos;
+};
+
 /* newObject: allocate memory for a object with initial data.
  * uint8_t x: x-coordinate of Object.
  * uint8_t y: y-coordinate of Object.
  * uint8_t *data: pointer to data array in memory.
  * return Object: returns pointer to newly allocated Object.
  */
-Object newObject(uint8_t x, uint8_t y, uint8_t type);
+Object newObject(uint8_t x, uint8_t y, const uint8_t *data);
+
+/* free memory of Object.
+ */
+void releaseObject(Object instance);
 
 /* Setter methods for object
  * setObjectXY: Change position values of object. This is does not equal moving the object.

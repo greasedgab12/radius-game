@@ -15,6 +15,13 @@ Object newObject(uint8_t x, uint8_t y, const uint8_t *data){
     return self;
 }
 
+void releaseObject(Object instance){
+	free(instance->data);
+	releaseBlock(instance->representation);
+	free(instance->objectEnv);
+	free(instance);
+}
+
 void setObjectXY(Object self, uint8_t x, uint8_t y){
     self->x = x;
     self->y = y;
@@ -57,9 +64,12 @@ Block mapObject(Object instance){
 	}
 	else{
 		//Without offset only the y coordinate is mapped.
+		ndata = calloc(instance->data[1] +2, sizeof(uint8_t));
+		ndata[0] = block->lx;
+		ndata[1] = instance->data[1];
 		block->y = instance->y/4;
 		block->ly = instance->ly;
-		block->data = instance->data;
+		block->data = ndata;
 		return block;
 	}
 }
