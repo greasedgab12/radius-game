@@ -1,11 +1,7 @@
 #ifndef MASTER_BLOCK_H_
 #define MASTER_BLOCK_H_
 
-#define DESTROY 3
-#define DRAWONCE 2
-#define DRAWN 1
-#define NOTDRAWN 0
-
+#include "defines.h"
 #include <inttypes.h>
 #include <avr/pgmspace.h>
 

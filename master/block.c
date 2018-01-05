@@ -20,11 +20,6 @@ Block newBlock(uint8_t x, uint8_t y, uint8_t *data){
 }
 
 void releaseBlock(Block instance){
-	uint8_t length = instance->data[1]+2;
-	uint8_t i;
-	for(i=0; i<length; i++){
-		free(&instance->data[i]);
-	}
 	free(instance->data);
 	free(instance);
 
@@ -43,15 +38,57 @@ void drawBlock(Block instance){
 }
 
 Block* checkBlockCollision(Block* blockList, uint8_t length){
+	//k takes the value of usedIndices[i] while pos is next free entry of the overlaps array.
+	uint8_t i,j,k,pos=0;
+	//Since we don't want Blocks to collide with multiple other Blocks, indices of Blocks
+	//that were involved in a collision are set to zero. The indices are saved in the usedIndices array.
+	uint8_t* usedIndices = malloc(length*sizeof(uint8_t));
+	//Array of our detected overlaps. Must be terminated with zero and is therefore one entry larger than MAXOVERLAPS.
+	Block* overlaps = (Block*)malloc(1 + MAXOVERLAPS * sizeof(struct Block_struct*));
+	for(i=0;i<length;i++){
+		usedIndices[i] = i;
+	}
 
-;}
+	for(i=0; i<length; i++){
+		for(j=i+1; j<length; j++){
+			//Only query the Blocks if the index is non zero!
+			if(usedIndices[j]){
+				k=usedIndices[j];
+				//Find out, if Block[k] has coordinates within Block[i] borders.
+				if( (blockList[i]->x <= blockList[k]->x) &&
+					(blockList[k]->x <= blockList[i]->x + blockList[i]->lx) &&
+					(blockList[i]->y <= blockList[k]->y)&&
+					(blockList[k]->y <= blockList[i]->y + blockList[i]->ly)){
+					//When true, mark index of Block[k] as used.
+					usedIndices[j]=0;
+					//Write new Block into overlaps, unless maxium capacity is reached.
+					if(pos < MAXOVERLAPS){
+						overlaps[pos] = getOverlap(blockList[i], blockList[k]);
+						pos++;
+					}
+					else{
+						//If we are at maximum capacitance. Return overlap and ignore other potential collisions.
+						free(usedIndices);
+						overlaps[pos]=0;
+						return overlaps;
+					}
+				}
+			}
+		}
+	}
+	free(usedIndices);
+	overlaps[pos] =0;
+	return overlaps;
+}
 
 Block getOverlap(Block b1, Block b2){
-	uint8_t x,y,dx, dy, dlx, dly;
+	uint8_t x=0,y=0,dx, dy, dlx, dly;
+
 	dx = b1->x>b2->x ? b1->x-b2->x: b2->x-b1->x;
 	dy = b1->y>b2->y ? b1->y-b2->y: b2->y-b1->y;
-	dlx = b1->x>b2->x ? b1->lx-b2->lx: b2->lx-b1->lx;
-	dly = b1->y>b2->y ? b1->ly-b2->ly: b2->ly-b1->ly;
+
+	dlx = b1->x>b2->x ? b2->lx-dx: b1->lx-dx;
+	dly = b1->y>b2->y ? b2->ly-dy: b1->ly-dy;
 
 	uint8_t *ndata = calloc(dlx*dly +2 ,sizeof(uint8_t));
 	ndata[0] = dlx;
