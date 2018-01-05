@@ -12,10 +12,8 @@
 #include "display.h"
 #include "object.h"
 #include "block.h"
+#include "defines.h"
 
-#define MAXOBJECTS 32
-#define MAXBLOCKS 32
-#define MAXOVERLAPS 16
 
 volatile Object objectList[MAXOBJECTS];
 volatile Block blockList[MAXBLOCKS];
