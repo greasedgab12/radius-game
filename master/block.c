@@ -44,7 +44,7 @@ Block* checkBlockCollision(Block* blockList, uint8_t length){
 	//that were involved in a collision are set to zero. The indices are saved in the usedIndices array.
 	uint8_t* usedIndices = malloc(length*sizeof(uint8_t));
 	//Array of our detected overlaps. Must be terminated with zero and is therefore one entry larger than MAXOVERLAPS.
-	Block* overlaps = (Block*)malloc(1 + MAXOVERLAPS * sizeof(struct Block_struct*));
+	Block* overlaps = (Block*)malloc((1 + MAXOVERLAPS )* sizeof(Block));
 	for(i=0;i<length;i++){
 		usedIndices[i] = i;
 	}
