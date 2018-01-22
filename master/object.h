@@ -28,7 +28,7 @@ struct Object_Struct{
      * depending on the involved objects.
     */
     void (*think)(Object self, Environment mainEnv);
-    void (*collide)(Object self, Object other);
+    uint8_t (*collide)(Object self, Object other);
 };
 
 

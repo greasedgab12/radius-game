@@ -60,21 +60,31 @@ int main(void)
 	init();
 	while(1){
 		updateEnvironment();
-		uint8_t i;
+		uint8_t i,j;
 		for(i=0; i<env->oPos; i++){
 			env->objectList[i]->think(objectList[i], env);
 		}
 		Block* overlaps = checkBlockCollision(env->blockList,env->bPos);
 		for(i=0; i<env->bPos; i++){
-			drawBlock(env->blockList[i]);
+			if(env->blockList[i]->blockType == (DRAWONCE | NOTDRAWN)){
+				drawBlock(env->blockList[i]);
+			}
+
+		}
+		for(i=0; i<env->bPos; i++){
+			while(env->blockList[i]->blockType == DESTROY){
+				releaseBlock(env->blockList[i]);
+				for(j=i; j<env->bPos-1; j++){
+					env->blockList[j] = env->blockList[j+1];
+				}
+				env->bPos= env->bPos>0?env->bPos-1:0;
+			}
 		}
 		i=0;
 		while(overlaps[i]!=0){
 			drawBlock(overlaps[i]);
-			free(&overlaps[i]);
 			i++;
 		}
-		free(&overlaps[i]);
 		free(overlaps);
 
 	}

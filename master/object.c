@@ -16,7 +16,6 @@ Object newObject(uint8_t x, uint8_t y, const uint8_t *data){
 }
 
 void releaseObject(Object instance){
-	free(instance->data);
 	releaseBlock(instance->representation);
 	free(instance->objectEnv);
 	free(instance);
@@ -72,4 +71,39 @@ Block mapObject(Object instance){
 		block->data = ndata;
 		return block;
 	}
+}
+
+void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
+	uint8_t i,dx,dy;
+
+	for(i=0; i< mainEnv->oPos; i++){
+		if( (x <= mainEnv->objectList[i]->x) &&
+			(mainEnv->objectList[i]->x <= x + self->lx) &&
+			(y <= mainEnv->objectList[i]->y)&&
+			(mainEnv->objectList[i]->y <= y + self->ly)){
+			if(self->collide(self, mainEnv->objectList[i])){
+				return;
+			}
+		}
+	}
+	Block repr = self->representation;
+	for(i=0; i<mainEnv->bPos; i++){
+		if( (repr->x <= mainEnv->blockList[i]->x) &&
+			(mainEnv->objectList[i]->x <= repr->x + repr->lx) &&
+			(repr->y <= mainEnv->blockList[i]->y)&&
+			(mainEnv->blockList[i]->y <= repr->y + repr->ly)){
+			blockList[i]->blockType = NOTDRAWN;
+		}
+	}
+	self->x = x;
+	if(self->y%4 == y%4){
+		repr->x = x;
+		repr->y = y;
+	}
+	else{
+		self->y = y;
+		self->representation = mapObject(self);
+		return;
+	}
+	self->y = y;
 }
