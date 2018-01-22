@@ -11,7 +11,7 @@ typedef struct Block_struct* Block;
 
 struct Block_struct{
 	uint8_t x,y,lx,ly;
-	uint8_t blocktype;
+	uint8_t blockType;
 	uint8_t *data;
 };
 
@@ -22,6 +22,15 @@ struct Block_struct{
  * return Block: newly allocated Block from parameters.
 */
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data);
+
+/* emptyBlock: Create new empty block from parameters.
+ * uint8_t x: x coordinate of new Block.
+ * uint8_t y: y coordinate of new Block.
+ * uint8_t lx: width of the Block.
+ * uint8_t ly: height of the Block.
+ * return Block: newly allocated empty Block from parameters.
+ */
+Block emptyBlock(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly);
 
 /* releaseBlock: free memory of a block.
  * Block instance: Block to be freed.

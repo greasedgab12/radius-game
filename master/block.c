@@ -8,15 +8,28 @@
 #include <stdlib.h>
 #include "block.h"
 #include "display.h"
+#include "defines.h"
 
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data){
-	Block block = (Block)malloc(sizeof(struct Block_struct));
-	block->x = x;
-	block->y = y;
-	block->lx = data[0];
-	block->ly = data[1]/data[0];
-	block->data = data;
-	return block;
+	Block self = (Block)malloc(sizeof(struct Block_struct));
+	self->x = x;
+	self->y = y;
+	self->lx = data[0];
+	self->ly = data[1]/data[0];
+	self->data = data;
+	self->blockType = NOTDRAWN;
+	return self;
+}
+
+Block emptyBlock(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly){
+	Block self =  (Block)malloc(sizeof(struct Block_struct));
+	self->x = x;
+	self->y = y;
+	self->lx = lx;
+	self->ly = ly;
+	self->data = 0;
+	self->blockType = NOTDRAWN;
+	return self;
 }
 
 void releaseBlock(Block instance){
@@ -26,7 +39,10 @@ void releaseBlock(Block instance){
 }
 
 void drawBlock(Block instance){
-	if(instance->data[1]>3){
+	if(!instance->data){
+		sendWindow(instance->x, instance->y, instance->lx, instance->ly,0);
+	}
+	else if(instance->data[1]>3){
 		sendWindow(instance->x, instance->y, instance->lx, instance->ly, instance->data);
 	}
 	else{
@@ -34,6 +50,12 @@ void drawBlock(Block instance){
 		for(i=0; i< instance->data[1]; i++){
 			page(instance->x, instance->y, instance->data[i+2]);
 		}
+	}
+	if(instance->blockType & NOTDRAWN){
+		instance->blockType = DRAWN;
+	}
+	if(instance->blockType & DRAWONCE){
+		instance->blockType = DESTROY;
 	}
 }
 

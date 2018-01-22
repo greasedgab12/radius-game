@@ -14,10 +14,11 @@
 #define MAXOVERLAPS 16
 
 //Definitions for Block.
-#define DESTROY 3
-#define DRAWONCE 2
-#define DRAWN 1
-#define NOTDRAWN 0
+#define DESTROY 8
+#define DRAWONCE 4
+#define DRAWN 2
+#define NOTDRAWN 1
+
 
 
 #endif /* MASTER_DEFINES_H_ */
