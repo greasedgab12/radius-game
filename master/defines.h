@@ -12,12 +12,25 @@
 #define MAXOBJECTS 32
 #define MAXBLOCKS 32
 #define MAXOVERLAPS 16
+#define MAXX 160
+#define MAXY 104
+
+//UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
+//Button Masks:
+#define M_U 128
+#define M_D 64
+#define M_L 32
+#define M_R 16
+#define M_A 8
+#define M_B 4
+#define M_P 2
+#define M_S 1
 
 //Definitions for Block.
-#define DESTROY 8
-#define DRAWONCE 4
-#define DRAWN 2
-#define NOTDRAWN 1
+#define DESTROY 4
+#define DRAWONCE 2
+#define DRAWN 1
+#define NOTDRAWN 0
 
 
 

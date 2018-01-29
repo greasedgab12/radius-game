@@ -42,15 +42,17 @@ void drawBlock(Block instance){
 	if(!instance->data){
 		sendWindow(instance->x, instance->y, instance->lx, instance->ly,0);
 	}
-	else if(instance->data[1]>3){
+	else{// if(instance->data[1]>3){
 		sendWindow(instance->x, instance->y, instance->lx, instance->ly, instance->data);
 	}
+	/**
 	else{
 		uint8_t i;
 		for(i=0; i< instance->data[1]; i++){
 			page(instance->x, instance->y, instance->data[i+2]);
 		}
 	}
+	**/
 	if(instance->blockType & NOTDRAWN){
 		instance->blockType = DRAWN;
 	}

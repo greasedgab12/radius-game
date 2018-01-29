@@ -13,7 +13,7 @@ void timerInit(void)
 	TCCR2A = 1<<WGM21;		// CTC Mode
 		
 	TCCR2B = (1<<CS22) | (1<<CS20); //prescaler auf 128 setzen
-	OCR2A = OCR2A_VAL; 			//Wert für Vergleichregister setzen (kleiner bedeutet schneller)
+	OCR2A = OCR2A_VAL; 			//Wert fï¿½r Vergleichregister setzen (kleiner bedeutet schneller)
 	TIMSK2  |= 1<<OCIE2A;		// TIMER2 Output Compare Match A Interrupt an
 	
 	sei();				// enable interrupts

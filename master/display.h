@@ -3,7 +3,7 @@
 
 
 void initWindow(void);
-void sendWindow(uint8_t x1,uint8_t y1,uint8_t x2, uint8_t y2, uint8_t *data);
+void sendWindow(uint8_t x1,uint8_t y1,uint8_t x2, uint8_t y2, const uint8_t *data);
 
 void displayInit(void);
 void clear(void);
