@@ -1,6 +1,19 @@
 #include "object.h"
 #include "block.h"
 #include <stdlib.h>
+#include "display.h"
+
+Environment newEnvironment(Object* objectList, Block* blockList){
+	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
+    self->time2 = getMsTimer();
+    self->gameState =0;
+    self->blockList = blockList;
+    self->bPos = 0;
+    self->objectList = objectList;
+    self->oPos = 0;
+    self->buttons =0;
+    return self;
+}
 
 Object newObject(uint8_t x, uint8_t y, const uint8_t *data){
 
@@ -77,9 +90,13 @@ Block mapObject(Object instance){
 void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 	uint8_t i;
 	Block repr = self->representation;
-	if(x<0 || x +self->lx > MAXX || y<0 || y + self->ly > MAXY){
+	if((x == self->x && y == self->y) ||x<=0 || x +self->lx >= MAXX || y<=0 || y + self->ly*4 >= MAXY){
 		return;
 	}
+
+	Block empty = emptyBlock(self->representation->x, self->representation->y , self->representation->lx, self->representation->ly);
+	drawBlock(empty);
+	releaseBlock(empty);
 
 	for(i=0; i< mainEnv->oPos; i++){
 		if( (x <= mainEnv->objectList[i]->x) &&
@@ -107,6 +124,7 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 	if(self->y%4 != y%4){
 		self->x = x;
 		self->y = y;
+		releaseBlock(self->representation);
 		self->representation = mapObject(self);
 
 	}

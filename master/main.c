@@ -8,7 +8,7 @@
 #include "timer.h"
 #include "buttons.h"
 
-
+#include "char.h"
 #include "display.h"
 #include "object.h"
 #include "block.h"
@@ -32,15 +32,18 @@ volatile Block blockList[MAXBLOCKS];
 //The Buttons are assigned to the inputBuffer in the following order (Most significant Bit first):
 //UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
 volatile uint8_t inputBuffer;
-volatile Environment env;
+
 
 void moveOnButton(Object self, Environment mainEnv){
 
+	char test[9];
+	itoa(mainEnv->buttons, test, 10);
+	print(test, 80, 8);
 	if(mainEnv->buttons & M_U){
-		self->move(self,mainEnv, self->x, self->y+1);
+		self->move(self,mainEnv, self->x, self->y-1);
 	}
 	else if(mainEnv->buttons & M_D){
-		self->move(self,mainEnv, self->x, self->y-1);
+		self->move(self,mainEnv, self->x, self->y+1);
 	}
 	else if(mainEnv->buttons & M_L){
 		self->move(self,mainEnv, self->x-1, self->y);
@@ -56,21 +59,11 @@ uint8_t nop(){return 0;}
 void init();
 
 
-
-void initEnvironment(Object* objectList, Block* blockList){
-    env->buttons =0;
-    env->time2 = getMsTimer();
-    env->gameState =0;
-    env->blockList = blockList;
-    env->bPos = 0;
-    env->objectList = objectList;
-    env->oPos = 0;
-}
-
-void updateEnvironment(){
+void updateEnvironment(Environment env){
 	cli();
 	env->buttons = inputBuffer;
 	sei();
+
 	env->time2 = getMsTimer();
 }
 
@@ -93,15 +86,24 @@ SIGNAL (TIMER0_COMPA_vect){
 int main(void)
 {
 	init();
-	Object obj1 = newObject(9,30,dino);
+    //Environment Initialization
+    Object objectList[MAXOBJECTS];
+    Block blockList[MAXBLOCKS];
+	Environment env = newEnvironment(objectList, blockList);
+	char test[9];
+	Object obj1 = newObject(40,40,dino);
 	obj1->think = &moveOnButton;
 	obj1->collide = &nop;
 	env->objectList[0]=obj1;
 	env->oPos++;
 	sei();
 	obj1->representation=mapObject(obj1);
+
 	while(1){
-		updateEnvironment();
+
+		updateEnvironment(env);
+
+	/**
 		if(env->buttons & M_U){
 			obj1->move(obj1,env, obj1->x, obj1->y+1);
 		}
@@ -109,17 +111,19 @@ int main(void)
 			obj1->move(obj1,env, obj1->x, obj1->y-1);
 		}
 		else if(env->buttons & M_L){
-			obj1->move(obj1,env, obj1->x-1, obj1->y);
+			obj1->move(obj1,env, obj1->x+1, obj1->y);
 		}
 		else if(env->buttons & M_R){
-			obj1->move(obj1, env, obj1->x+1, obj1->y);
+			obj1->move(obj1, env, obj1->x-1, obj1->y);
 		}
+	**/
 
-		//obj1->move(obj1, env, 9,28);
-		uint8_t i,j;
+		uint8_t i;
 
 		for(i=0; i<env->oPos; i++){
-			//env->objectList[i]->think(objectList[i], env);
+			itoa(env->buttons, test, 10);
+			print(test, 80, 6);
+			env->objectList[i]->think(env->objectList[i], env);
 			if(env->objectList[i]->representation==0){
 				env->objectList[i]->representation = mapObject(env->objectList[i]);
 			}
@@ -169,11 +173,6 @@ void init()
     TCCR0B |= (1<<CS00)|(1<<CS02);
     TIMSK0 |= (1<<OCIE0A);
     OCR0A = 255;
-
-    //Environment Initialization
-    Object objectList[MAXOBJECTS];
-    Block blockList[MAXBLOCKS];
-    initEnvironment(objectList, blockList);
 
 }
 
