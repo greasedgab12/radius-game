@@ -2,29 +2,24 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include "display.h"
-
-//set registers for window option 2 
-#define WINDOW_SETOPTIONS_RAM	0b10001011		//ram access control (cmd13)
-#define WINDOW_SETOPTIONS_LCD	0b11000110		//lcd mapping control (cmd19)
-
-#define WINDOW_ENABLE			0b11111001		//(cmd 34)
-#define WINDOW_DISABLE			0b11111000 		//(cmd 34)
-
-#define WINDOW_STARTCOL			0b11110100 		//dualcommand 2nd is coordinates (cmd30)
-#define WINDOW_STARTPAGE		0b11110101		//dualcommand 2nd is coordinates (cmd31)
-#define WINDOW_ENDCOL			0b11110110 		//dualcommand 2nd is coordinates (cmd32)
-#define WINDOW_ENDPAGE			0b11110111		//dualcommand 2nd is coordinates (cmd33)
-
+#include <avr/interrupt.h>
+#include <char.h>
+#include <inttypes.h>
 
 void initWindow()	//call before use of sendWindwo
 {
+	cli();
+
+
 	sendbyte(WINDOW_SETOPTIONS_RAM,0);
 	sendbyte(WINDOW_SETOPTIONS_LCD,0);
 	sendbyte(WINDOW_DISABLE,0);
+	sei();
 }
 
-void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, uint8_t *data)
+void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[])
 {
+	cli();
 	sendbyte(WINDOW_STARTCOL,0);
 	sendbyte(x,0);
 	sendbyte(WINDOW_STARTPAGE,0);
@@ -45,17 +40,19 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, uint8_t *data)
 		}
 	}
 	else{
-		for(counter =0; counter < lx*ly/4 +1; counter++){
+		for(counter =0; counter < lx*ly ; counter++){
 			sendbyte(0,1);
+			//  85 gray
 		}
 	}
 	sendbyte(WINDOW_DISABLE,0);
-
+	sei();
 }
 
 
 void sendbyte(uint8_t byte,uint8_t cd)
 {
+
 	int8_t i;
 	if(cd)
 		PORTB |= (1<<1);
@@ -71,6 +68,7 @@ void sendbyte(uint8_t byte,uint8_t cd)
 		PORTB |= (1<<5);
 	}
 	PORTB &= ~(1<<1);
+
 }
 
 void page(uint8_t x,uint8_t y,uint8_t h)//alle Pixel einer Page beschreiben
@@ -130,3 +128,5 @@ void displayInit(void)
 	sendbyte(175,0);//Bildschirm an
 	//~ PORTC |= 1;//Debug-LED an==Init zu Ende
 }
+
+

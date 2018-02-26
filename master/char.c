@@ -3,8 +3,35 @@
 #include <inttypes.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include <chars.h>
+#include <char.h>
 #include <stdlib.h>
+
+void sendChar(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t Bstabe)
+{
+    sendbyte(WINDOW_STARTCOL,0);
+    sendbyte(x,0);
+    sendbyte(WINDOW_STARTPAGE,0);
+    sendbyte(y,0);
+
+    sendbyte(WINDOW_ENDCOL,0);
+    sendbyte(x+lx-1,0);
+    sendbyte(WINDOW_ENDPAGE,0);
+    sendbyte(y+ly-1,0);
+
+    sendbyte(WINDOW_ENABLE,0);
+
+    uint8_t counter;
+    uint8_t upper_limit =  pgm_read_byte(&(alphabet[Bstabe][1]))+2;
+
+    if(Bstabe){
+
+        for(counter = 2; counter < upper_limit ;counter++)
+        {
+            sendbyte(pgm_read_byte(&(alphabet[Bstabe][counter])),1);
+        }
+    }
+    sendbyte(WINDOW_DISABLE,0);
+}
 
 void print(const char *text,uint8_t x,uint8_t y)
 {
@@ -16,16 +43,16 @@ void print(const char *text,uint8_t x,uint8_t y)
 	while(text[counter] != 0 )
 	{
 		uint8_t character = (uint8_t)text[counter];
-
-		if(character >=48 && character <= 57) offset = 47;
-		if(character >=65 && character <= 90) offset = 54;
-
-		if(character ==32) offset = 32;//space
-		if(character ==43) offset = 42;//+
-		if(character ==45) offset = 43;//-
-		if(character ==58) offset = 45;//:
-		if(character ==95) offset = 45;//_
-		if(character ==124) offset = 83;//|
+		// 0 - 41 = 42
+		if(character >=48 && character <= 57) offset = 45;  //stelle 3
+		else if(character >=65 && character <= 90) offset = 51; // stelle 14 - > 39
+		else if(character >=97 && character <= 122) offset = 83; // stelle 14 - > 39 keine klein B
+		else if(character ==32) offset = 32;//space stelle 0
+		else if(character ==43) offset = 42;//+	stelle 1
+		else if(character ==45) offset = 43;//-  stelle 2
+		else if(character ==58) offset = 45;//:  stelle 13
+		else if(character ==95) offset = 55;//_   stelle 41
+		else if(character ==124) offset = 83;//|	stelle 42
 
 		sendChar(x_move,y_move,6,2,character - offset);
 		x_move += 6;
@@ -50,7 +77,7 @@ void printN(const uint16_t *number,uint8_t x,uint8_t y)
 void printB(const uint8_t *number,uint8_t x,uint8_t y)
 {
 	char num[8];
-	itoa(number, num, 10);
+	itoa(number, num, 2);
 	print(num, x, y);
 }
 
