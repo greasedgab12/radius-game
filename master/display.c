@@ -6,20 +6,8 @@
 #include <char.h>
 #include <inttypes.h>
 
-void initWindow()	//call before use of sendWindwo
-{
-	cli();
-
-
-	sendbyte(WINDOW_SETOPTIONS_RAM,0);
-	sendbyte(WINDOW_SETOPTIONS_LCD,0);
-	sendbyte(WINDOW_DISABLE,0);
-	sei();
-}
-
 void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[])
 {
-	cli();
 	sendbyte(WINDOW_STARTCOL,0);
 	sendbyte(x,0);
 	sendbyte(WINDOW_STARTPAGE,0);
@@ -46,9 +34,36 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[]
 		}
 	}
 	sendbyte(WINDOW_DISABLE,0);
-	sei();
 }
 
+void displayForceOn(uint8_t option)
+{
+	if(option >= 1)option = 1;
+	sendbyte( DISPLAY_FORCE_ON | (0b00000001 & option)  ,0);
+}
+
+void displayInverse(uint8_t option)
+{
+	if(option >= 1)option = 1;
+	sendbyte( DISPLAY_INVERSE | (0b00000001 & option)  ,0);
+}
+
+
+void displayClear()
+{
+	uint16_t i;
+	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
+	sendbyte(16,0);
+	sendbyte(96,0);
+	for(i=0;i<4160;i++)//RAM-Ausspühlen, alles weiß
+	{
+		sendbyte(0,1);
+	}
+	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
+	sendbyte(16,0);
+	sendbyte(96,0);
+
+}
 
 void sendbyte(uint8_t byte,uint8_t cd)
 {
@@ -68,33 +83,9 @@ void sendbyte(uint8_t byte,uint8_t cd)
 		PORTB |= (1<<5);
 	}
 	PORTB &= ~(1<<1);
-
 }
 
-void page(uint8_t x,uint8_t y,uint8_t h)//alle Pixel einer Page beschreiben
-{
-	sendbyte(15&x,0);//Adressentranslation
-	sendbyte(16+(x>>4),0);
-	sendbyte(96+y,0);
-	sendbyte(h,1);
-}
-
-void clear(void)
-{
-	uint16_t i;
-	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
-	sendbyte(16,0);
-	sendbyte(96,0);
-	for(i=0;i<4160;i++)//RAM-Ausspühlen, alles weiß
-	{
-		sendbyte(0,1);
-	}
-	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
-	sendbyte(16,0);
-	sendbyte(96,0);
-}
-
-void displayInit(void)
+void displayInitPorts(void)
 {
 	DDRB |= (1<<5);//SCK
 	DDRB |= (1<<3);//SDA
@@ -104,29 +95,41 @@ void displayInit(void)
 	PORTB |= (1<<4);//kein RST
 	PORTB &= ~(1<<1);//CD auf low
 	PORTB &= ~(1<<5);//SCK auf low
-	PORTB |= (1<<0);_delay_us(10);PORTB &= ~(1<<0);//CS0 auf low
-	sendbyte(241,0);//cmd(27)
-	sendbyte(103,0);//cmd(27)
-	sendbyte(198,0);//LCD mapping Hierum cmd(19)
-	//~ sendbyte(192,0);//LCD mapping Hierum
-	sendbyte(64,0);
-	sendbyte(80,0);
-	sendbyte(43,0);
-	sendbyte(235,0);
-	sendbyte(129,0);//vbias contrast
-	sendbyte(95,0);
-	sendbyte(137,0); //------
+	PORTB |= (1<<0);
+	_delay_us(10);
+	PORTB &= ~(1<<0);//CS0 auf low
+}
+
+void displayInit(void)
+{
+	displayInitPorts();
+
+	sendbyte(SET_COM_END,0);
+	sendbyte(SET_COM_VALUE,0);
+
+	sendbyte(WINDOW_SETOPTIONS_LCD,0);
+
+	sendbyte(SET_SCRL_LINE_LSB_0,0);
+	sendbyte(SET_SCRL_LINE_MSB_0,0);
+	sendbyte(SET_PANEL_LOADING,0);
+	sendbyte(SET_DISPLAY_BIAS_RATIO,0);
+	sendbyte(SET_VBIAS_POTI,0);
+	sendbyte(VBIAS_VALUE,0);
+
+	sendbyte(SET_RAM_ADR_CTRL,0);
 	uint16_t i;
-	for(i=0;i<4160;i++)//RAM-Ausspühlen, alles weiß
+	for(i=0;i<4160;i++)
 	{
 		sendbyte(0,1);
 	}
-	//~ DDRC |= 1;//Debug-LED
-	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
-	sendbyte(16,0);
-	sendbyte(96,0);
-	sendbyte(175,0);//Bildschirm an
-	//~ PORTC |= 1;//Debug-LED an==Init zu Ende
+	sendbyte(WINDOW_SETOPTIONS_RAM,0);
+	sendbyte(SET_COLADR_LSB_0,0);
+	sendbyte(SET_COLADR_MSB_0,0);
+	sendbyte(SET_PAGE_ADDRESS,0);
+
+	sendbyte(WINDOW_DISABLE,0);
+	sendbyte(DISPLAY_ENABLE,0);
 }
+
 
 
