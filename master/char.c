@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include <chars.h>
+#include <char.h>
 #include <stdlib.h>
 
 void print(const char *text,uint8_t x,uint8_t y)
