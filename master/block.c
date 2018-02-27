@@ -6,9 +6,12 @@
  */
 
 #include <stdlib.h>
-#include "block.h"
 #include "display.h"
 #include "defines.h"
+#include "block.h"
+#include "char.h"
+#include "buttons.h"
+#include <util/delay.h>
 
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data){
 	Block self = (Block)malloc(sizeof(struct Block_struct));
@@ -53,88 +56,161 @@ void drawBlock(Block instance){
 		}
 	}
 	**/
-	if(instance->blockType & NOTDRAWN){
-		instance->blockType = DRAWN;
-	}
-	if(instance->blockType & DRAWONCE){
-		instance->blockType = DESTROY;
-	}
+
 }
 
-Block* checkBlockCollision(Block* blockList, uint8_t length){
-	//k takes the value of usedIndices[i] while pos is next free entry of the overlaps array.
-	uint8_t i,j,k,pos=0;
-	//Since we don't want Blocks to collide with multiple other Blocks, indices of Blocks
-	//that were involved in a collision are set to zero. The indices are saved in the usedIndices array.
-	uint8_t* usedIndices = malloc(length*sizeof(uint8_t));
-	//Array of our detected overlaps. Must be terminated with zero and is therefore one entry larger than MAXOVERLAPS.
-	Block* overlaps = (Block*)malloc((1 + MAXOVERLAPS )* sizeof(Block));
-	for(i=0;i<length;i++){
-		usedIndices[i] = i;
-	}
+void checkBlockCollision(Object* objectList, uint8_t length){
+	uint8_t i,j;
+	Block a,b;
+
 
 	for(i=0; i<length; i++){
+		a = objectList[i]->representation;
 		for(j=i+1; j<length; j++){
-			//Only query the Blocks if the index is non zero!
-			if(usedIndices[j]){
-				k=usedIndices[j];
-				//Find out, if Block[k] has coordinates within Block[i] borders.
-				if( (blockList[i]->x <= blockList[k]->x) &&
-					(blockList[k]->x <= blockList[i]->x + blockList[i]->lx) &&
-					(blockList[i]->y <= blockList[k]->y)&&
-					(blockList[k]->y <= blockList[i]->y + blockList[i]->ly)){
-					//When true, mark index of Block[k] as used.
-					usedIndices[j]=0;
-					//Write new Block into overlaps, unless maxium capacity is reached.
-					if(pos < MAXOVERLAPS){
-						overlaps[pos] = getOverlap(blockList[i], blockList[k]);
-						pos++;
-					}
-					else{
-						//If we are at maximum capacitance. Return overlap and ignore other potential collisions.
-						free(usedIndices);
-						overlaps[pos]=0;
-						return overlaps;
-					}
-				}
+			b = objectList[j]->representation;
+			if((a->blockType == NOTDRAWN || b->blockType == NOTDRAWN) && isColliding(a->x,a->y,a->lx,a->ly,b->x,b->y,b->lx,b->ly)){
+				Block overlap = getOverlap(a,b);
+				drawBlock(overlap);
+				releaseBlock(overlap);
 			}
 		}
 	}
-	free(usedIndices);
-	overlaps[pos] =0;
-	return overlaps;
 }
 
-Block getOverlap(Block b1, Block b2){
-	uint8_t x=0,y=0,dx, dy, dlx, dly;
+Block getOverlap(Block a, Block b){
+	uint8_t x=0,y=0,dx, dy, dlx, dly, posx, posy, poslx, posly;
 
-	dx = b1->x>b2->x ? b1->x-b2->x: b2->x-b1->x;
-	dy = b1->y>b2->y ? b1->y-b2->y: b2->y-b1->y;
+	dx 		= a->x>b->x		?	a->x-b->x	:	b->x-a->x;
+	dy 		= a->y>b->y		?	a->y-b->y	:	b->y-a->y;
 
-	dlx = b1->x>b2->x ? b2->lx-dx: b1->lx-dx;
-	dly = b1->y>b2->y ? b2->ly-dy: b1->ly-dy;
+	poslx = (a->x+a->lx)<(b->x+b->lx)?(a->x+a->lx):(b->x+b->lx);
+	posly = (a->y+a->ly)<(b->y+b->ly)?(a->y+a->ly):(b->y+b->ly);
+
+	posx 	= a->x>b->x		?	a->x		:	b->x;
+	posy 	= a->y>b->y		?	a->y		:	b->y;
+
+	dlx 	= poslx -posx;
+	dly 	= posly -posy;
 
 	uint8_t *ndata = calloc(dlx*dly +2 ,sizeof(uint8_t));
 	ndata[0] = dlx;
 	ndata[1] = dlx*dly;
 
-	for(x=0; x< dlx; x++){
-		for(y=0; y< dly; y++){
-			if(b2->x > b1->x && b2->y > b1->y){
-				ndata[2 + x*dly + y] = b1->data[2 + (x+dx)*b1->ly + y +dy] | b2->data[2 + x*b2->ly + y];
+	for(y=0;y<dly; y++){
+		for(x=0; x<dlx; x++){
+
+			if		(a->x <= b->x && a->y <= b->y){
+				ndata[2 + x*dly + y] =  a->data[2 + (x+dx)	*a->ly + y + dy] |
+										b->data[2 + (x)		*b->ly + y];
+
+
 			}
-			else if(b1->x > b2->x && b2->y > b1->y){
-				ndata[2 + x*dly + y] = b1->data[2 + x*b1->ly + y +dy] | b2->data[2 + (x+dx)*b2->ly + y];
+			else if	(b->x < a->x && a->y <= b->y){
+				ndata[2 + x*dly + y] =  a->data[2 + (x)		*a->ly + y + dy] |
+										b->data[2 + (x+dx)	*b->ly + y];
+
 			}
-			else if(b2->x > b1->x && b1->y > b2->y){
-				ndata[2 + x*dly + y] = b1->data[2 + (x+dx)*b1->ly + y ] | b2->data[2 + (x+dx)*b2->ly + y+dy];
+			else if	(a->x <= b->x && b->y < a->y){
+				ndata[2 + x*dly + y] =  a->data[2 + (x+dx)	*a->ly + y ] |
+										b->data[2 + (x)		*b->ly + y + dy];
+
 			}
-			else if(b1->x > b2->x && b1->y > b2->y){
-				ndata[2 + x*dly + y] = b1->data[2 + x*b1->ly + y] | b2->data[2 + (x+dx)*b2->ly + y + dy];
+			else{
+				ndata[2 + x*dly + y] =  a->data[2 + (x)		*a->ly + y ] |
+										b->data[2 + (x+dx)	*b->ly + y + dy];
+
 			}
+
 		}
 	}
-	Block nb = newBlock(x,y,ndata);
-	return nb;
+	return newBlock(posx,posy,ndata);
 
 }
+
+void removeSpace(Block oldBlock, uint8_t x, uint8_t y){
+	uint8_t dx, dy;
+	dx = oldBlock->x > x?oldBlock->x-x :x-oldBlock->x;
+	dy = oldBlock->y > y?oldBlock->y-y :y-oldBlock->y;
+	//If there is no overlap between the new and old position of the Block
+	//then draw white space in the shape of the old Block.
+	if( dx> oldBlock->lx || dy > oldBlock->ly || (dx == 0 && dy==0)){
+		sendWindow(oldBlock->x, oldBlock->y, oldBlock->lx, oldBlock->ly, 0);
+		return;
+	}
+
+	//Block0:
+	uint8_t nx,ny,lx,ly;
+	if(dy!=0){
+
+		if( oldBlock->y < y){
+			nx = oldBlock->x;
+			ny = oldBlock->y;
+		}
+		else{
+			nx = oldBlock->x;
+			ny = oldBlock->y + oldBlock->ly - dy;
+		}
+
+		ly = dy;
+		lx = oldBlock->lx;
+		sendWindow(nx,ny,lx,ly,0);
+	}
+
+	//Block1:
+	if(dx !=0){
+		if(oldBlock->y < y){
+			if(oldBlock->x < x){
+				nx = oldBlock->x;
+				ny = oldBlock->y + abs(dy);
+			}
+			else{
+				nx = oldBlock->x +oldBlock->lx - dx;
+				ny = oldBlock->y + abs(dy);
+			}
+		}
+		else{
+			if(oldBlock->x < x){
+				nx = oldBlock->x;
+				ny = oldBlock->y;
+			}
+			else{
+				nx = oldBlock->x +oldBlock->lx - dx;
+				ny = oldBlock->y;
+
+			}
+		}
+		lx = dx;
+		ly = oldBlock->ly - dy;
+		sendWindow(nx,ny,lx,ly,0);
+	}
+
+}
+uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1){
+	int8_t dx, dy, checkVal=0;
+	dx = x1-x0;
+	dy = y1-y0;
+
+	if(dx > 0){
+		if(dx <lx0){
+			checkVal++;
+		}
+	}
+	else{
+		if(abs(dx) <lx1){
+			checkVal++;
+		}
+	}
+
+	if(dy > 0){
+		if(dy <ly0){
+			checkVal++;
+		}
+	}
+	else{
+		if(abs(dy) <ly1){
+			checkVal++;
+		}
+	}
+	return checkVal==2?1:0;
+}
+

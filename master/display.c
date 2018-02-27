@@ -50,7 +50,7 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[]
 		}
 	}
 	else{
-		for(counter =0; counter < lx*ly +1; counter++){
+		for(counter =0; counter < lx*ly; counter++){
 			sendbyte(0,1);
 		}
 	}

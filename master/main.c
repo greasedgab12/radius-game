@@ -36,9 +36,6 @@ volatile uint8_t inputBuffer;
 
 void moveOnButton(Object self, Environment mainEnv){
 
-	char test[9];
-	itoa(mainEnv->buttons, test, 10);
-	print(test, 80, 8);
 	if(mainEnv->buttons & M_U){
 		self->move(self,mainEnv, self->x, self->y-1);
 	}
@@ -54,7 +51,8 @@ void moveOnButton(Object self, Environment mainEnv){
 
 }
 
-uint8_t nop(){return 0;}
+uint8_t nop0(){return 0;}
+void nop1(){;}
 
 void init();
 
@@ -90,39 +88,34 @@ int main(void)
     Object objectList[MAXOBJECTS];
     Block blockList[MAXBLOCKS];
 	Environment env = newEnvironment(objectList, blockList);
-	char test[9];
-	Object obj1 = newObject(40,40,dino);
+
+	Object obj1 = newObject(20,39,dino);
 	obj1->think = &moveOnButton;
-	obj1->collide = &nop;
+	obj1->collide = &nop0;
 	env->objectList[0]=obj1;
 	env->oPos++;
+
+	Object obj2 = newObject(60,40,dino);
+	obj2->think = &nop1;
+	obj2->collide = &nop0;
+	env->objectList[1]=obj2;
+	env->oPos++;
+
+	Object obj3 = newObject(70,43,dino);
+	obj3->think = &nop1;
+	obj3->collide = &nop0;
+	env->objectList[2]=obj3;
+	env->oPos++;
 	sei();
-	obj1->representation=mapObject(obj1);
+
 
 	while(1){
 
 		updateEnvironment(env);
 
-	/**
-		if(env->buttons & M_U){
-			obj1->move(obj1,env, obj1->x, obj1->y+1);
-		}
-		else if(env->buttons & M_D){
-			obj1->move(obj1,env, obj1->x, obj1->y-1);
-		}
-		else if(env->buttons & M_L){
-			obj1->move(obj1,env, obj1->x+1, obj1->y);
-		}
-		else if(env->buttons & M_R){
-			obj1->move(obj1, env, obj1->x-1, obj1->y);
-		}
-	**/
-
 		uint8_t i;
 
 		for(i=0; i<env->oPos; i++){
-			itoa(env->buttons, test, 10);
-			print(test, 80, 6);
 			env->objectList[i]->think(env->objectList[i], env);
 			if(env->objectList[i]->representation==0){
 				env->objectList[i]->representation = mapObject(env->objectList[i]);
@@ -132,27 +125,19 @@ int main(void)
 			}
 		}
 
-		//Block* overlaps = checkBlockCollision(env->blockList,env->bPos);
-		/**
-		for(i=0; i<env->bPos; i++){
-			while(env->blockList[i]->blockType == DESTROY){
-				releaseBlock(env->blockList[i]);
-				for(j=i; j<env->bPos-1; j++){
-					env->blockList[j] = env->blockList[j+1];
-				}
-				env->bPos= env->bPos>0?env->bPos-1:0;
+		checkBlockCollision(env->objectList,env->oPos);
+
+		for(i=0; i<env->oPos; i++){
+			if(env->objectList[i]->representation->blockType == NOTDRAWN){
+				env->objectList[i]->representation->blockType = DRAWN;
+			}
+			if(env->objectList[i]->representation->blockType == DRAWONCE){
+				env->objectList[i]->representation->blockType = DESTROY;
 			}
 		}
 
-		i=0;
-		while(overlaps[i]!=0){
-			drawBlock(overlaps[i]);
-			i++;
-		}
-		free(overlaps);
-		**/
-	}
 
+	}
 
 }
 

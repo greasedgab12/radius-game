@@ -1,5 +1,6 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
+#include <inttypes.h>
 
 
 void initWindow(void);

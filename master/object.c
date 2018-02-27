@@ -1,7 +1,7 @@
-#include "object.h"
-#include "block.h"
 #include <stdlib.h>
+#include "object.h"
 #include "display.h"
+#include "defines.h"
 
 Environment newEnvironment(Object* objectList, Block* blockList){
 	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
@@ -94,30 +94,27 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 		return;
 	}
 
-	Block empty = emptyBlock(self->representation->x, self->representation->y , self->representation->lx, self->representation->ly);
-	drawBlock(empty);
-	releaseBlock(empty);
+	removeSpace(repr, x, y);
 
 	for(i=0; i< mainEnv->oPos; i++){
-		if( (x <= mainEnv->objectList[i]->x) &&
-			(mainEnv->objectList[i]->x <= x + self->lx) &&
-			(y <= mainEnv->objectList[i]->y)&&
-			(mainEnv->objectList[i]->y <= y + self->ly)){
+		if( isColliding(x,y,self->lx, self->ly,
+				mainEnv->objectList[i]->x, mainEnv->objectList[i]->y,
+				mainEnv->objectList[i]->lx, mainEnv->objectList[i]->ly)){
 			if(self->collide(self, mainEnv->objectList[i])){
 				return;
 			}
 		}
 	}
+	//Search for collisions with blocks and set their state to NOTDRAWN to force redraw.
+	for(i=0; i<mainEnv->oPos; i++){
+		if( isColliding(repr->x, repr->y, repr->lx, repr->ly,
+				mainEnv->objectList[i]->representation->x, mainEnv->objectList[i]->representation->y,
+				mainEnv->objectList[i]->representation->lx, mainEnv->objectList[i]->representation->ly)){
+					if(mainEnv->objectList[i]->representation != repr){
+						mainEnv->objectList[i]->representation->blockType = NOTDRAWN;
 
 
-	for(i=0; i<mainEnv->bPos; i++){
-		if( (repr->x <= mainEnv->blockList[i]->x) &&
-			(mainEnv->objectList[i]->x <= repr->x + repr->lx) &&
-			(repr->y <= mainEnv->blockList[i]->y)&&
-			(mainEnv->blockList[i]->y <= repr->y + repr->ly)){
-			if(mainEnv->blockList[i] != repr){
-				mainEnv->blockList[i]->blockType = NOTDRAWN;
-			}
+					}
 		}
 	}
 
@@ -133,7 +130,9 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 		self->y = y;
 		repr->x = x;
 		repr->y = y/4;
+		repr->blockType = NOTDRAWN;
 	}
 
 
 }
+

@@ -4,16 +4,10 @@
 #include "defines.h"
 #include <inttypes.h>
 #include <avr/pgmspace.h>
+#include "structure.h"
 
 
 
-typedef struct Block_struct* Block;
-
-struct Block_struct{
-	uint8_t x,y,lx,ly;
-	uint8_t blockType;
-	uint8_t *data;
-};
 
 /* newBlock: Create new Block from existing Data ( in case of overlap).
  * uint8_t x: x coordinate of new Block.
@@ -37,12 +31,13 @@ Block emptyBlock(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly);
  */
 void releaseBlock(Block instance);
 
-/* checkBlockCollision: Check list of Blocks for collisions.
- * Block* blockList: List of Blocks for collision check.
+/* checkBlockCollision: Check list of Objects for collisions with their blocks.
+ * uint8_t pos: Position of current Block in objectList
+ * Object* objectList: List of Objects for collision check.
  * uint8_t length: Length of that list.
- * return Block*: List of fused overlapping Blocks terminated with a nullptr!
+ *
 */
-Block* checkBlockCollision(Block* blockList, uint8_t length);
+void checkBlockCollision(Object* objectList, uint8_t length);
 
 /* getOverlap: Calculate and allocate overlapping block.
  * Block b1: first Block
@@ -55,5 +50,19 @@ Block getOverlap(Block b1, Block b2);
  * Block instance: Block to draw.
  */
 void drawBlock(Block instance);
+
+/* removeSpace: Draws freed space of moved Block.
+ * Block oldBlock: Block before executed movement.
+ * uint8_t x,y: Target position of movement.
+ */
+void removeSpace(Block oldBlock, uint8_t x, uint8_t y);
+
+
+/** isColliding: Checks given coordinates for collision/overlap.
+ * uin8_t x0,y0,lx0,ly0: Position and size of the first object.
+ * uin8_t x0,y0,lx0,ly0: Position and size of the second object.
+ * return uint8_t: 1 in case of collision, 0 otherwise.
+ */
+uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1);
 
 #endif /* MASTER_BLOCK_H_ */
