@@ -32,7 +32,6 @@ Block emptyBlock(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly);
 void releaseBlock(Block instance);
 
 /* checkBlockCollision: Check list of Objects for collisions with their blocks.
- * uint8_t pos: Position of current Block in objectList
  * Object* objectList: List of Objects for collision check.
  * uint8_t length: Length of that list.
  *

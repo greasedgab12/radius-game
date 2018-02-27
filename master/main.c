@@ -26,7 +26,6 @@ volatile const uint8_t dino[] = {28,196,      //dino.bmp
 
 
 volatile Object objectList[MAXOBJECTS];
-volatile Block blockList[MAXBLOCKS];
 
 
 //The Buttons are assigned to the inputBuffer in the following order (Most significant Bit first):
@@ -62,11 +61,8 @@ void updateEnvironment(Environment env){
 	env->buttons = inputBuffer;
 	sei();
 
-	env->time2 = getMsTimer();
+	env->time = getMsTimer();
 }
-
-
-
 
 
 SIGNAL (TIMER0_COMPA_vect){
@@ -87,7 +83,7 @@ int main(void)
     //Environment Initialization
     Object objectList[MAXOBJECTS];
     Block blockList[MAXBLOCKS];
-	Environment env = newEnvironment(objectList, blockList);
+	Environment env = newEnvironment(objectList);
 
 	Object obj1 = newObject(20,39,dino);
 	obj1->think = &moveOnButton;

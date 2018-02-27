@@ -4,7 +4,11 @@
 #include "structure.h"
 
 
+/**newEnvironment: create new Environment structure
+ *
+ */
 
+Environment newEnvironment(Object* objectList);
 
 /* newObject: allocate memory for a object with initial data.
  * uint8_t x: x-coordinate of Object.

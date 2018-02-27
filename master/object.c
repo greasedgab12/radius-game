@@ -2,12 +2,13 @@
 #include "object.h"
 #include "display.h"
 #include "defines.h"
+#include "block.h"
+#include "timer.h"
 
-Environment newEnvironment(Object* objectList, Block* blockList){
+Environment newEnvironment(Object* objectList){
 	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
-    self->time2 = getMsTimer();
+    self->time = getMsTimer();
     self->gameState =0;
-    self->blockList = blockList;
     self->bPos = 0;
     self->objectList = objectList;
     self->oPos = 0;

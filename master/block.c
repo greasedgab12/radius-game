@@ -11,7 +11,6 @@
 #include "block.h"
 #include "char.h"
 #include "buttons.h"
-#include <util/delay.h>
 
 Block newBlock(uint8_t x, uint8_t y, uint8_t *data){
 	Block self = (Block)malloc(sizeof(struct Block_struct));
