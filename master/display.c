@@ -2,8 +2,6 @@
 #include <avr/io.h>
 #include <inttypes.h>
 #include "display.h"
-#include <avr/interrupt.h>
-#include "char.h"
 
 //set registers for window option 2 
 #define WINDOW_SETOPTIONS_RAM	0b10001011		//ram access control (cmd13)
@@ -20,16 +18,13 @@
 
 void initWindow()	//call before use of sendWindwo
 {
-	cli();
 	sendbyte(WINDOW_SETOPTIONS_RAM,0);
 	sendbyte(WINDOW_SETOPTIONS_LCD,0);
 	sendbyte(WINDOW_DISABLE,0);
-	sei();
 }
 
-void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[])
+void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, uint8_t *data)
 {
-	cli();
 	sendbyte(WINDOW_STARTCOL,0);
 	sendbyte(x,0);
 	sendbyte(WINDOW_STARTPAGE,0);
@@ -50,18 +45,17 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[]
 		}
 	}
 	else{
-		for(counter =0; counter < lx*ly; counter++){
+		for(counter =0; counter < lx*ly/4 +1; counter++){
 			sendbyte(0,1);
 		}
 	}
 	sendbyte(WINDOW_DISABLE,0);
-	sei();
+
 }
 
 
 void sendbyte(uint8_t byte,uint8_t cd)
 {
-
 	int8_t i;
 	if(cd)
 		PORTB |= (1<<1);
@@ -77,7 +71,6 @@ void sendbyte(uint8_t byte,uint8_t cd)
 		PORTB |= (1<<5);
 	}
 	PORTB &= ~(1<<1);
-
 }
 
 void page(uint8_t x,uint8_t y,uint8_t h)//alle Pixel einer Page beschreiben
@@ -136,38 +129,4 @@ void displayInit(void)
 	sendbyte(96,0);
 	sendbyte(175,0);//Bildschirm an
 	//~ PORTC |= 1;//Debug-LED an==Init zu Ende
-}
-
-void sendChar(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t Bstabe)
-{
-
-    sendbyte(WINDOW_STARTCOL,0);
-    sendbyte(x,0);
-    sendbyte(WINDOW_STARTPAGE,0);
-    sendbyte(y,0);
-
-    sendbyte(WINDOW_ENDCOL,0);
-    sendbyte(x+lx-1,0);
-    sendbyte(WINDOW_ENDPAGE,0);
-    sendbyte(y+ly-1,0);
-
-    sendbyte(WINDOW_ENABLE,0);
-
-    uint8_t counter;
-    uint8_t upper_limit =  pgm_read_byte(&(alphabet[Bstabe-1][1]))+2;
-
-    if(Bstabe){
-
-        for(counter = 2; counter < upper_limit ;counter++)
-        {
-            sendbyte(pgm_read_byte(&(alphabet[Bstabe-1][counter])),1);
-        }
-    }
-    //else{
-    //    for(counter = 2; counter < upper_limit ;counter++)
-    //    {
-    //        sendbyte(0,1);
-    //    }
-    //}
-    sendbyte(WINDOW_DISABLE,0);
 }
