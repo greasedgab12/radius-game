@@ -32,6 +32,14 @@
 #define DRAWN 1
 #define NOTDRAWN 0
 
+//Definitions for entities.
+#define FRICTION 2
+//Definitoins of objects.
+#define PLAYER 1
+#define PLAYER_PROJECTILE 2
+#define ENEMY 3
+#define ENEMY_PROJECTILE 4
+
 
 
 #endif /* MASTER_DEFINES_H_ */

@@ -91,7 +91,10 @@ Block mapObject(Object instance){
 void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 	uint8_t i;
 	Block repr = self->representation;
-	if((x == self->x && y == self->y) ||x<=0 || x +self->lx >= MAXX || y<=0 || y + self->ly*4 >= MAXY){
+	if((x == self->x && y == self->y)){
+		return;
+	}
+	if(x<0 || x +self->lx >= MAXX || y<0 || y + self->ly*4 >= MAXY){
 		return;
 	}
 

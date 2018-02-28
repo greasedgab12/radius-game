@@ -13,6 +13,7 @@
 #include "object.h"
 #include "block.h"
 #include "defines.h"
+#include "entities.h"
 
 volatile const uint8_t dino[] = {28,196,      //dino.bmp
 0xff,0xff,0xff,0xff,0xff,0xff,0x3f,0x3,0x0,0x0,0x0,0x0,0x0,0x30,0x33,0x0,0x0,0x0,0x0,0x0,0x33,0x3,0x0,0x0,0xc,0xc,0xc,0x30,
@@ -84,23 +85,10 @@ int main(void)
     Object objectList[MAXOBJECTS];
 	Environment env = newEnvironment(objectList);
 
-	Object obj1 = newObject(20,39,dino);
-	obj1->think = &moveOnButton;
-	obj1->collide = &nop0;
-	env->objectList[0]=obj1;
+	Object obj1 = newPlayer(20,20);
+	env->objectList[env->oPos] = obj1;
 	env->oPos++;
 
-	Object obj2 = newObject(60,40,dino);
-	obj2->think = &nop1;
-	obj2->collide = &nop0;
-	env->objectList[1]=obj2;
-	env->oPos++;
-
-	Object obj3 = newObject(70,43,dino);
-	obj3->think = &nop1;
-	obj3->collide = &nop0;
-	env->objectList[2]=obj3;
-	env->oPos++;
 	sei();
 
 
