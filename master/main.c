@@ -82,7 +82,6 @@ int main(void)
 	init();
     //Environment Initialization
     Object objectList[MAXOBJECTS];
-    Block blockList[MAXBLOCKS];
 	Environment env = newEnvironment(objectList);
 
 	Object obj1 = newObject(20,39,dino);
@@ -147,7 +146,6 @@ void init()
 	timerInit();  // "Systemzeit" initialisieren
 	buttonsInit();
 	displayInit();
-	initWindow();
 
 	//Timer0 Initialization
     TCCR0A |= (1<<WGM01);
