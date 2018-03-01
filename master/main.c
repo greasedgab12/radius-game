@@ -89,6 +89,13 @@ int main(void)
 	env->objectList[env->oPos] = obj1;
 	env->oPos++;
 
+	Object obj2 = newObject(50,50, dino);
+	obj2->think = &noOp;
+	obj2->collide = &simpleCollide;
+	env->objectList[env->oPos] = obj2;
+	env->oPos++;
+
+
 	sei();
 
 

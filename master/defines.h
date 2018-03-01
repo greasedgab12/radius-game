@@ -12,6 +12,8 @@
 #define MAXOBJECTS 32
 #define MAXBLOCKS 32
 #define MAXOVERLAPS 16
+#define MINX 0
+#define MINY 8
 #define MAXX 160
 #define MAXY 104
 

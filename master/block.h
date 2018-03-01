@@ -60,7 +60,7 @@ void removeSpace(Block oldBlock, uint8_t x, uint8_t y);
 /** isColliding: Checks given coordinates for collision/overlap.
  * uin8_t x0,y0,lx0,ly0: Position and size of the first object.
  * uin8_t x0,y0,lx0,ly0: Position and size of the second object.
- * return uint8_t: 1 in case of collision, 0 otherwise.
+ * return int8_t: returns minimal overlapping coordinate or zero for no collision.
  */
 uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1);
 

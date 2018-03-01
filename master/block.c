@@ -151,6 +151,12 @@ void removeSpace(Block oldBlock, uint8_t x, uint8_t y){
 		}
 
 		ly = dy;
+
+		if(oldBlock->y > y && y%4==0){
+			ny = ny ==0 ? 0 : ny-1;
+			ly = ny + ly +1 < MAXY ? ly +1: ly;
+		}
+
 		lx = oldBlock->lx;
 		sendWindow(nx,ny,lx,ly,0);
 	}
@@ -184,14 +190,19 @@ void removeSpace(Block oldBlock, uint8_t x, uint8_t y){
 	}
 
 }
+
+
 uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1){
-	int8_t dx, dy, checkVal=0;
+	int8_t dx, dy;
+	uint8_t checkVal=0;
 	dx = x1-x0;
 	dy = y1-y0;
+
 
 	if(dx > 0){
 		if(dx <lx0){
 			checkVal++;
+
 		}
 	}
 	else{
@@ -203,13 +214,20 @@ uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uin
 	if(dy > 0){
 		if(dy <ly0){
 			checkVal++;
+
 		}
 	}
 	else{
 		if(abs(dy) <ly1){
 			checkVal++;
+
 		}
 	}
-	return checkVal==2?1:0;
+	if(checkVal==2){
+		return 1;
+	}
+	else{
+		return 0;
+	}
 }
 

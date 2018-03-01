@@ -38,9 +38,11 @@ void playerThink(Object self, Environment mainEnv);
 
 uint8_t playerCollide(Object self, Object other);
 
-void noOP();
+void noOp();
 
-uint8_t noCollision();
+uint8_t noCollide(Object self, Object other);
+
+uint8_t simpleCollide(Object self, Object other);
 
 
 

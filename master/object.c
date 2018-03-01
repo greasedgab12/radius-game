@@ -87,40 +87,80 @@ Block mapObject(Object instance){
 		return newBlock(bx,by,ndata);
 	}
 }
-
+/**ToDO: Resolve drawing error with big objects near the upper border.
+ *
+ */
 void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 	uint8_t i;
+
 	Block repr = self->representation;
-	if((x == self->x && y == self->y)){
-		return;
+
+	//If the coordinates stay the same, then nothing is to be done.
+		if((x == self->x && y == self->y)){
+				return;
+		}
+
+
+	//Collision detection.
+
+	//Check for collisions with borders:
+	//Set the target coordinates to the last valid ones before the collision.
+
+		if(x<=MINX || x +self->lx >= MAXX){
+		int8_t ov_x;
+		ov_x = x<=MINX? MINX -x +1: MAXX - (x + self->lx + 1);
+		x+= ov_x;
 	}
-	if(x<0 || x +self->lx >= MAXX || y<0 || y + self->ly*4 >= MAXY){
-		return;
+	if( y<=MINY || y + self->ly*4 >= MAXY){
+		int8_t ov_y;
+		ov_y = y<=MINY? MINY -y +1: MAXY - (y + self->ly*4  +1);
+		y+= ov_y;
 	}
 
-	removeSpace(repr, x, y);
 
 	for(i=0; i< mainEnv->oPos; i++){
-		if( isColliding(x,y,self->lx, self->ly,
-				mainEnv->objectList[i]->x, mainEnv->objectList[i]->y,
-				mainEnv->objectList[i]->lx, mainEnv->objectList[i]->ly)){
-			if(self->collide(self, mainEnv->objectList[i])){
-				return;
+		if(mainEnv->objectList[i]!= self){
+			if(isColliding(self->x, self->y, self->lx, self->ly ,
+					mainEnv->objectList[i]->x,mainEnv->objectList[i]->y, mainEnv->objectList[i]->lx, mainEnv->objectList[i]->ly)){
+				if(self->collide(self, mainEnv->objectList[i])){
+
+					if(self->x < mainEnv->objectList[i]->x){
+						x += mainEnv->objectList[i]->x - (self->x + self->lx);
+					}
+					else{
+						 x += mainEnv->objectList[i]->x +mainEnv->objectList[i]->lx - self->x;
+					}
+					if(self->y < mainEnv->objectList[i]->y){
+						y += mainEnv->objectList[i]->y - (self->y + self->ly);
+					}
+					else{
+						 y += mainEnv->objectList[i]->y +mainEnv->objectList[i]->ly - self->y;
+					}
+					break;
+				}
 			}
-		}
+}
 	}
+
+	//If the coordinates stay the same, then nothing is to be done.
+		if((x == self->x && y == self->y)){
+				return;
+		}
+
+	//Actual Movement of the Object.
 	//Search for collisions with blocks and set their state to NOTDRAWN to force redraw.
 	for(i=0; i<mainEnv->oPos; i++){
-		if( isColliding(repr->x, repr->y, repr->lx, repr->ly,
-				mainEnv->objectList[i]->representation->x, mainEnv->objectList[i]->representation->y,
-				mainEnv->objectList[i]->representation->lx, mainEnv->objectList[i]->representation->ly)){
-					if(mainEnv->objectList[i]->representation != repr){
-						mainEnv->objectList[i]->representation->blockType = NOTDRAWN;
+		if(mainEnv->objectList[i]->representation != repr){
+			if( isColliding(repr->x, repr->y, repr->lx, repr->ly,
+					mainEnv->objectList[i]->representation->x, mainEnv->objectList[i]->representation->y,
+					mainEnv->objectList[i]->representation->lx, mainEnv->objectList[i]->representation->ly)){
 
-
+							mainEnv->objectList[i]->representation->blockType = NOTDRAWN;
 					}
 		}
 	}
+
+	removeSpace(repr, x, y);
 
 	if(self->y%4 != y%4){
 		self->x = x;
@@ -136,6 +176,7 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 		repr->y = y/4;
 		repr->blockType = NOTDRAWN;
 	}
+
 
 
 }
