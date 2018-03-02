@@ -66,6 +66,9 @@ void playerThink(Object self, Environment mainEnv){
 		a_x = env->acceleration;
 	}
 	if(((uint16_t) mainEnv->time) >= env->v_time + env->v_delay){
+		printN(env->v_x , 80,0);
+		printN(env->v_y , 80,2);
+
 		env->v_time = mainEnv->time;
 		itoa(env->v_time, text, 10);
 		print(text,0,0);
@@ -158,7 +161,24 @@ uint8_t noCollide(Object self, Object other){
 }
 
 uint8_t simpleCollide(Object self, Object other){
+	rebound(other, 0);
 	return 1;
 }
 
+void rebound(Object self, uint8_t cff){
+	if(self->type == PLAYER){
+		PlayerEnv env = (PlayerEnv) self->objectEnv;
+		env->v_x = -env->v_x;
+		env->v_y = -env->v_y;
+		env->v_x += env->v_x<0? cff: -cff;
+		env->v_y += env->v_y<0? cff: -cff;
+	}
+}
 
+void drag(Object self, uint8_t cff){
+	if(self->type == PLAYER){
+			PlayerEnv env = (PlayerEnv) self->objectEnv;
+			env->v_x += env->v_x<0? cff: -cff;
+			env->v_y += env->v_y<0? cff: -cff;
+		}
+}

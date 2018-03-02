@@ -44,6 +44,10 @@ uint8_t noCollide(Object self, Object other);
 
 uint8_t simpleCollide(Object self, Object other);
 
+void rebound(Object self, uint8_t cff);
+
+void drag(Object self, uint8_t cff);
+
 
 
 #endif /* MASTER_ENTITIES_H_ */
