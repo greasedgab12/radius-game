@@ -92,21 +92,20 @@ Block mapObject(Object instance){
  */
 void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 	uint8_t i;
-
 	Block repr = self->representation;
-
+	/**
 	//If the coordinates stay the same, then nothing is to be done.
-		if((x == self->x && y == self->y)){
-				return;
-		}
-
+	if((x == self->x && y == self->y)){
+			return;
+	}
+	 **/
 
 	//Collision detection.
 
 	//Check for collisions with borders:
 	//Set the target coordinates to the last valid ones before the collision.
 
-		if(x<=MINX || x +self->lx >= MAXX){
+	if(x<=MINX || x +self->lx >= MAXX){
 		int8_t ov_x;
 		ov_x = x<=MINX? MINX -x +1: MAXX - (x + self->lx + 1);
 		x+= ov_x;
@@ -120,33 +119,50 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 
 	for(i=0; i< mainEnv->oPos; i++){
 		if(mainEnv->objectList[i]!= self){
-			if(isColliding(self->x, self->y, self->lx, self->ly ,
-					mainEnv->objectList[i]->x,mainEnv->objectList[i]->y, mainEnv->objectList[i]->lx, mainEnv->objectList[i]->ly)){
-				if(self->collide(self, mainEnv->objectList[i])){
+			Object other = mainEnv->objectList[i];
+			if(isColliding(x, y, self->lx, self->ly*4 ,
+					other->x,other->y, other->lx, other->ly*4)){
+				if(self->collide(self, other)){
+					uint8_t tx,ty;
+					if(self->x < other->x){
+						tx = other->x - self->lx;
+					}
+					else{
+						tx = other->x +other->lx;
+					}
+					if(self->y < other->y){
+						ty = other->y -self->ly*4;
+					}
+					else{
+						ty = other->y +other->ly*4;
+					}
+					uint8_t dx,dy;
 
-					if(self->x < mainEnv->objectList[i]->x){
-						x += mainEnv->objectList[i]->x - (self->x + self->lx);
+					dx = self->x > tx? self->x - tx : tx - self->x;
+					dy = self->y > ty? self->y - ty : ty - self->y;
+
+					if(tx*tx+y*y <= x*x+ty*ty){
+						x=tx;
 					}
 					else{
-						 x += mainEnv->objectList[i]->x +mainEnv->objectList[i]->lx - self->x;
+						y=ty;
+
 					}
-					if(self->y < mainEnv->objectList[i]->y){
-						y += mainEnv->objectList[i]->y - (self->y + self->ly);
-					}
-					else{
-						 y += mainEnv->objectList[i]->y +mainEnv->objectList[i]->ly - self->y;
-					}
+					printN(dx,50,0);
+					printN(dy,50,2);
 					break;
 				}
+
 			}
+
 }
 	}
-
+	/**
 	//If the coordinates stay the same, then nothing is to be done.
 		if((x == self->x && y == self->y)){
 				return;
 		}
-
+	**/
 	//Actual Movement of the Object.
 	//Search for collisions with blocks and set their state to NOTDRAWN to force redraw.
 	for(i=0; i<mainEnv->oPos; i++){

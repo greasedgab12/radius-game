@@ -199,34 +199,36 @@ uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uin
 	dy = y1-y0;
 
 
-	if(dx > 0){
+	if(dx >= 0){
 		if(dx <lx0){
 			checkVal++;
 
 		}
 	}
-	else{
+	else if(dx < 0){
 		if(abs(dx) <lx1){
 			checkVal++;
 		}
 	}
 
-	if(dy > 0){
+	if(dy >= 0){
 		if(dy <ly0){
 			checkVal++;
 
 		}
 	}
-	else{
+	else if(dy <0){
 		if(abs(dy) <ly1){
 			checkVal++;
 
 		}
 	}
 	if(checkVal==2){
+		print("YES",0,2);
 		return 1;
 	}
 	else{
+		print("NO ",0,2);
 		return 0;
 	}
 }
