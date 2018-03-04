@@ -2,128 +2,151 @@
 #include "object.h"
 #include "display.h"
 #include "defines.h"
-#include "block.h"
 #include "timer.h"
 
-Environment newEnvironment(Object* objectList){
-	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
-    self->time = getMsTimer();
-    self->gameState =0;
-    self->bPos = 0;
-    self->objectList = objectList;
-    self->oPos = 0;
-    self->buttons =0;
-    return self;
-}
 
-Object newObject(uint8_t x, uint8_t y, const uint8_t *data){
+
+Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *data){
 
     Object self = (Object)malloc(sizeof(struct Object_Struct));
 
     self->x = x;
     self->y = y;
-
+    self->py = y/4;
+    self->isAlive = 1;
+    self->lx =lx;
+    self->ly =ly;
     self->setData = &setObjectData;
     self->setData(self, data);
+    self->msly = self->sly;
+    self->msly += y%4?1:0;
+    self->drawState = NOTDRAWN;
+
     self->setXY = &setObjectXY;
-    self->move = &moveObject;
-    self->representation =0;
+
+
     return self;
 }
 
+
 void releaseObject(Object instance){
-	releaseBlock(instance->representation);
 	free(instance->objectEnv);
 	free(instance);
 }
 
+
 void setObjectXY(Object self, uint8_t x, uint8_t y){
     self->x = x;
     self->y = y;
+    self->py = y/4;
+    self->msly = self->sly;
+    self->msly += y%4?1:0;
 }
 
 void setObjectData(Object self, const uint8_t *data){
-    self->lx = data[0];
-    self->ly = data[1]/data[0];
+    self->slx = data[0];
+    self->sly = data[1]/data[0];
+    self->msly = self->sly;
+    self->msly+=(self->y%4?1:0);
     self->data= data;
 }
 
-Block mapObject(Object instance){
-	uint8_t offset,x,y,bx,by,blx,bly;
-	uint8_t *ndata;
-	offset = (instance->y%4)*2;
-	bx = instance->x;
-	blx = instance->lx;
+void drawObject(Object instance){
+	uint8_t *mdata;
+	mdata = mapData(instance->data, instance->y);
+	sendWindow(instance->x, instance->py,mdata[0], mdata[1]/mdata[0], mdata);
+	free(mdata);
+}
+uint8_t* mapData(const uint8_t* data, uint8_t ty){
+	uint8_t offset,ply,lx, ly, x, y;
+	uint8_t* ndata;
+	offset = (ty%4)*2;
+	lx = data[0];
+	ly = data[1]/lx;
 	if(offset){
-		by = instance->y/4;
-		bly = instance->ly+1;
+		ply = data[1]/data[0] +1;
 		//Allocate memory for ndata array.
-		ndata = calloc((blx*bly + 2),sizeof(uint8_t));
+		ndata = calloc((lx*ply + 2),sizeof(uint8_t));
+
+
 		//Set first two entries to width of Object and overall length of the array.
-		ndata[0] = blx;
-		ndata[1] = ndata[0]*(bly);
-		for(x=0; x<blx; x++){
+		ndata[0] = lx;
+		ndata[1] = lx*(ply);
+		for(x=0; x<lx; x++){
 			//Set the first row to the orignal data shifted to the left by offset.
-			ndata[2 + x*(bly)] = instance->data[2+ x*instance->ly]<<(offset);
-			for(y=1; y<instance->ly; y++){
+			ndata[2 + x*(ply)] = data[2+ x*ly]<<(offset);
+			for(y=1; y<ly; y++){
 				//Set all but last row to the union of the current and previos row of the original data, shifted left and right by offset.
-				ndata[2 + x*(bly) +y] = (instance->data[2+ x*instance->ly +y-1]>>(8-offset))|(instance->data[2+ x*instance->ly +y]<<(offset));
+				ndata[2 + x*(ply) +y] = (data[2+ x*ly +y-1]>>(8-offset))|(data[2+ x*ly +y]<<(offset));
 			}
 			//Set the last row to the orignal data shifted to the left by offset.
-			ndata[2 + (x+1)*bly -1] = (instance->data[2+ x*instance->ly +y -1]>>(8-offset));
+			ndata[2 + (x+1)*ply -1] = (data[2+ x*ly +y -1]>>(8-offset));
 		}
-		return newBlock(bx,by,ndata);
+
 	}
 	else{
 		//Without offset only the y coordinate is mapped.
-		ndata = calloc(instance->data[1] +2, sizeof(uint8_t));
-		ndata[0] = blx;
-		ndata[1] = instance->data[1];
-		for(x=2; x<instance->data[1]+2; x++){
-			ndata[x] = instance->data[x];
+		ndata = calloc(data[1] +2, sizeof(uint8_t));
+		ndata[0] = lx;
+		ndata[1] = data[1];
+		for(x=2; x<data[1]+2; x++){
+			ndata[x] = data[x];
 		}
-		by = instance->y/4;
-		bly = instance->ly;
-		return newBlock(bx,by,ndata);
 	}
+	return ndata;
+
 }
-/**ToDO: Resolve drawing error with big objects near the upper border.
- *
- */
-void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
+void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 	uint8_t i;
-	Block repr = self->representation;
-	/**
+
+
 	//If the coordinates stay the same, then nothing is to be done.
-	if((x == self->x && y == self->y)){
+	if((r_x == 0 && r_y == 0)){
 			return;
 	}
-	 **/
+
 
 	//Collision detection.
 
 	//Check for collisions with borders:
 	//Set the target coordinates to the last valid ones before the collision.
-
-	if(x<=MINX || x +self->lx >= MAXX){
-		int8_t ov_x;
-		ov_x = x<=MINX? MINX -x +1: MAXX - (x + self->lx + 1);
-		x+= ov_x;
+	uint8_t isCollided=0;
+	uint8_t x = self->x +r_x;
+	uint8_t y = self->y +r_y;
+	if(r_x < 0 && r_x < MINX-self->x){
+		x = MINX;
+		isCollided++;
 	}
-	if( y<=MINY || y + self->ly*4 >= MAXY){
-		int8_t ov_y;
-		ov_y = y<=MINY? MINY -y +1: MAXY - (y + self->ly*4  +1);
-		y+= ov_y;
+	else if(r_x >0 && r_x > MAXX-self->x-self->lx){
+		x = MAXX-self->lx;
+		isCollided++;
+	}
+	if(r_y < 0 && r_y < MINY-self->y){
+		y = MINY;
+		isCollided++;
+	}
+	else if(r_y >0 && r_y > MAXY-self->y-self->ly*4){
+		y = MAXY-self->ly*4;
+		isCollided++;
+	}
+	//Tell the object, that it collided with the borders
+	if(isCollided){
+		self->collide(self, 0, 0);
 	}
 
-
+	//Check if the Object collides with other objects in the main Environment.
 	for(i=0; i< mainEnv->oPos; i++){
+		//Objects cannot collide with themselves.
 		if(mainEnv->objectList[i]!= self){
+			//ToDoRemove variable other in final build.
 			Object other = mainEnv->objectList[i];
-			if(isColliding(x, y, self->lx, self->ly*4 ,
-					other->x,other->y, other->lx, other->ly*4)){
-				if(self->collide(self, other)){
+			//Is self colliding with an object at the new position?
+			if(isColliding(x, y, self->lx, self->ly ,
+					other->x,other->y, other->lx, other->ly)){
+				//Only change the movement target, if self and the collision partner are allowed to collide.
+				if(self->collide(self, other,0)){
 					uint8_t tx,ty;
+					//Change movement target to the closest position before collision with the object.
 					if(self->x < other->x){
 						tx = other->x - self->lx;
 					}
@@ -131,16 +154,12 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 						tx = other->x +other->lx;
 					}
 					if(self->y < other->y){
-						ty = other->y -self->ly*4;
+						ty = other->y -self->ly;
 					}
 					else{
-						ty = other->y +other->ly*4;
+						ty = other->y +other->ly;
 					}
-					uint8_t dx,dy;
-
-					dx = self->x > tx? self->x - tx : tx - self->x;
-					dy = self->y > ty? self->y - ty : ty - self->y;
-
+					//Move only to the positon closest to the current position.
 					if(tx*tx+y*y <= x*x+ty*ty){
 						x=tx;
 					}
@@ -148,52 +167,218 @@ void moveObject(Object self, Environment mainEnv, uint8_t x, uint8_t y){
 						y=ty;
 
 					}
-					printN(dx,50,0);
-					printN(dy,50,2);
+					//An Object may only collide once during movement.
 					break;
 				}
-
 			}
 
-}
+		}
 	}
-	/**
+
 	//If the coordinates stay the same, then nothing is to be done.
 		if((x == self->x && y == self->y)){
 				return;
 		}
-	**/
-	//Actual Movement of the Object.
-	//Search for collisions with blocks and set their state to NOTDRAWN to force redraw.
-	for(i=0; i<mainEnv->oPos; i++){
-		if(mainEnv->objectList[i]->representation != repr){
-			if( isColliding(repr->x, repr->y, repr->lx, repr->ly,
-					mainEnv->objectList[i]->representation->x, mainEnv->objectList[i]->representation->y,
-					mainEnv->objectList[i]->representation->lx, mainEnv->objectList[i]->representation->ly)){
 
-							mainEnv->objectList[i]->representation->blockType = NOTDRAWN;
-					}
+	//Actual Movement of the Object.
+	/**Search for collisions with blocks at the current position and set their state to NOTDRAWN to force redraw.
+	 * This won't leave a 'hole' in overlapped blocks when the block moves.
+	 */
+	for(i=0; i<mainEnv->oPos; i++){
+		Object other = mainEnv->objectList[i];
+		if(self != other){
+			if(isColliding(x, y/4, self->slx, self->msly,
+					other->x, other->py, other->slx, other->msly)){
+				mainEnv->objectList[i]->drawState = NOTDRAWN;
+			}
 		}
 	}
+	//While other blocks underneath will be redrawn after movement, empty space must be redrawn seperately.
+	removeSpace(self, x, y);
+	//Should the y coordinate be of a different modulus of the target y coordinate, then the object has to be mapped to that modulus.
+	printN(x,0,2);
+	printN(y,0,4);
 
-	removeSpace(repr, x, y);
-
-	if(self->y%4 != y%4){
-		self->x = x;
-		self->y = y;
-		releaseBlock(self->representation);
-		self->representation = mapObject(self);
-
-	}
-	else{
-		self->x = x;
-		self->y = y;
-		repr->x = x;
-		repr->y = y/4;
-		repr->blockType = NOTDRAWN;
-	}
+	self->setXY(self,x,y);
+	self->drawState = NOTDRAWN;
 
 
 
 }
 
+void removeSpace(Object instance, uint8_t x, uint8_t y){
+	uint8_t dx, dy;
+	dx = instance->x > x?instance->x-x :x-instance->x;
+	dy = instance->py > y?instance->py-y :y-instance->py;
+	//If there is no overlap between the new and old position of the Block
+	//then draw white space in the shape of the old Block.
+	if( dx> instance->slx || dy > instance->msly || (dx == 0 && dy==0)){
+		sendWindow(instance->x, instance->py, instance->slx, instance->msly, 0);
+		return;
+	}
+
+	//Block0:
+	uint8_t nx,ny,slx,msly;
+	if(dy!=0){
+
+		if( instance->py < y){
+			nx = instance->x;
+			ny = instance->py;
+		}
+		else{
+			nx = instance->x;
+			ny = instance->py + instance->msly - dy;
+		}
+
+		msly = dy;
+
+		if(instance->py > y && y%4==0){
+			ny = ny ==0 ? 0 : ny-1;
+			msly = ny + msly +1 < MAXY ? msly +1: msly;
+		}
+
+		slx = instance->slx;
+		sendWindow(nx,ny,slx,msly,0);
+	}
+
+	//Block1:
+	if(dx !=0){
+		if(instance->py < y){
+			if(instance->x < x){
+				nx = instance->x;
+				ny = instance->py + abs(dy);
+			}
+			else{
+				nx = instance->x +instance->slx - dx;
+				ny = instance->py + abs(dy);
+			}
+		}
+		else{
+			if(instance->x < x){
+				nx = instance->x;
+				ny = instance->py;
+			}
+			else{
+				nx = instance->x +instance->slx - dx;
+				ny = instance->py;
+
+			}
+		}
+		slx = dx;
+		msly = instance->msly - dy;
+		sendWindow(nx,ny,slx,msly,0);
+	}
+
+}
+uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1){
+	int8_t dx, dy;
+	uint8_t checkVal=0;
+	dx = x1-x0;
+	dy = y1-y0;
+
+
+	if(dx > 0){
+		if(dx <lx0){
+			checkVal++;
+
+		}
+	}
+	else if(dx <= 0){
+		if(abs(dx) <lx1){
+			checkVal++;
+		}
+	}
+
+	if(dy > 0){
+		if(dy <ly0){
+			checkVal++;
+
+		}
+	}
+	else if(dy <=0){
+		if(abs(dy) <ly1){
+			checkVal++;
+
+		}
+	}
+	if(checkVal==2){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+void checkMappedSpriteCollision(Object* objectList, uint8_t length){
+	uint8_t i,j;
+	Object a,b;
+
+
+	for(i=0; i<length; i++){
+		a = objectList[i];
+		for(j=i+1; j<length; j++){
+			b = objectList[j];
+			if((a->drawState == NOTDRAWN || b->drawState == NOTDRAWN)
+					&& isColliding(a->x,a->py,a->slx,a->msly,b->x,b->py,b->slx,b->msly)){
+				drawOverlap(a,b);
+			}
+		}
+	}
+}
+
+void drawOverlap(Object a, Object b){
+	uint8_t x=0,y=0,dx, dy, dlx, dly, posx, posy, poslx, posly;
+	uint8_t *adata, *bdata;
+
+	adata = mapData(a->data,a->y);
+	bdata = mapData(b->data,b->y);
+
+	dx 		= a->x>b->x		?	a->x-b->x	:	b->x-a->x;
+	dy 		= a->py>b->py	?	a->py-b->py	:	b->py-a->py;
+
+	poslx = (a->x+a->slx)<(b->x+b->slx)		?(a->x+a->slx)	:(b->x+b->slx);
+	posly = (a->py+a->msly)<(b->py+b->msly)	?(a->py+a->msly):(b->py+b->msly);
+
+	posx 	= a->x>b->x		?	a->x		:	b->x;
+	posy 	= a->py>b->py	?	a->py		:	b->py;
+
+	dlx 	= poslx -posx;
+	dly 	= posly -posy;
+
+	uint8_t *ndata = calloc(dlx*dly +2 ,sizeof(uint8_t));
+	ndata[0] = dlx;
+	ndata[1] = dlx*dly;
+
+	for(y=0;y<dly; y++){
+		for(x=0; x<dlx; x++){
+
+			if		(a->x <= b->x && a->py <= b->py){
+				ndata[2 + x*dly + y] =  adata[2 + (x+dx)	*a->msly + y + dy] |
+										bdata[2 + (x)		*b->msly + y];
+
+
+			}
+			else if	(b->x < a->x && a->py <= b->py){
+				ndata[2 + x*dly + y] =  adata[2 + (x)		*a->msly + y + dy] |
+										bdata[2 + (x+dx)	*b->msly + y];
+
+			}
+			else if	(a->x <= b->x && b->py < a->py){
+				ndata[2 + x*dly + y] =  adata[2 + (x+dx)	*a->msly + y ] |
+										bdata[2 + (x)		*b->msly + y + dy];
+
+			}
+			else{
+				ndata[2 + x*dly + y] =  adata[2 + (x)		*a->msly + y ] |
+										bdata[2 + (x+dx)	*b->msly + y + dy];
+
+			}
+
+		}
+	}
+	free(adata);
+	free(bdata);
+	sendWindow(posx,posy,dlx,dly,ndata);
+	free(ndata);
+
+}

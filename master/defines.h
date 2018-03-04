@@ -41,6 +41,7 @@
 #define PLAYER_PROJECTILE 2
 #define ENEMY 3
 #define ENEMY_PROJECTILE 4
+#define OBSTACLE 4
 
 
 

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <entities/general.h>
 #include <inttypes.h>
 #include <util/delay.h>
 #include "uart.h"
@@ -11,9 +12,11 @@
 #include "char.h"
 #include "display.h"
 #include "object.h"
-#include "block.h"
 #include "defines.h"
-#include "entities.h"
+#include "environment.h"
+#include "entities/player.h"
+#include "entities/bullet.h"
+#include "entities/general.h"
 
 volatile const uint8_t dino[] = {28,196,      //dino.bmp
 0xff,0xff,0xff,0xff,0xff,0xff,0x3f,0x3,0x0,0x0,0x0,0x0,0x0,0x30,0x33,0x0,0x0,0x0,0x0,0x0,0x33,0x3,0x0,0x0,0xc,0xc,0xc,0x30,
@@ -26,6 +29,7 @@ volatile const uint8_t dino[] = {28,196,      //dino.bmp
 };
 
 
+
 volatile Object objectList[MAXOBJECTS];
 
 
@@ -33,26 +37,6 @@ volatile Object objectList[MAXOBJECTS];
 //UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
 volatile uint8_t inputBuffer;
 
-
-void moveOnButton(Object self, Environment mainEnv){
-
-	if(mainEnv->buttons & M_U){
-		self->move(self,mainEnv, self->x, self->y-1);
-	}
-	else if(mainEnv->buttons & M_D){
-		self->move(self,mainEnv, self->x, self->y+1);
-	}
-	else if(mainEnv->buttons & M_L){
-		self->move(self,mainEnv, self->x-1, self->y);
-	}
-	else if(mainEnv->buttons & M_R){
-		self->move(self, mainEnv, self->x+1, self->y);
-	}
-
-}
-
-uint8_t nop0(){return 0;}
-void nop1(){;}
 
 void init();
 
@@ -81,50 +65,61 @@ SIGNAL (TIMER0_COMPA_vect){
 int main(void)
 {
 	init();
-    //Environment Initialization
+    uint8_t i;
+	//Environment Initialization
     Object objectList[MAXOBJECTS];
+    for(i=0; i<MAXOBJECTS; i++){
+    	objectList[i]=0;
+    }
 	Environment env = newEnvironment(objectList);
 
 	Object obj1 = newPlayer(20,20);
-	env->objectList[env->oPos] = obj1;
-	env->oPos++;
+	addObject(env,obj1);
 
-	Object obj2 = newObject(50,50, dino);
+	Object obj2 = newObject(50,43,28,28, dino);
+	obj2->type =OBSTACLE;
 	obj2->think = &noOp;
-	obj2->collide = &simpleCollide;
-	env->objectList[env->oPos] = obj2;
-	env->oPos++;
+	obj2->collide = &noCollide;
+	addObject(env, obj2);
 
 
 	sei();
 
 
 	while(1){
-
 		updateEnvironment(env);
 
-		uint8_t i;
 
 		for(i=0; i<env->oPos; i++){
+			printN(i, 16, 2+i*2);
 			env->objectList[i]->think(env->objectList[i], env);
-			if(env->objectList[i]->representation==0){
-				env->objectList[i]->representation = mapObject(env->objectList[i]);
-			}
-			if(env->objectList[i]->representation->blockType == NOTDRAWN){
-				drawBlock(env->objectList[i]->representation);
-			}
 		}
-
-		checkBlockCollision(env->objectList,env->oPos);
 
 		for(i=0; i<env->oPos; i++){
-			if(env->objectList[i]->representation->blockType == NOTDRAWN){
-				env->objectList[i]->representation->blockType = DRAWN;
-			}
-			if(env->objectList[i]->representation->blockType == DRAWONCE){
-				env->objectList[i]->representation->blockType = DESTROY;
+			if(env->objectList[i]->drawState == NOTDRAWN){
+				drawObject(env->objectList[i]);
 			}
 		}
+		checkMappedSpriteCollision(env->objectList,env->oPos);
+
+		for(i=0; i<env->oPos; i++){
+			if(env->objectList[i]->drawState== NOTDRAWN){
+				env->objectList[i]->drawState = DRAWN;
+			}
+			if(env->objectList[i]->drawState == DRAWONCE){
+				env->objectList[i]->drawState = DESTROY;
+			}
+		}
+
+		for(i=0; i<env->oPos; i++){
+			if(env->objectList[i]->isAlive==0){
+				removeObject(env, objectList[i]);
+			}
+		}
+
+
+
+
 
 
 	}
