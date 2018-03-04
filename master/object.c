@@ -3,6 +3,7 @@
 #include "display.h"
 #include "defines.h"
 #include "timer.h"
+#include "sprite.h"
 
 
 
@@ -44,11 +45,13 @@ void setObjectXY(Object self, uint8_t x, uint8_t y){
 }
 
 void setObjectData(Object self, const uint8_t *data){
-    self->slx = data[0];
-    self->sly = data[1]/data[0];
+    uint8_t sprite_nr = load_sprite(data);
+	self->slx = sprite_in_ram[sprite_nr][0];
+	self->sly = sprite_in_ram[sprite_nr][1] / sprite_in_ram[sprite_nr][0];
+	self->data= sprite_in_ram[sprite_nr];
+	
     self->msly = self->sly;
     self->msly+=(self->y%4?1:0);
-    self->data= data;
 }
 
 void drawObject(Object instance){

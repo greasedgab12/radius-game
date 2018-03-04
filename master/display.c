@@ -116,12 +116,8 @@ void displayInit(void)
 	sendbyte(SET_VBIAS_POTI,0);
 	sendbyte(VBIAS_VALUE,0);
 
-	sendbyte(SET_RAM_ADR_CTRL,0);
-	uint16_t i;
-	for(i=0;i<4160;i++)
-	{
-		sendbyte(0,1);
-	}
+	displayClear();
+
 	sendbyte(WINDOW_SETOPTIONS_RAM,0);
 	sendbyte(SET_COLADR_LSB_0,0);
 	sendbyte(SET_COLADR_MSB_0,0);

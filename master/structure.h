@@ -41,8 +41,13 @@ struct Object_Struct{
 	uint8_t isAlive;
 	//methods
     void (*setXY)(Object self, uint8_t x, uint8_t y);
+<<<<<<< HEAD
     void (*setData)(Object self, const uint8_t *data);
 
+=======
+    void (*setData)(Object self, const uint8_t *sprite);
+    void (*move)(Object self, Environment mainEnv, uint8_t x, uint8_t y);
+>>>>>>> refs/heads/mr_sieglein
 
     /* Whilst move will stay the same for any type of object, think and collide differ.
      * I.e. think for the player object will access the pressed buttons and a projectile
