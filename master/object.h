@@ -16,7 +16,7 @@ Environment newEnvironment(Object* objectList);
  * uint8_t *data: pointer to data array in memory.
  * return Object: returns pointer to newly allocated Object.
  */
-Object newObject(uint8_t x, uint8_t y, const uint8_t *data);
+Object newObject(uint8_t x, uint8_t y, const uint8_t *sprite);
 
 /* free memory of Object.
  */

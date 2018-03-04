@@ -23,13 +23,13 @@ void sendChar(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t Bstabe)
     uint8_t counter;
     uint8_t upper_limit =  pgm_read_byte(&(alphabet[Bstabe][1]))+2;
 
-    if(Bstabe){
+
 
         for(counter = 2; counter < upper_limit ;counter++)
         {
             sendbyte(pgm_read_byte(&(alphabet[Bstabe][counter])),1);
         }
-    }
+
     sendbyte(WINDOW_DISABLE,0);
 }
 
@@ -39,6 +39,7 @@ void print(const char *text,uint8_t x,uint8_t y)
 	uint8_t offset = 0;
 	uint8_t y_move = y;
 	uint8_t x_move = x;
+
 
 	while(text[counter] != 0 )
 	{
@@ -53,9 +54,13 @@ void print(const char *text,uint8_t x,uint8_t y)
 		else if(character ==58) offset = 45;//:  stelle 13
 		else if(character ==95) offset = 55;//_   stelle 41
 		else if(character ==124) offset = 83;//|	stelle 42
+		else if(character ==47) offset = 5;//|	stelle 43 pfeil
 
 		sendChar(x_move,y_move,6,2,character - offset);
-		x_move += 6;
+
+		if(character == 105 ||character == 73 ) x_move += 2;
+
+		else x_move += 6;
 
 		counter++;
 		if(x_move >= 150)
@@ -82,7 +87,7 @@ void printB(const uint8_t *number,uint8_t x,uint8_t y)
 }
 
 
-const uint8_t alphabet[42][14] PROGMEM = {
+const uint8_t alphabet[43][14] PROGMEM = {
 {6,12, 	 // space.bmp Dez 32
 0x0,0x0,0x0,0x0,0x0,0x0,
 0x0,0x0,0x0,0x0,0x0,0x0},
@@ -208,5 +213,8 @@ const uint8_t alphabet[42][14] PROGMEM = {
 0x0,0xc0,0x0,0xc0,0x0,0x0},
 {6,12, 	 //|.bmp dec 124
 0x0,0x0,0x0,0x0,0xff,0xff,
-0x0,0x0,0x0,0x0,0x0,0x0}
+0x0,0x0,0x0,0x0,0x0,0x0},
+{6,12, 	 //arrow.bmp
+0x0,0x7,0x0,0x7,0x0,0x7,
+0xc0,0x1f,0x0,0x7,0x0,0x1}
 };

@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "block.h"
 #include "timer.h"
+#include "sprite.h"
 
 Environment newEnvironment(Object* objectList){
 	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
@@ -43,9 +44,10 @@ void setObjectXY(Object self, uint8_t x, uint8_t y){
 }
 
 void setObjectData(Object self, const uint8_t *data){
-    self->lx = data[0];
-    self->ly = data[1]/data[0];
-    self->data= data;
+	uint8_t sprite_nr = load_sprite(data);
+	self->lx = sprite_in_ram[sprite_nr][0];
+	self->ly = sprite_in_ram[sprite_nr][1] / sprite_in_ram[sprite_nr][0];
+	self->data= sprite_in_ram[sprite_nr];
 }
 
 Block mapObject(Object instance){

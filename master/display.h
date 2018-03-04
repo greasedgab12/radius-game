@@ -45,9 +45,9 @@ void displayInitPorts(void);
 void displayInit(void);
 void sendbyte(uint8_t byte,uint8_t cd);
 void sendWindow(uint8_t x1,uint8_t y1,uint8_t x2, uint8_t y2, const uint8_t *data);
-void clear(void);
+void displayClear(void);
 
 void displayInverse(uint8_t option);
-void displayInverse(uint8_t option);
+
 
 #endif

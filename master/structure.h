@@ -32,7 +32,7 @@ struct Object_Struct{
 
 	//methods
     void (*setXY)(Object self, uint8_t x, uint8_t y);
-    void (*setData)(Object self, const uint8_t *data);
+    void (*setData)(Object self, const uint8_t *sprite);
     void (*move)(Object self, Environment mainEnv, uint8_t x, uint8_t y);
 
     /* Whilst move will stay the same for any type of object, think and collide differ.
