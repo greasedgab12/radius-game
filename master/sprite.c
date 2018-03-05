@@ -4,20 +4,34 @@
 #include "char.h"
 
 //check if sprite already in ram
-uint8_t load_sprite(uint8_t *sprite)
+uint8_t* load_sprite(uint8_t *sprite)
 {
 	uint8_t sprite_nr;
 
-	if(sprite == dino)sprite_nr = 0;
-	if(sprite == enemy_vessel_0)sprite_nr = 1;
+	if(sprite == dino){
+		sprite_nr = 0;
+	}
+	else if(sprite == enemy_vessel_0){
+		sprite_nr =1;
+	}
+	else if(sprite==vessel_0){
+		sprite_nr = 2;
+	}
+	else if(sprite==projectile_1){
+		sprite_nr = 3;
+	}
+	else{
+		sprite_nr = 4;
+	}
+
 
 	if(sprite_in_ram[sprite_nr] == 0)
 	{
-		uint8_t size = sizeof(dino);
-		sprite_in_ram[sprite_nr] = (uint8_t*)malloc(size );
+		uint8_t size = pgm_read_byte_near(&(sprite[1])) + 2;
+		sprite_in_ram[sprite_nr] = (uint8_t*)malloc(size);
 		memcpy_P(sprite_in_ram[sprite_nr], sprite, size);
 	}
-	return sprite_nr;
+	return sprite_in_ram[sprite_nr];
 }
 
 void flush_sprite(uint8_t *sprite)

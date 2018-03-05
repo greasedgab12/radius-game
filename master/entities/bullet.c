@@ -5,9 +5,9 @@
  *      Author: root
  */
 #include <entities/bullet.h>
+#include "sprite.h"
+#include <stdlib.h>
 
-
-const uint8_t bullet[] = {4,4,0x0f,0x0f,0x0f,0x0f};
 
 BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage){
 	BulletEnv self = (BulletEnv)malloc(sizeof(struct BulletEnv_Struct));
@@ -21,7 +21,7 @@ BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage){
 
 
 Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage){
-	Object self = newObject(x,y,4,2,bullet);
+	Object self = newObject(x,y,4,2,projectile_1);
 	self->objectEnv = newBulletEnv(v_x, v_y, damage);
 	self->think = &bulletThink;
 	self->collide = &bulletCollide;

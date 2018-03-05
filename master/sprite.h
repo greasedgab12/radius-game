@@ -8,7 +8,7 @@
 //array of pointers to sprite data
 uint8_t* sprite_in_ram[MAX_SPRITE_COUNT];
 
-uint8_t load_sprite(uint8_t* sprite);
+uint8_t* load_sprite(uint8_t* sprite);
 void flush_sprite(uint8_t *sprite);
 
 extern const uint8_t vessel_0[18] PROGMEM;

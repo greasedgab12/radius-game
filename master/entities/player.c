@@ -14,12 +14,12 @@
 #include "display.h"
 #include "char.h"
 #include "environment.h"
+#include "sprite.h"
+
 
 #include "entities/player.h"
 #include "entities/bullet.h"
 
-
-const uint8_t player[] = {4,8,0xff,0xff,0x0c,0x30,0x30,0x0c,0xc0,0x03};
 
 PlayerEnv newPlayerEnv(){
 
@@ -43,7 +43,7 @@ PlayerEnv newPlayerEnv(){
 }
 
 Object newPlayer(uint8_t x, uint8_t y){
-	Object self = newObject(x,y,4,8,player);
+	Object self = newObject(x,y,8,8,vessel_0);
 	self->type = PLAYER;
 	self->objectEnv = newPlayerEnv();
 	self->think = &playerThink;

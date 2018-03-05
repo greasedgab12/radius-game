@@ -17,6 +17,7 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *dat
     self->isAlive = 1;
     self->lx =lx;
     self->ly =ly;
+
     self->setData = &setObjectData;
     self->setData(self, data);
     self->msly = self->sly;
@@ -45,10 +46,10 @@ void setObjectXY(Object self, uint8_t x, uint8_t y){
 }
 
 void setObjectData(Object self, const uint8_t *data){
-    uint8_t sprite_nr = load_sprite(data);
-	self->slx = sprite_in_ram[sprite_nr][0];
-	self->sly = sprite_in_ram[sprite_nr][1] / sprite_in_ram[sprite_nr][0];
-	self->data= sprite_in_ram[sprite_nr];
+    self->data = load_sprite(data);
+	self->slx = self->data[0];
+	self->sly = self->data[1] / self->data[0];
+
 	
     self->msly = self->sly;
     self->msly+=(self->y%4?1:0);
@@ -199,8 +200,7 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 	//While other blocks underneath will be redrawn after movement, empty space must be redrawn seperately.
 	removeSpace(self, x, y);
 	//Should the y coordinate be of a different modulus of the target y coordinate, then the object has to be mapped to that modulus.
-	printN(x,0,2);
-	printN(y,0,4);
+
 
 	self->setXY(self,x,y);
 	self->drawState = NOTDRAWN;

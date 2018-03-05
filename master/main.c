@@ -84,7 +84,6 @@ int main(void)
 
 
 		for(i=0; i<env->oPos; i++){
-			printN(i, 16, 2+i*2);
 			env->objectList[i]->think(env->objectList[i], env);
 		}
 
@@ -93,6 +92,7 @@ int main(void)
 				drawObject(env->objectList[i]);
 			}
 		}
+
 		checkMappedSpriteCollision(env->objectList,env->oPos);
 
 		for(i=0; i<env->oPos; i++){
@@ -105,10 +105,12 @@ int main(void)
 		}
 
 		for(i=0; i<env->oPos; i++){
+			printN(i, 16, 2+i*2);
 			if(env->objectList[i]->isAlive==0){
 				removeObject(env, objectList[i]);
 			}
 		}
+		print("done",0,16);
 
 
 
