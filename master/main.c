@@ -80,8 +80,8 @@ int main(void)
 
 
 	while(1){
-		updateEnvironment(env);
 
+		updateEnvironment(env);
 
 		for(i=0; i<env->oPos; i++){
 			env->objectList[i]->think(env->objectList[i], env);
@@ -105,12 +105,13 @@ int main(void)
 		}
 
 		for(i=0; i<env->oPos; i++){
-			printN(i, 16, 2+i*2);
 			if(env->objectList[i]->isAlive==0){
 				removeObject(env, objectList[i]);
 			}
 		}
-		print("done",0,16);
+
+
+
 
 
 

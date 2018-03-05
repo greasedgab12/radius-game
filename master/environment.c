@@ -35,14 +35,13 @@ void addObject(Environment self, Object instance){
 		releaseObject(instance);
 	}
 }
-//ToDO: Fix the removal routine!
 void removeObject(Environment self, Object instance){
 	uint8_t i;
 
 	//Search and remove given object isntance from list:
 	for(i=0; i<self->oPos; i++){
-		if(self->objectList[i] && self->objectList[i] == instance){
-			self->objectList[self->oPos] =0;
+		if(self->objectList[i] == instance){
+			self->objectList[i] =0;
 			releaseObject(instance);
 		}
 	}
@@ -51,14 +50,12 @@ void removeObject(Environment self, Object instance){
 		if(self->objectList[i]==0){
 			uint8_t j;
 			for(j=i; j<self->oPos-1; j++){
-				printN(j,64,j*2);
 				self->objectList[j] = self->objectList[j+1];
 			}
 			self->objectList[self->oPos-1]=0;
 			self->oPos= self->oPos>0?self->oPos -1: 0;
 			i= i>0?i-1:0;
 		}
-		printN(i,48,i*2);
 	}
 
 }

@@ -129,8 +129,8 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 		y = MINY;
 		isCollided++;
 	}
-	else if(r_y >0 && r_y > MAXY-self->y-self->ly*4){
-		y = MAXY-self->ly*4;
+	else if(r_y >0 && r_y > MAXY-self->y-self->ly){
+		y = MAXY-self->ly;
 		isCollided++;
 	}
 	//Tell the object, that it collided with the borders
@@ -191,14 +191,14 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 	for(i=0; i<mainEnv->oPos; i++){
 		Object other = mainEnv->objectList[i];
 		if(self != other){
-			if(isColliding(x, y/4, self->slx, self->msly,
+			if(isColliding(self->x, self->py, self->slx, self->msly,
 					other->x, other->py, other->slx, other->msly)){
 				mainEnv->objectList[i]->drawState = NOTDRAWN;
 			}
 		}
 	}
 	//While other blocks underneath will be redrawn after movement, empty space must be redrawn seperately.
-	removeSpace(self, x, y);
+	removeSpace(self,x, y);
 	//Should the y coordinate be of a different modulus of the target y coordinate, then the object has to be mapped to that modulus.
 
 
@@ -210,12 +210,15 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 }
 
 void removeSpace(Object instance, uint8_t x, uint8_t y){
+
 	uint8_t dx, dy;
 	dx = instance->x > x?instance->x-x :x-instance->x;
-	dy = instance->py > y?instance->py-y :y-instance->py;
+	dy = instance->y > y?instance->y-y :y-instance->y;
 	//If there is no overlap between the new and old position of the Block
 	//then draw white space in the shape of the old Block.
 	if( dx> instance->slx || dy > instance->msly || (dx == 0 && dy==0)){
+
+
 		sendWindow(instance->x, instance->py, instance->slx, instance->msly, 0);
 		return;
 	}
@@ -224,7 +227,7 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 	uint8_t nx,ny,slx,msly;
 	if(dy!=0){
 
-		if( instance->py < y){
+		if( instance->py < y/4){
 			nx = instance->x;
 			ny = instance->py;
 		}
@@ -236,7 +239,7 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 		msly = dy;
 
 		if(instance->py > y && y%4==0){
-			ny = ny ==0 ? 0 : ny-1;
+			ny = ny ==0 ? 0 : ny -1;
 			msly = ny + msly +1 < MAXY ? msly +1: msly;
 		}
 
@@ -246,13 +249,13 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 
 	//Block1:
 	if(dx !=0){
-		if(instance->py < y){
+		if(instance->py < y/4){
 			if(instance->x < x){
 				nx = instance->x;
 				ny = instance->py + abs(dy);
 			}
 			else{
-				nx = instance->x +instance->slx - dx;
+				nx = instance->x +instance->slx - dx ;
 				ny = instance->py + abs(dy);
 			}
 		}
@@ -262,12 +265,14 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 				ny = instance->py;
 			}
 			else{
-				nx = instance->x +instance->slx - dx;
+				nx = instance->x +instance->slx - dx ;
 				ny = instance->py;
 
 			}
 		}
+
 		slx = dx;
+		printN(nx,0,0);
 		msly = instance->msly - dy;
 		sendWindow(nx,ny,slx,msly,0);
 	}
