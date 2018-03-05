@@ -55,6 +55,7 @@ struct Object_Struct{
 
 struct Environment_struct{
 	uint8_t buttons;
+	uint32_t lastTime;
 	uint32_t time;
 	uint8_t gameState;
 	Object* objectList;

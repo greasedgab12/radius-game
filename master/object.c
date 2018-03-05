@@ -272,7 +272,6 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 		}
 
 		slx = dx;
-		printN(nx,0,0);
 		msly = instance->msly - dy;
 		sendWindow(nx,ny,slx,msly,0);
 	}

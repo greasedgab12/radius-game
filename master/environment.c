@@ -17,7 +17,8 @@
 
 Environment newEnvironment(Object* objectList){
 	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
-    self->time = getMsTimer();
+    self->lastTime =0;
+	self->time = 0;
     self->gameState =0;
     self->bPos = 0;
     self->objectList = objectList;

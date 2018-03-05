@@ -28,16 +28,18 @@ PlayerEnv newPlayerEnv(){
     self->energy = 0;
     self->defense = 0;
 
-    self->acceleration = 7;
-    self->v_max = 10 + FRICTION;
+    self->acceleration = 1 + FRICTION;
+    self->v_max = 50 + FRICTION;
     self->v_x = 0;
     self->v_y = 0;
+    self->s_x = 0;
+    self->s_y = 0;
 
     self->v_time = 0;
-    self->v_delay =25;// 25;
+    self->v_delay =2;// 25;
 
     self->rof_time =0;
-    self->rof_delay = 50;
+    self->rof_delay = 30;
 
     return self;
 }
@@ -80,26 +82,26 @@ void playerThink(Object self, Environment mainEnv){
 	 * A and B buttons.
 	 */
 	if(mainEnv->buttons & M_A){
-		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay*10){
+		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay){
 			env->rof_time = mainEnv->time;
-			Object b0 = newBullet(self->x+self->lx, self->y+3, 10, 0,1 );
+			Object b0 = newBullet(self->x+self->lx, self->y+3, 25, 0,1 );
 			b0->type = PLAYER_PROJECTILE;
 			addObject(mainEnv, b0);
 		}
 	}
 	else if(mainEnv->buttons & M_B){
 
-		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay*10){
+		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay){
 					env->rof_time = mainEnv->time;
-					Object b0 = newBullet(self->x+self->lx, self->y+1, 10, -10,1 );
+					Object b0 = newBullet(self->x+self->lx, self->y, 30, -2,1 );
 					b0->type = PLAYER_PROJECTILE;
-					Object b1 = newBullet(self->x+self->lx, self->y+3, 10, 0,1 );
+					Object b1 = newBullet(self->x+self->lx, self->y+4, 30, 0,1 );
 					b1->type = PLAYER_PROJECTILE;
-					Object b2 = newBullet(self->x+self->lx, self->y+5, 10, 10,1 );
+					Object b2 = newBullet(self->x+self->lx, self->y+8, 30, 2,1 );
 					b2->type = PLAYER_PROJECTILE;
 					addObject(mainEnv, b0);
 					addObject(mainEnv, b1);
-					addObject(mainEnv, b1);
+					addObject(mainEnv, b2);
 				}
 	}
 
@@ -116,6 +118,7 @@ void playerThink(Object self, Environment mainEnv){
 		 * Velocity in each direction cannot exceed maximum velocity.
 		 */
 		//x-direction
+
 		if( abs(env->v_x + a_x) < env->v_max){
 			env->v_x += a_x;
 		}
@@ -152,8 +155,10 @@ void playerThink(Object self, Environment mainEnv){
 			env->v_y = 0;
 		}
 		//Apply velocitiy to position.
-
-		moveObject(self, mainEnv,env->v_x/10,env->v_y/10);
+		moveObject(self, mainEnv,(env->s_x+env->v_x)/10,(env->s_y+env->v_y)/10);
+		//Add the remainder to the next step:
+		env->s_x = (env->s_x+env->v_x)%10;
+		env->s_y = (env->s_y+env->v_y)%10;
 
 	}
 }

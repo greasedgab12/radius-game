@@ -23,6 +23,9 @@ struct BulletEnv_Struct{
 	//Velocity variables
 	int8_t v_x;
 	int8_t v_y;
+	int8_t s_x;
+	int8_t s_y;
+
 	uint16_t v_time;
 	uint8_t v_delay;
 };

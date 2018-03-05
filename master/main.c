@@ -36,8 +36,9 @@ void updateEnvironment(Environment env){
 	cli();
 	env->buttons = inputBuffer;
 	sei();
-
-	env->time = getMsTimer();
+	env->lastTime = env->time;
+	//Cap time at approximately 60fps
+	env->time = getMsTimer()/17;
 }
 
 
@@ -56,7 +57,7 @@ SIGNAL (TIMER0_COMPA_vect){
 int main(void)
 {
 	init();
-    uint8_t i;
+    uint8_t i,j;
 	//Environment Initialization
     Object objectList[MAXOBJECTS];
     for(i=0; i<MAXOBJECTS; i++){
@@ -72,29 +73,43 @@ int main(void)
 	Object obj2 = newObject(50,43,28,28, dino);
 	obj2->type =OBSTACLE;
 	obj2->think = &noOp;
-	obj2->collide = &noCollide;
+	obj2->collide = &simpleCollide;
 	addObject(env, obj2);
 
 
 	sei();
 
-
 	while(1){
-
 		updateEnvironment(env);
-
-		for(i=0; i<env->oPos; i++){
-			env->objectList[i]->think(env->objectList[i], env);
+		//For each passed frame execute think of each object.
+		for(i=0; i<env->time-env->lastTime+1; i++){
+			for(j=0; j<env->oPos; j++){
+				env->objectList[j]->think(env->objectList[j], env);
+			}
 		}
-
+		//Clean up dead objects and draw alive ones if they haven't been drawn already.
 		for(i=0; i<env->oPos; i++){
-			if(env->objectList[i]->drawState == NOTDRAWN){
-				drawObject(env->objectList[i]);
+			if(env->objectList[i]->isAlive){
+				if(env->objectList[i]->drawState == NOTDRAWN){
+					drawObject(env->objectList[i]);
+				}
+			}
+			else{
+				sendWindow(env->objectList[i]->x,env->objectList[i]->py,
+						env->objectList[i]->slx, env->objectList[i]->msly,0);
+			}
+		}
+		//Remove dead objects from list.
+		for(i=0; i<env->oPos; i++){
+			if(env->objectList[i]->isAlive==0){
+				removeObject(env, objectList[i]);
 			}
 		}
 
+		//Check, wether drawn sprites overlap one another and draw overlapping parts again.
 		checkMappedSpriteCollision(env->objectList,env->oPos);
 
+		//Update drawState of every object.
 		for(i=0; i<env->oPos; i++){
 			if(env->objectList[i]->drawState== NOTDRAWN){
 				env->objectList[i]->drawState = DRAWN;
@@ -104,11 +119,7 @@ int main(void)
 			}
 		}
 
-		for(i=0; i<env->oPos; i++){
-			if(env->objectList[i]->isAlive==0){
-				removeObject(env, objectList[i]);
-			}
-		}
+
 
 
 

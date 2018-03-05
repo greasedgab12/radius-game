@@ -14,7 +14,11 @@ BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage){
 	self->damage =damage;
 	self->v_x =v_x;
 	self->v_y =v_y;
-	self->v_delay = 10;
+
+	self->s_x =0;
+	self->s_y =0;
+
+	self->v_delay = 2;
 	self->v_time = 0;
 	return self;
 }
@@ -30,12 +34,17 @@ Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage){
 
 void bulletThink(Object self, Environment mainEnv){
 	BulletEnv env = (BulletEnv)self->objectEnv;
-	int8_t vx = env->v_x/10;
-	int8_t vy = env->v_y/10;
 
 	if(((uint16_t) mainEnv->time) >= env->v_time + env->v_delay){
+		int8_t vx = (env->s_x+env->v_x)/10;
+		int8_t vy = (env->s_y+env->v_y)/10;
+		//Add the remainder to the velocity
+		env->s_x= (env->s_x+env->v_x)%10;
+		env->s_y= (env->s_y+env->v_y)%10;
+
 		env->v_time = mainEnv->time;
 		moveObject(self, mainEnv, vx, vy);
+
 	}
 
 }
@@ -59,6 +68,10 @@ uint8_t bulletCollide(Object self, Object other,uint8_t iter){
 					self->isAlive =0;
 					return iter?0:other->collide(other,self, iter++);
 				}
+		case(PLAYER_PROJECTILE):
+			return 0;
+		case(ENEMY_PROJECTILE):
+			return 0;
 		default:
 			self->isAlive =0;
 			return 1;
