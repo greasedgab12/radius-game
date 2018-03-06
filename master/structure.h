@@ -49,7 +49,7 @@ struct Object_Struct{
      * depending on the involved objects.
     */
     void (*think)(Object self, Environment mainEnv);
-    uint8_t (*collide)(Object self, Object other ,uint8_t iter);
+    uint8_t (*collide)(Object self, Object other , uint8_t cType, uint8_t iter);
 };
 
 

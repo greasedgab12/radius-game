@@ -20,11 +20,11 @@
 
 void noOp();
 
-uint8_t noCollide(Object self, Object other, uint8_t iter);
+uint8_t noCollide(Object self, Object other,uint8_t cType, uint8_t iter);
 
-uint8_t simpleCollide(Object self, Object other, uint8_t iter);
+uint8_t simpleCollide(Object self, Object other,uint8_t cType, uint8_t iter);
 
-void rebound(Object self, uint8_t cff);
+void rebound(Object self,Object other, uint8_t cType);
 
 void drag(Object self, uint8_t cff);
 

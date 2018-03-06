@@ -100,42 +100,36 @@ uint8_t* mapData(const uint8_t* data, uint8_t ty){
 	return ndata;
 
 }
-void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
+void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 	uint8_t i;
 
 
 	//If the coordinates stay the same, then nothing is to be done.
-	if((r_x == 0 && r_y == 0)){
+	if((rx == 0 && ry == 0)){
 			return;
 	}
-
 
 	//Collision detection.
 
 	//Check for collisions with borders:
 	//Set the target coordinates to the last valid ones before the collision.
-	uint8_t isCollided=0;
-	uint8_t x = self->x +r_x;
-	uint8_t y = self->y +r_y;
-	if(r_x < 0 && r_x < MINX-self->x){
+	uint8_t x = self->x +rx;
+	uint8_t y = self->y +ry;
+	if(rx < 0 && rx < MINX-self->x){
 		x = MINX;
-		isCollided++;
+		self->collide(self, 0, LEFTC, 0);
 	}
-	else if(r_x >0 && r_x > MAXX-self->x-self->lx){
+	else if(rx >0 && rx > MAXX-self->x-self->lx){
 		x = MAXX-self->lx;
-		isCollided++;
+		self->collide(self, 0, RIGHTC, 0);
 	}
-	if(r_y < 0 && r_y < MINY-self->y){
+	if(ry < 0 && ry < MINY-self->y){
 		y = MINY;
-		isCollided++;
+		self->collide(self, 0, UPPERC, 0);
 	}
-	else if(r_y >0 && r_y > MAXY-self->y-self->ly){
+	else if(ry >0 && ry > MAXY-self->y-self->ly){
 		y = MAXY-self->ly;
-		isCollided++;
-	}
-	//Tell the object, that it collided with the borders
-	if(isCollided){
-		self->collide(self, 0, 0);
+		self->collide(self, 0, LOWERC, 0);
 	}
 
 	//Check if the Object collides with other objects in the main Environment.
@@ -144,25 +138,27 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 		if(mainEnv->objectList[i]!= self){
 			//ToDoRemove variable other in final build.
 			Object other = mainEnv->objectList[i];
+			uint8_t collisionType;
+			collisionType = isColliding(self, other,rx, ry);
 			//Is self colliding with an object at the new position?
-			if(isColliding(x, y, self->lx, self->ly ,
-					other->x,other->y, other->lx, other->ly)){
+			if(collisionType){
 				//Only change the movement target, if self and the collision partner are allowed to collide.
-				if(self->collide(self, other,0)){
-					uint8_t tx,ty;
+				if(self->collide(self, other,collisionType,0)){
 					//Change movement target to the closest position before collision with the object.
-					if(self->x < other->x){
-						tx = other->x - self->lx;
+					if(collisionType ==LEFTC){
+						x = other->x - self->lx;
 					}
-					else{
-						tx = other->x +other->lx;
+					else if(collisionType ==RIGHTC){
+						x = other->x +other->lx;
 					}
-					if(self->y < other->y){
-						ty = other->y -self->ly;
+					else if(collisionType ==UPPERC){
+						y = other->y -self->ly;
 					}
-					else{
-						ty = other->y +other->ly;
+					else if(collisionType ==LOWERC){
+						y = other->y +other->ly;
 					}
+					printN(collisionType,0,0);
+					/**
 					//Move only to the positon closest to the current position.
 					if(tx*tx+y*y <= x*x+ty*ty){
 						x=tx;
@@ -172,6 +168,7 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 
 					}
 					//An Object may only collide once during movement.
+					**/
 					break;
 				}
 			}
@@ -191,8 +188,7 @@ void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y){
 	for(i=0; i<mainEnv->oPos; i++){
 		Object other = mainEnv->objectList[i];
 		if(self != other){
-			if(isColliding(self->x, self->py, self->slx, self->msly,
-					other->x, other->py, other->slx, other->msly)){
+			if(isMappedColliding(self, other ,0,0)){
 				mainEnv->objectList[i]->drawState = NOTDRAWN;
 			}
 		}
@@ -228,7 +224,7 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 	if(dy!=0){
 
 		if( instance->py < y/4){
-			nx = instance->x;
+					nx = instance->x;
 			ny = instance->py;
 		}
 		else{
@@ -277,37 +273,92 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 	}
 
 }
-uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1){
+uint8_t isColliding(Object self, Object other, int8_t rx, int8_t ry){
 	int8_t dx, dy;
 	uint8_t checkVal=0;
-	dx = x1-x0;
-	dy = y1-y0;
-
-
+	dx = other->x-self->x-rx;
+	dy = other->y-self->y-ry;
 	if(dx > 0){
-		if(dx <lx0){
+		if(dx <self->lx){
 			checkVal++;
 
 		}
 	}
 	else if(dx <= 0){
-		if(abs(dx) <lx1){
+		if(abs(dx) <other->lx){
 			checkVal++;
 		}
 	}
 
 	if(dy > 0){
-		if(dy <ly0){
+		if(dy <self->ly){
 			checkVal++;
 
 		}
 	}
 	else if(dy <=0){
-		if(abs(dy) <ly1){
+		if(abs(dy) <other->ly){
 			checkVal++;
 
 		}
 	}
+
+	if(checkVal==2){
+		//After we know a collision took place, query collision type.
+		dx = other->x - self->x;
+		dy = other->y - self->y;
+		if(abs(rx)>abs(ry)){
+			if(dx>0){
+				return  LEFTC;
+			}
+			else{
+				return RIGHTC;
+			}
+		}
+		else{
+			if(dy>0){
+				return UPPERC;
+			}
+			else{
+				return LOWERC;
+			}
+		}
+	}
+	else{
+		return NOC;
+	}
+}
+
+uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy){
+	int8_t dx, dy;
+	uint8_t checkVal=0;
+	dx = other->x-self->x-rx;
+	dy = other->py-self->py-rpy;
+	if(dx > 0){
+		if(dx <self->slx){
+			checkVal++;
+
+		}
+	}
+	else if(dx <= 0){
+		if(abs(dx) <other->slx){
+			checkVal++;
+		}
+	}
+
+	if(dy > 0){
+		if(dy <self->msly){
+			checkVal++;
+
+		}
+	}
+	else if(dy <=0){
+		if(abs(dy) <other->msly){
+			checkVal++;
+
+		}
+	}
+
 	if(checkVal==2){
 		return 1;
 	}
@@ -326,7 +377,7 @@ void checkMappedSpriteCollision(Object* objectList, uint8_t length){
 		for(j=i+1; j<length; j++){
 			b = objectList[j];
 			if((a->drawState == NOTDRAWN || b->drawState == NOTDRAWN)
-					&& isColliding(a->x,a->py,a->slx,a->msly,b->x,b->py,b->slx,b->msly)){
+					&& isMappedColliding(a,b,0,0)){
 				drawOverlap(a,b);
 			}
 		}

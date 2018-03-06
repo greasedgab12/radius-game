@@ -23,8 +23,8 @@
 #define M_D 64
 #define M_L 32
 #define M_R 16
-#define M_A 8
-#define M_B 4
+#define M_B 8
+#define M_A 4
 #define M_P 2
 #define M_S 1
 
@@ -36,13 +36,18 @@
 
 //Definitions for entities.
 #define FRICTION 2
-//Definitoins of objects.
+//Definitions of objects.
 #define PLAYER 1
 #define PLAYER_PROJECTILE 2
 #define ENEMY 3
 #define ENEMY_PROJECTILE 4
 #define OBSTACLE 4
-
+//Collision types
+#define NOC 	0
+#define UPPERC	1
+#define LOWERC  2
+#define LEFTC	3
+#define RIGHTC	4
 
 
 #endif /* MASTER_DEFINES_H_ */

@@ -10,14 +10,13 @@
 #include "structure.h"
 #include "inttypes.h"
 
-void playerScript(Object self, Environment mainEnv);
 
 typedef struct PlayerEnv_Struct* PlayerEnv;
 
 struct PlayerEnv_Struct{
 	uint8_t health;
 	uint8_t energy;
-	uint8_t defense;
+	uint8_t armor;
 	//Velocity variables
 	uint8_t acceleration;
 	uint8_t v_max;
@@ -39,7 +38,7 @@ Object newPlayer(uint8_t x, uint8_t y);
 
 void playerThink(Object self, Environment mainEnv);
 
-uint8_t playerCollide(Object self, Object other, uint8_t iter);
+uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter);
 
 
 #endif /* MASTER_ENTITIES_PLAYER_H_ */

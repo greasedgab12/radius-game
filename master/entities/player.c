@@ -19,14 +19,14 @@
 
 #include "entities/player.h"
 #include "entities/bullet.h"
-
+#include "entities/enemy.h"
 
 PlayerEnv newPlayerEnv(){
 
     PlayerEnv self = (PlayerEnv)malloc(sizeof(struct PlayerEnv_Struct));
-    self->health = 5;
+    self->health = 20;
     self->energy = 0;
-    self->defense = 0;
+    self->armor = 1;
 
     self->acceleration = 1 + FRICTION;
     self->v_max = 50 + FRICTION;
@@ -122,16 +122,12 @@ void playerThink(Object self, Environment mainEnv){
 		if( abs(env->v_x + a_x) < env->v_max){
 			env->v_x += a_x;
 		}
-		else{
-			env->v_x = env->v_x>0? env->v_max: -env->v_max;
-		}
+
 		//y-direction
 		if( abs(env->v_y + a_y) < env->v_max){
 			env->v_y += a_y;
 		}
-		else{
-			env->v_y = env->v_y>0? env->v_max: -env->v_max;
-		}
+
 
 		//Apply Friction to velocity
 		//x-direction
@@ -163,14 +159,38 @@ void playerThink(Object self, Environment mainEnv){
 	}
 }
 
-uint8_t playerCollide(Object self, Object other, uint8_t iter){
-	if(other){
-		switch(other->type){
-		case ENEMY:
-			return iter?1:other->collide(other,self,iter++);
+uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
+	PlayerEnv selfEnv = (PlayerEnv)(self->objectEnv);
 
-		default:
-			return iter?0:other->collide(other,self,iter++);
+	if(other){
+		if(other->type == ENEMY){
+			EnemyEnv otherEnv = (EnemyEnv)other->objectEnv;
+			rebound(self,other, cType);
+			if(selfEnv->health<otherEnv->armor){
+				selfEnv->health = 0;
+			}
+			else{
+				selfEnv->health -= otherEnv->armor;
+			}
+			if(selfEnv->health ==0){
+				self->isAlive =0;
+			}
+
+			if(iter){
+				return 1;
+			}
+			else{
+
+				return other->collide(other,self,cType,1);
+			}
+		}
+		else{
+			if(iter){
+				return 0;
+			}
+			else{
+				return other->collide(other,self,cType,1);
+			}
 		}
 	}
 	else{

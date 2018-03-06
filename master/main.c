@@ -17,6 +17,7 @@
 #include "entities/player.h"
 #include "entities/bullet.h"
 #include "entities/general.h"
+#include "entities/enemy.h"
 #include "sprite.h"
 #include "menu.h"
 
@@ -58,6 +59,7 @@ int main(void)
 {
 	init();
     uint8_t i,j;
+    uint8_t t=0;
 	//Environment Initialization
     Object objectList[MAXOBJECTS];
     for(i=0; i<MAXOBJECTS; i++){
@@ -75,18 +77,26 @@ int main(void)
 	obj2->think = &noOp;
 	obj2->collide = &simpleCollide;
 	addObject(env, obj2);
-
-
+	Object enemy = 0;
 	sei();
-
+	env->lastTime = getMsTimer()/17;
 	while(1){
 		updateEnvironment(env);
 		//For each passed frame execute think of each object.
+		if((t<5) && env->time > env->lastTime){
+			enemy = newEnemyGlider((uint8_t)random()/16*4,(uint8_t)random()/2);
+			addObject(env,enemy);
+			t++;
+		}
+
+
 		for(i=0; i<env->time-env->lastTime+1; i++){
 			for(j=0; j<env->oPos; j++){
 				env->objectList[j]->think(env->objectList[j], env);
 			}
 		}
+
+
 		//Clean up dead objects and draw alive ones if they haven't been drawn already.
 		for(i=0; i<env->oPos; i++){
 			if(env->objectList[i]->isAlive){
@@ -102,7 +112,11 @@ int main(void)
 		//Remove dead objects from list.
 		for(i=0; i<env->oPos; i++){
 			if(env->objectList[i]->isAlive==0){
+				if(env->objectList[i]->type == ENEMY){
+					t--;
+				}
 				removeObject(env, objectList[i]);
+
 			}
 		}
 
@@ -118,16 +132,6 @@ int main(void)
 				env->objectList[i]->drawState = DESTROY;
 			}
 		}
-
-
-
-
-
-
-
-
-
-
 
 	}
 

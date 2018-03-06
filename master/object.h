@@ -18,7 +18,9 @@ Environment newEnvironment(Object* objectList);
  */
 Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly, const uint8_t *sprite);
 
-
+/** releaseObject: free memory of given object instance.
+ * Object instance: Object to be freed.
+ */
 void releaseObject(Object instance);
 
 
@@ -28,17 +30,25 @@ void releaseObject(Object instance);
 void setObjectXY(Object self, uint8_t x, uint8_t y);
 void setObjectData(Object self, const uint8_t *data);
 
+/**drawObject: map and draw Object on screen.
+**/
 void drawObject(Object instance);
 
+/**removeSpace: draw white pixels on screen in places previously occupied by the moving object.
+ * Object instance: object instance.
+ * uint8_t x: absolute x coordinate object instance moves to.
+ * uint8_t y: absolute y coordinate object instance moves to.
+ */
 void removeSpace(Object instance, uint8_t x, uint8_t y);
+
 
 void checkMappedSpriteCollision(Object* objectList, uint8_t length);
 
 void drawOverlap(Object a, Object b);
 
-uint8_t isColliding(uint8_t x0,uint8_t y0,uint8_t lx0,uint8_t ly0,uint8_t x1,uint8_t y1,uint8_t lx1,uint8_t ly1);
+uint8_t isColliding(Object self, Object other, int8_t rx, int8_t ry);
 
-
+uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy);
 /* moveObject: Move the Object by relative coordniates . Accesses blockList of main environment.
  * Object self: Object to be moved.
  * Environment mainEnv: main environment. blockList is manipulated to force redraw of previously occupied pages.

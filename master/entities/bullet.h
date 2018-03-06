@@ -37,7 +37,7 @@ Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage);
 
 void bulletThink(Object self, Environment mainEnv);
 
-uint8_t bulletCollide(Object self, Object other ,uint8_t iter);
+uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter);
 
 
 #endif /* MASTER_ENTITIES_BULLET_H_ */

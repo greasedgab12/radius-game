@@ -49,30 +49,39 @@ void bulletThink(Object self, Environment mainEnv){
 
 }
 
-uint8_t bulletCollide(Object self, Object other,uint8_t iter){
+uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 	if(other){
-		switch(other->type){
-		case(PLAYER):
-				if(self->type==PLAYER_PROJECTILE){
-					return 0;
+		if(other->type == PLAYER){
+			if(self->type==PLAYER_PROJECTILE){
+				return 0;
+			}
+			else{
+				if(iter){
+					return 1;
 				}
 				else{
-					return iter?0:other->collide(other,self, iter++);
+					return other->collide(other, self, cType, iter);
 				}
-		case(ENEMY):
-				if(self->type==ENEMY_PROJECTILE){
-					return 0;
-				}
-				else{
-					drag(other,5);
-					self->isAlive =0;
-					return iter?0:other->collide(other,self, iter++);
-				}
-		case(PLAYER_PROJECTILE):
+			}
+		}
+		else if(other->type == ENEMY){
+			if(self->type==ENEMY_PROJECTILE){
+				return 0;
+			}
+			else{
+				drag(other,5);
+				self->isAlive =0;
+				print("huh",0,4);
+				return iter?1:other->collide(other,self,cType, iter++);
+			}
+		}
+		else if(other->type == PLAYER_PROJECTILE){
 			return 0;
-		case(ENEMY_PROJECTILE):
+		}
+		else if(other->type == ENEMY_PROJECTILE){
 			return 0;
-		default:
+		}
+		else{
 			self->isAlive =0;
 			return 1;
 		}
