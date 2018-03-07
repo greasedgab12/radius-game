@@ -55,7 +55,7 @@ void displayClear()
 	sendbyte(0,0);//RAM-Zeigerpostition zurück auf 0/0
 	sendbyte(16,0);
 	sendbyte(96,0);
-	for(i=0;i<4160;i++)//RAM-Ausspühlen, alles weiß
+	for(i=0;i<5000;i++)//RAM-Ausspühlen, alles weiß
 	{
 		sendbyte(0,1);
 	}

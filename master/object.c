@@ -26,7 +26,6 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *dat
 
     self->setXY = &setObjectXY;
 
-
     return self;
 }
 

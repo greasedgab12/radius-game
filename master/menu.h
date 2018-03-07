@@ -1,6 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include"object.h"
 //	MENU LAYOUT
 //  PLAY
 //	HIGHSCORES
@@ -57,6 +58,7 @@
 #define MEN_OPT3_DEL 34
 
 #define MEN_MUSIC 4
+#define MEN_MUSIC_PLAY 41
 
 #define SIZE_MEN_MAIN 4
 #define SIZE_MEN_PLAY 3
@@ -70,8 +72,48 @@
 #define MENU_DELAY 225
 
 
+
+#define GAME_MAIN 0
+#define GAME_CONTINUE 1
+
+#define GAME_SAVE     2
+
+#define GAME_SHOP 3
+#define GAME_SHOP_WEAPONS 32
+#define GAME_SHOP_SHIPS   33
+#define GAME_SHOP_SELECT  31
+#define GAME_SHOP_SELECT_WEAPON 34
+#define GAME_SHOP_SELECT_SHIP 35
+
+#define GAME_OPTIONS    4
+#define GAME_OPTIONS_1  41
+#define GAME_OPTIONS_2  42
+
+
+
+
+#define SIZE_GAME_MAIN 4
+#define SIZE_GAME_CONTINUE 1
+#define SIZE_GAME_SHOP 4
+#define SIZE_GAME_SHOP_WEAPONS 5
+#define SIZE_GAME_SHOP_SHIPS 4
+#define SIZE_GAME_SHOP_SELECT 3
+#define SIZE_GAME_OPTIONS 2
+#define SIZE_GAME_SAVE 1
+#define SIZE_GAME_QUIT 1
+
+#define PRICE_WEAPON_1 99
+#define PRICE_WEAPON_2 110
+#define PRICE_WEAPON_3 130
+#define PRICE_WEAPON_4 180
+
+#define PRICE_SHIP_1 80
+#define PRICE_SHIP_2 140
+#define PRICE_SHIP_3 230
+#define PRICE_SHIP_4
+
 void display_mainmenu(void);
-void display_gamemenu(void);
+Object display_gamemenu(Object Player);
 
 
 #endif

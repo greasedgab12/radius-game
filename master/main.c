@@ -64,23 +64,31 @@ int main(void)
     }
 	Environment env = newEnvironment(objectList);
 	
-	display_mainmenu();
+	//display_mainmenu();
 	
 	Object obj1 = newPlayer(20,20);
 	addObject(env,obj1);
 
-	Object obj2 = newObject(50,43,28,28, dino);
-	obj2->type =OBSTACLE;
-	obj2->think = &noOp;
-	obj2->collide = &noCollide;
-	addObject(env, obj2);
-
-
 	sei();
+
+	while(1)
+	{
+		if(B_A)uart_putc('a');
+		else if(B_B)uart_putc('b');
+		else if(B_UP)uart_putc('c');
+		else if(B_DOWN)uart_putc('d');
+		else if(B_LEFT)uart_putc('e');
+		else if(B_RIGHT)uart_putc('f');
+		else if(B_PAUSE)uart_putc('g');
+		else if(B_SELECT)uart_putc('h');
+
+	}
 
 
 	while(1){
 		updateEnvironment(env);
+		if(env->buttons & M_P) obj1 = display_gamemenu(obj1);
+
 
 
 		for(i=0; i<env->oPos; i++){

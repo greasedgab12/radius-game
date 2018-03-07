@@ -28,6 +28,7 @@ PlayerEnv newPlayerEnv(){
     self->energy = 0;
     self->defense = 0;
 
+
     self->acceleration = 7;
     self->v_max = 10 + FRICTION;
     self->v_x = 0;
