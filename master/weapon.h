@@ -29,7 +29,7 @@ void fireShot(Weapon self, Object source, Environment mainEnv);
 Weapon newMachine(uint8_t weaponState);
 void fireMachine(Weapon self, Object source, Environment mainEnv);
 
-Weapon newDisc(uint8_t weaponState);
+Weapon newNoppy(uint8_t weaponState);
 void fireDisc(Weapon self, Object source, Environment mainEnv);
 
 Weapon newBounce(uint8_t weaponState);

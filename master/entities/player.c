@@ -23,7 +23,7 @@
 #include "entity.h"
 
 Object newPlayer(uint8_t x, uint8_t y){
-	Object self = newObject(x,y,8,8,vessel_0);
+	Object self = newObject(x,y,9,9,player_1);
 	self->type = PLAYER;
 	self->entity = newEntity();
 	self->entity->health = 20;

@@ -43,7 +43,7 @@ Weapon newGun(uint8_t weaponState){
 
 }
 void fireGun(Weapon self, Object source, Environment mainEnv){
-		print("H",155,23);
+		print("G",155,23);
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
@@ -87,36 +87,92 @@ void fireGun(Weapon self, Object source, Environment mainEnv){
 Weapon newTri(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = TRI;
 	self->weaponState = weaponState;
 
-	self->projCount = 1;
+
 
 	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
-	damagelvl = weaponState& 0b00000011;
-	speedlvl = (weaponState& 0b00001100)>>2;
-	roflvl = (weaponState& 0b00110000)>>4;
-	uniquelvl = (weaponState& 0b11000000)>>6;
+	damagelvl 	= (weaponState& 0b00000011);
+	speedlvl 	= (weaponState& 0b00001100)>>2;
+	roflvl 		= (weaponState& 0b00110000)>>4;
+	uniquelvl 	= (weaponState& 0b11000000)>>6;
 
-	self->damage = 1 + damagelvl;
+	self->projCount = 3 +uniquelvl;
+
+	self->damage = 3 + 2*damagelvl;
 
 
-	self->cost = 4 - uniquelvl;
+	self->cost = 10 + uniquelvl;
 
-	self->projSpeed =10 + 10*speedlvl;
+	self->projSpeed =30 + 10*speedlvl;
 	self->projAccel =0;
 
-	self->rof = 30 - 5*roflvl;
+	self->rof = 60 - 5*roflvl;
+
+	self->fire = &fireTri;
 
 	return self;
 
 }
-void fireTri(Weapon self, Object source, Environment mainEnv);
+void fireTri(Weapon self, Object source, Environment mainEnv){
+	print("T",155,23);
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
+
+		uint8_t i;
+		for(i=0; i<self->projCount;i++){
+
+
+		Object b0 = newProjectile(BULLET);
+
+		if(source->type == PLAYER){
+			b0->type= PLAYER_PROJECTILE;
+			uint8_t offsety = source->y + source->ly- self->projCount*b0->ly/2;
+
+
+			b0->setXY(b0,source->x+source->lx, offsety +b0->ly*i);
+			b0->entity->v_x = self->projSpeed;
+			b0->entity->a_x = self->projAccel;
+			if(!self->projCount%2){
+				b0->entity->v_y = -5 + (10/self->projCount*i);
+			}
+			else{
+				b0->entity->v_y = -5 + (10/self->projCount*(i+1));
+			}
+
+		}
+		else if( source->type == ENEMY){
+			b0->type = ENEMY_PROJECTILE;
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->entity->v_x = -self->projSpeed;
+			b0->entity->a_x = -self->projAccel;
+
+		}
+
+		b0->entity->armor = self->damage;
+		b0->entity->health = 1;
+
+
+
+		addObject(mainEnv, b0);
+		}
+
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+
+	}
+
+}
 
 Weapon newMissile(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = LAUNCHER;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;
@@ -127,25 +183,67 @@ Weapon newMissile(uint8_t weaponState){
 	roflvl = (weaponState& 0b00110000)>>4;
 	uniquelvl = (weaponState& 0b11000000)>>6;
 
-	self->damage = 1 + damagelvl;
+	self->damage = 5 + 5*damagelvl;
 
 
-	self->cost = 4 - uniquelvl;
+	self->cost = 10;
 
 	self->projSpeed =10 + 10*speedlvl;
-	self->projAccel =0;
+	self->projAccel =1 + uniquelvl;
 
-	self->rof = 30 - 5*roflvl;
+	self->rof = 70 - 5*roflvl;
+
+	self->fire = &fireMissile;
 
 	return self;
 
 }
-void fireMissile(Weapon self, Object source, Environment mainEnv);
+void fireMissile(Weapon self, Object source, Environment mainEnv){
+	print("M",155,23);
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
+
+		Object b0 = newProjectile(MISSILE);
+
+		if(source->type == PLAYER){
+			b0->type= PLAYER_PROJECTILE;
+			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
+			b0->entity->v_x = self->projSpeed;
+
+		}
+		else if( source->type == ENEMY){
+			b0->type = ENEMY_PROJECTILE;
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->entity->v_x = -self->projSpeed;
+
+		}
+
+		b0->entity->armor = self->damage;
+		b0->entity->health = 1;
+		b0->entity->acceleration = self->projAccel;
+		b0->entity->v_max = 20 +5*((self->weaponState&0b00001100)>>2);
+
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+
+		addObject(mainEnv, b0);
+
+
+
+
+	}
+
+}
+
 
 Weapon newHeavy(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = HEAVY;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;
@@ -156,25 +254,62 @@ Weapon newHeavy(uint8_t weaponState){
 	roflvl = (weaponState& 0b00110000)>>4;
 	uniquelvl = (weaponState& 0b11000000)>>6;
 
-	self->damage = 1 + damagelvl;
+	self->damage = 10 + 10*damagelvl;
 
 
-	self->cost = 4 - uniquelvl;
+	self->cost = 10 - uniquelvl;
 
-	self->projSpeed =10 + 10*speedlvl;
+	self->projSpeed =30 + 10*speedlvl;
 	self->projAccel =0;
 
-	self->rof = 30 - 5*roflvl;
+	self->rof = 60 - 5*roflvl;
+
+	self->fire = &fireHeavy;
 
 	return self;
 
 }
-void fireHeavy(Weapon self, Object source, Environment mainEnv);
+void fireHeavy(Weapon self, Object source, Environment mainEnv){
+		if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
 
+		Object b0 = newProjectile(BULLET);
+
+		if(source->type == PLAYER){
+			b0->type= PLAYER_PROJECTILE;
+			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
+			b0->entity->v_x = self->projSpeed;
+			b0->entity->a_x = self->projAccel;
+			source->entity->v_x-=20;
+
+		}
+		else if( source->type == ENEMY){
+			b0->type = ENEMY_PROJECTILE;
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->entity->v_x = -self->projSpeed;
+			b0->entity->a_x = -self->projAccel;
+			source->entity->v_x+=20;
+		}
+
+
+		b0->entity->armor = self->damage;
+		b0->entity->health = 1;
+
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+
+		addObject(mainEnv, b0);
+		}
+}
+/**
 Weapon newShot(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = SHOTGUN;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;
@@ -194,16 +329,19 @@ Weapon newShot(uint8_t weaponState){
 	self->projAccel =0;
 
 	self->rof = 30 - 5*roflvl;
+	self->fire = &fireShot;
 
 	return self;
 
 }
+//ToDo: Implement shotgun with new projectile type
 void fireShot(Weapon self, Object source, Environment mainEnv);
+**/
 
 Weapon newMachine(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = MACHINE;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;
@@ -214,25 +352,65 @@ Weapon newMachine(uint8_t weaponState){
 	roflvl = (weaponState& 0b00110000)>>4;
 	uniquelvl = (weaponState& 0b11000000)>>6;
 
-	self->damage = 1 + damagelvl;
+	self->damage = 2 + damagelvl;
 
 
 	self->cost = 4 - uniquelvl;
 
-	self->projSpeed =10 + 10*speedlvl;
+	self->projSpeed =20 + 10*speedlvl;
 	self->projAccel =0;
 
-	self->rof = 30 - 5*roflvl;
+	self->rof = 16 - 3*roflvl;
+
+	self->fire = &fireMachine;
 
 	return self;
 
 }
-void fireMachine(Weapon self, Object source, Environment mainEnv);
+void fireMachine(Weapon self, Object source, Environment mainEnv){
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
 
-Weapon newDisc(uint8_t weaponState){
+		Object b0 = newProjectile(BULLET);
+
+		if(source->type == PLAYER){
+			b0->type= PLAYER_PROJECTILE;
+			uint8_t randpos;
+			randpos = ((uint8_t) random())%source->ly;
+			b0->setXY(b0,source->x+source->lx, source->y + randpos);
+			b0->entity->v_x = self->projSpeed;
+			b0->entity->a_x = self->projAccel;
+			source->entity->v_x-=5;
+
+		}
+		else if( source->type == ENEMY){
+			b0->type = ENEMY_PROJECTILE;
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->entity->v_x = -self->projSpeed;
+			b0->entity->a_x = -self->projAccel;
+			source->entity->v_x+=5;
+		}
+
+
+		b0->entity->armor = self->damage;
+		b0->entity->health = 1;
+
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+
+		addObject(mainEnv, b0);
+		}
+}
+
+
+Weapon newNoppy(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = GUN;
+	self->weaponType = NOPPY;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;
@@ -248,15 +426,54 @@ Weapon newDisc(uint8_t weaponState){
 
 	self->cost = 4 - uniquelvl;
 
-	self->projSpeed =10 + 10*speedlvl;
+	self->projSpeed =20 + 6*speedlvl;
 	self->projAccel =0;
 
 	self->rof = 30 - 5*roflvl;
 
+	self->fire = &fireDisc;
+
 	return self;
 
 }
-void fireDisc(Weapon self, Object source, Environment mainEnv);
+void fireDisc(Weapon self, Object source, Environment mainEnv){
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
+		uart_putc('a');
+
+		Object b0 = newProjectile(DISC);
+
+		if(source->type == PLAYER){
+			b0->type= PLAYER_PROJECTILE;
+			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
+			b0->entity->v_x = self->projSpeed;
+			b0->entity->a_x = self->projAccel;
+
+
+		}
+		else if( source->type == ENEMY){
+			b0->type = ENEMY_PROJECTILE;
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->entity->v_x = -self->projSpeed;
+			b0->entity->a_x = -self->projAccel;
+		}
+
+		b0->entity->v_y = source->entity->v_y%b0->entity->v_max;
+
+		b0->entity->armor = self->damage;
+		b0->entity->health = 1;
+
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+
+		addObject(mainEnv, b0);
+		}
+}
+
 
 Weapon newBounce(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
@@ -285,4 +502,5 @@ Weapon newBounce(uint8_t weaponState){
 	return self;
 
 }
-void fireBounce(Weapon self, Object source, Environment mainEnv);
+
+//void fireBounce(Weapon self, Object source, Environment mainEnv);

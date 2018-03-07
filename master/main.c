@@ -74,8 +74,11 @@ int main(void)
 	display_mainmenu();
 	
 	Object obj1 = newPlayer(20,20);
-	obj1->entity->weaponA = newGun(0);
+	obj1->entity->weaponA = newNoppy(0);
 	printN(obj1->entity->weaponA,0,2);
+	obj1->entity->weaponB = newHeavy(0);
+
+	printN(obj1->entity->weaponB,0,4);
 	addObject(env,obj1);
 
 	Object enemy = 0;
@@ -85,13 +88,13 @@ int main(void)
 		updateEnvironment(env);
 
 		//For each passed frame execute think of each object.
-		/**
+
 		if((t<5) && env->time > env->lastTime){
 			enemy = newEnemyGlider((uint8_t)random()/16*4,(uint8_t)random()/2);
 			addObject(env,enemy);
 			t++;
 		}
-		**/
+
 
 		for(i=0; i<env->time-env->lastTime+1; i++){
 			for(j=0; j<env->oPos; j++){

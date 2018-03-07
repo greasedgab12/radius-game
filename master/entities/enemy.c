@@ -32,7 +32,7 @@
 
 
 Object newEnemy(uint8_t x, uint8_t y){
-	Object self = newObject(x,y,8,8,enemy_vessel_0);
+	Object self = newObject(x,y,9,9,enemy_0);
 	self->type = ENEMY;
 	self->entity = newEntity();
 	self->think = &enemyThink;
@@ -44,7 +44,8 @@ Object newEnemy(uint8_t x, uint8_t y){
 }
 
 Object newEnemyGlider(uint8_t y, uint8_t f){
-	Object self = newEnemy(MAXX-8,y);
+	Object self = newEnemy(MAXX,y);
+	self->setXY(self,MAXX -self->lx, y);
 	self->think = &enemyGliderThink;
 
 	self->entity->param1 = f;
