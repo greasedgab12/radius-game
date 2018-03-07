@@ -7,6 +7,8 @@
  */
 
 #include <entities/general.h>
+#include <entities/projectile.h>
+#include <entity.h>
 #include <stdlib.h>
 #include "structure.h"
 #include "defines.h"
@@ -18,36 +20,28 @@
 
 
 #include "entities/player.h"
-#include "entities/bullet.h"
-#include "entities/enemy.h"
-
-PlayerEnv newPlayerEnv(){
-
-    PlayerEnv self = (PlayerEnv)malloc(sizeof(struct PlayerEnv_Struct));
-    self->health = 20;
-    self->energy = 0;
-    self->armor = 1;
-
-    self->acceleration = 1 + FRICTION;
-    self->v_max = 50 + FRICTION;
-    self->v_x = 0;
-    self->v_y = 0;
-    self->s_x = 0;
-    self->s_y = 0;
-
-    self->v_time = 0;
-    self->v_delay =2;// 25;
-
-    self->rof_time =0;
-    self->rof_delay = 30;
-
-    return self;
-}
+#include "entity.h"
 
 Object newPlayer(uint8_t x, uint8_t y){
 	Object self = newObject(x,y,8,8,vessel_0);
 	self->type = PLAYER;
-	self->objectEnv = newPlayerEnv();
+	self->entity = newEntity();
+	self->entity->health = 20;
+    self->entity->energy = 0;
+    self->entity->armor = 1;
+
+    self->entity->acceleration = 1 + FRICTION;
+    self->entity->v_max = 50 + FRICTION;
+    self->entity->v_x = 0;
+    self->entity->v_y = 0;
+    self->entity->s_x = 0;
+    self->entity->s_y = 0;
+
+    self->entity->v_time = 0;
+    self->entity->v_delay =2;// 25;
+
+    self->entity->rof_time =0;
+    self->entity->rof_delay = 30;
 	self->think = &playerThink;
 	self->collide =&playerCollide;
 
@@ -57,8 +51,7 @@ Object newPlayer(uint8_t x, uint8_t y){
 }
 
 void playerThink(Object self, Environment mainEnv){
-	//Cast the void pointer to PlayerEnv.
-	PlayerEnv env = (PlayerEnv)self->objectEnv;
+
 	//Movement
 	int8_t a_x = 0, a_y = 0;
 	//Button reactions
@@ -66,24 +59,24 @@ void playerThink(Object self, Environment mainEnv){
 	 * Only non opposing directions can be applied to the acceleration.
 	**/
 	if(mainEnv->buttons & M_U){
-		a_y = -env->acceleration;
+		a_y = -self->entity->acceleration;
 	}
 	else if(mainEnv->buttons & M_D){
-		a_y = env->acceleration;
+		a_y = self->entity->acceleration;
 	}
 
 	if(mainEnv->buttons & M_L){
-		a_x = -env->acceleration;
+		a_x = -self->entity->acceleration;
 	}
 	else if(mainEnv->buttons & M_R){
-		a_x = env->acceleration;
+		a_x = self->entity->acceleration;
 	}
 	/**
 	 * A and B buttons.
 	 */
 	if(mainEnv->buttons & M_A){
-		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay){
-			env->rof_time = mainEnv->time;
+		if(((uint16_t) mainEnv->time) >= self->entity->rof_time + self->entity->rof_delay){
+			self->entity->rof_time = mainEnv->time;
 			Object b0 = newBullet(self->x+self->lx, self->y+3, 25, 0,1 );
 			b0->type = PLAYER_PROJECTILE;
 			addObject(mainEnv, b0);
@@ -91,8 +84,8 @@ void playerThink(Object self, Environment mainEnv){
 	}
 	else if(mainEnv->buttons & M_B){
 
-		if(((uint16_t) mainEnv->time) >= env->rof_time + env->rof_delay){
-					env->rof_time = mainEnv->time;
+		if(((uint16_t) mainEnv->time) >= self->entity->rof_time + self->entity->rof_delay){
+					self->entity->rof_time = mainEnv->time;
 					Object b0 = newBullet(self->x+self->lx, self->y, 30, -2,1 );
 					b0->type = PLAYER_PROJECTILE;
 					Object b1 = newBullet(self->x+self->lx, self->y+4, 30, 0,1 );
@@ -110,69 +103,67 @@ void playerThink(Object self, Environment mainEnv){
 	 */
 
 
-	if(((uint16_t) mainEnv->time) >= env->v_time + env->v_delay){
+	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
 
 		//Update time variable to correctly acquire time passed.
-		env->v_time = mainEnv->time;
+		self->entity->v_time = mainEnv->time;
 		/**Apply acceleration to velocity
 		 * Velocity in each direction cannot exceed maximum velocity.
 		 */
 		//x-direction
 
-		if( abs(env->v_x + a_x) < env->v_max){
-			env->v_x += a_x;
+		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
+			self->entity->v_x += a_x;
 		}
 
 		//y-direction
-		if( abs(env->v_y + a_y) < env->v_max){
-			env->v_y += a_y;
+		if( abs(self->entity->v_y + a_y) < self->entity->v_max){
+			self->entity->v_y += a_y;
 		}
 
 
 		//Apply Friction to velocity
 		//x-direction
-		if(env->v_x > FRICTION){
-			env->v_x -=FRICTION;
+		if(self->entity->v_x > FRICTION){
+			self->entity->v_x -=FRICTION;
 		}
-		else if( env->v_x < -FRICTION){
-			env->v_x +=FRICTION;
+		else if( self->entity->v_x < -FRICTION){
+			self->entity->v_x +=FRICTION;
 		}
 		else{
-			env->v_x = 0;
+			self->entity->v_x = 0;
 		}
 		//y-direction
-		if(env->v_y > FRICTION){
-			env->v_y -=FRICTION;
+		if(self->entity->v_y > FRICTION){
+			self->entity->v_y -=FRICTION;
 		}
-		else if( env->v_y < -FRICTION){
-			env->v_y +=FRICTION;
+		else if( self->entity->v_y < -FRICTION){
+			self->entity->v_y +=FRICTION;
 		}
 		else{
-			env->v_y = 0;
+			self->entity->v_y = 0;
 		}
 		//Apply velocitiy to position.
-		moveObject(self, mainEnv,(env->s_x+env->v_x)/10,(env->s_y+env->v_y)/10);
+		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
 		//Add the remainder to the next step:
-		env->s_x = (env->s_x+env->v_x)%10;
-		env->s_y = (env->s_y+env->v_y)%10;
+		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
+		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
 
 	}
 }
 
 uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
-	PlayerEnv selfEnv = (PlayerEnv)(self->objectEnv);
 
 	if(other){
 		if(other->type == ENEMY){
-			EnemyEnv otherEnv = (EnemyEnv)other->objectEnv;
 			rebound(self,other, cType);
-			if(selfEnv->health<otherEnv->armor){
-				selfEnv->health = 0;
+			if(self->entity->health<other->entity->armor){
+				self->entity->health = 0;
 			}
 			else{
-				selfEnv->health -= otherEnv->armor;
+				self->entity->health -= other->entity->armor;
 			}
-			if(selfEnv->health ==0){
+			if(self->entity->health ==0){
 				self->isAlive =0;
 			}
 

@@ -32,7 +32,7 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *dat
 
 
 void releaseObject(Object instance){
-	free(instance->objectEnv);
+	free(instance->entity);
 	free(instance);
 }
 

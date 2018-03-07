@@ -4,7 +4,7 @@
  *  Created on: Mar 2, 2018
  *      Author: root
  */
-#include <entities/bullet.h>
+#include <entities/projectile.h>
 #include "sprite.h"
 #include <stdlib.h>
 
@@ -26,14 +26,14 @@ BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage){
 
 Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage){
 	Object self = newObject(x,y,4,2,projectile_1);
-	self->objectEnv = newBulletEnv(v_x, v_y, damage);
+	self->entity = newBulletEnv(v_x, v_y, damage);
 	self->think = &bulletThink;
 	self->collide = &bulletCollide;
 	return self;
 }
 
 void bulletThink(Object self, Environment mainEnv){
-	BulletEnv env = (BulletEnv)self->objectEnv;
+	BulletEnv env = (BulletEnv)self->entity;
 
 	if(((uint16_t) mainEnv->time) >= env->v_time + env->v_delay){
 		int8_t vx = (env->s_x+env->v_x)/10;

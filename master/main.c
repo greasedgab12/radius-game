@@ -2,6 +2,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <entities/general.h>
+#include <entities/projectile.h>
+#include <entity.h>
 #include <inttypes.h>
 #include <util/delay.h>
 #include "uart.h"
@@ -15,9 +17,7 @@
 #include "defines.h"
 #include "environment.h"
 #include "entities/player.h"
-#include "entities/bullet.h"
 #include "entities/general.h"
-#include "entities/enemy.h"
 #include "sprite.h"
 #include "menu.h"
 
@@ -72,11 +72,6 @@ int main(void)
 	Object obj1 = newPlayer(20,20);
 	addObject(env,obj1);
 
-	Object obj2 = newObject(50,43,28,28, dino);
-	obj2->type =OBSTACLE;
-	obj2->think = &noOp;
-	obj2->collide = &simpleCollide;
-	addObject(env, obj2);
 	Object enemy = 0;
 	sei();
 	env->lastTime = getMsTimer()/17;

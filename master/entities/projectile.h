@@ -5,8 +5,8 @@
  *      Author: root
  */
 
-#ifndef MASTER_ENTITIES_BULLET_H_
-#define MASTER_ENTITIES_BULLET_H_
+#ifndef MASTER_ENTITIES_PROJECTILE_H_
+#define MASTER_ENTITIES_PROJECTILE_H_
 #include <entities/general.h>
 #include <stdlib.h>
 #include "structure.h"
@@ -40,4 +40,4 @@ void bulletThink(Object self, Environment mainEnv);
 uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter);
 
 
-#endif /* MASTER_ENTITIES_BULLET_H_ */
+#endif /* MASTER_ENTITIES_PROJECTILE_H_ */

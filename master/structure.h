@@ -13,6 +13,7 @@
 typedef struct Environment_struct* Environment;
 typedef struct Object_Struct* Object;
 typedef struct Block_struct* Block;
+typedef struct Entity_Struct* Entity;
 
 struct Block_struct{
 	uint8_t x,y,lx,ly;
@@ -34,7 +35,7 @@ struct Object_Struct{
 	uint8_t drawState;
 
 	//Pointer to Object data aside from Position and Graphics i.e. HP of player.
-	void* objectEnv;
+	Entity entity;
 	//Type of the Object. See Objectlist for types
 	uint8_t type;
 	//State of the object i.e. will cause the object to be cleaned up.
@@ -63,6 +64,43 @@ struct Environment_struct{
 	Block* blockList;
 	uint8_t bPos;
 };
+
+
+
+struct Entity_Struct{
+
+	//Velocity variables
+	uint8_t acceleration;
+	int8_t a_x;
+    int8_t a_y;
+
+	uint16_t v_time;
+	uint8_t v_delay;
+
+    uint8_t v_max;
+    int8_t v_x;
+	int8_t v_y;
+
+	int8_t s_x;
+	int8_t s_y;
+
+	//Variables governing entity behavior.
+	uint8_t state;
+
+	uint8_t health;
+	uint8_t energy;
+	uint8_t armor;
+
+	uint8_t param1;
+	uint8_t param2;
+
+
+	//ToDO: Replace rof variables with weapon objects.
+	//Rate of fire variables
+	uint16_t rof_time;
+	uint8_t rof_delay;
+};
+
 
 
 #endif /* MASTER_STRUCTURE_H_ */
