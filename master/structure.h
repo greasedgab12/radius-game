@@ -14,6 +14,9 @@ typedef struct Environment_struct* Environment;
 typedef struct Object_Struct* Object;
 typedef struct Block_struct* Block;
 typedef struct Entity_Struct* Entity;
+typedef struct Weapon_Struct* Weapon;
+
+
 
 struct Block_struct{
 	uint8_t x,y,lx,ly;
@@ -94,13 +97,29 @@ struct Entity_Struct{
 	uint8_t param1;
 	uint8_t param2;
 
-
-	//ToDO: Replace rof variables with weapon objects.
-	//Rate of fire variables
-	uint16_t rof_time;
-	uint8_t rof_delay;
+	Weapon weaponA;
+	Weapon weaponB;
 };
 
+struct Weapon_Struct{
+
+	uint8_t damage;
+	uint8_t cost;
+	uint8_t projCount;
+
+	uint8_t projSpeed;
+	uint8_t projAccel;
+
+	uint16_t rofTime;
+	uint8_t rof;
+
+	uint8_t weaponType;
+	uint8_t weaponState;
+
+
+	void (*fire)(Weapon self, Object source, Environment mainEnv);
+
+};
 
 
 #endif /* MASTER_STRUCTURE_H_ */

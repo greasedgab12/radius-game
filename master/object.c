@@ -4,6 +4,7 @@
 #include "defines.h"
 #include "timer.h"
 #include "sprite.h"
+#include "entity.h"
 
 
 
@@ -32,7 +33,7 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *dat
 
 
 void releaseObject(Object instance){
-	free(instance->entity);
+	releaseEntity(instance->entity);
 	free(instance);
 }
 

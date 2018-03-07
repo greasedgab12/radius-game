@@ -29,11 +29,22 @@ Entity newEntity(){
     self->param1 =0;
     self->param2 =0;
 
+    self->weaponA =0;
+    self->weaponB =0;
+
     self->v_time = 0;
     self->v_delay =2;// 25;
 
-    self->rof_time =0;
-    self->rof_delay = 30;
 
     return self;
+}
+
+void releaseEntity(Entity instance){
+	if(instance->weaponA){
+		free(instance->weaponA);
+	}
+	if(instance->weaponB){
+		free(instance->weaponB);
+	}
+	free(instance);
 }

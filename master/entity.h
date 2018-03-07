@@ -14,5 +14,6 @@
 
 Entity newEntity();
 
+void releaseEntity(Entity instance);
 
 #endif /* MASTER_ENTITY_H_ */

@@ -5,44 +5,25 @@
  *      Author: root
  */
 #include <entities/projectile.h>
+#include "entity.h"
 #include "sprite.h"
+
 #include <stdlib.h>
 
 
-BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage){
-	BulletEnv self = (BulletEnv)malloc(sizeof(struct BulletEnv_Struct));
-	self->damage =damage;
-	self->v_x =v_x;
-	self->v_y =v_y;
-
-	self->s_x =0;
-	self->s_y =0;
-
-	self->v_delay = 2;
-	self->v_time = 0;
-	return self;
-}
 
 
-Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage){
-	Object self = newObject(x,y,4,2,projectile_1);
-	self->entity = newBulletEnv(v_x, v_y, damage);
-	self->think = &bulletThink;
-	self->collide = &bulletCollide;
-	return self;
-}
 
 void bulletThink(Object self, Environment mainEnv){
-	BulletEnv env = (BulletEnv)self->entity;
 
-	if(((uint16_t) mainEnv->time) >= env->v_time + env->v_delay){
-		int8_t vx = (env->s_x+env->v_x)/10;
-		int8_t vy = (env->s_y+env->v_y)/10;
+	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
+		int8_t vx = (self->entity->s_x+self->entity->v_x)/10;
+		int8_t vy = (self->entity->s_y+self->entity->v_y)/10;
 		//Add the remainder to the velocity
-		env->s_x= (env->s_x+env->v_x)%10;
-		env->s_y= (env->s_y+env->v_y)%10;
+		self->entity->s_x= (self->entity->s_x+self->entity->v_x)%10;
+		self->entity->s_y= (self->entity->s_y+self->entity->v_y)%10;
 
-		env->v_time = mainEnv->time;
+		self->entity->v_time = mainEnv->time;
 		moveObject(self, mainEnv, vx, vy);
 
 	}
@@ -71,7 +52,6 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 			else{
 				drag(other,5);
 				self->isAlive =0;
-				print("huh",0,4);
 				return iter?1:other->collide(other,self,cType, iter++);
 			}
 		}
@@ -90,4 +70,16 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 		self->isAlive =0;
 		return 1;
 	}
+}
+
+Object newProjectile(uint8_t projectileType){
+	if(projectileType == BULLET){
+		Object self = newObject(0,0,3,2,projectile_1);
+		self->entity = newEntity();
+		self->think =&bulletThink;
+		self->collide = &bulletCollide;
+		return self;
+
+	}
+	return 0;
 }

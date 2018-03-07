@@ -15,6 +15,7 @@
 #include "display.h"
 #include "char.h"
 #include "environment.h"
+#include "sprite.h"
 
 typedef struct BulletEnv_Struct* BulletEnv;
 
@@ -29,6 +30,10 @@ struct BulletEnv_Struct{
 	uint16_t v_time;
 	uint8_t v_delay;
 };
+
+
+Object newProjectile(uint8_t projectileType);
+
 
 BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage);
 

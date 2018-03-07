@@ -200,15 +200,14 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 			}
 		}
 		else if( other->type == PLAYER_PROJECTILE){
-			BulletEnv otherEnv = (BulletEnv)other->entity;
 			rebound(self,other,cType);
 
 
-			if(self->entity->health<otherEnv->damage){
+			if(self->entity->health<other->entity->armor){
 				self->entity->health = 0;
 			}
 			else{
-				self->entity->health -= otherEnv->damage;
+				self->entity->health -= other->entity->armor;
 			}
 			if(self->entity->health ==0){
 				self->isAlive =0;

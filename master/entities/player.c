@@ -40,8 +40,7 @@ Object newPlayer(uint8_t x, uint8_t y){
     self->entity->v_time = 0;
     self->entity->v_delay =2;// 25;
 
-    self->entity->rof_time =0;
-    self->entity->rof_delay = 30;
+
 	self->think = &playerThink;
 	self->collide =&playerCollide;
 
@@ -75,27 +74,14 @@ void playerThink(Object self, Environment mainEnv){
 	 * A and B buttons.
 	 */
 	if(mainEnv->buttons & M_A){
-		if(((uint16_t) mainEnv->time) >= self->entity->rof_time + self->entity->rof_delay){
-			self->entity->rof_time = mainEnv->time;
-			Object b0 = newBullet(self->x+self->lx, self->y+3, 25, 0,1 );
-			b0->type = PLAYER_PROJECTILE;
-			addObject(mainEnv, b0);
+		if(self->entity->weaponA){
+			self->entity->weaponA->fire(self->entity->weaponA, self, mainEnv);
 		}
 	}
 	else if(mainEnv->buttons & M_B){
-
-		if(((uint16_t) mainEnv->time) >= self->entity->rof_time + self->entity->rof_delay){
-					self->entity->rof_time = mainEnv->time;
-					Object b0 = newBullet(self->x+self->lx, self->y, 30, -2,1 );
-					b0->type = PLAYER_PROJECTILE;
-					Object b1 = newBullet(self->x+self->lx, self->y+4, 30, 0,1 );
-					b1->type = PLAYER_PROJECTILE;
-					Object b2 = newBullet(self->x+self->lx, self->y+8, 30, 2,1 );
-					b2->type = PLAYER_PROJECTILE;
-					addObject(mainEnv, b0);
-					addObject(mainEnv, b1);
-					addObject(mainEnv, b2);
-				}
+		if(self->entity->weaponB){
+			self->entity->weaponB->fire(self->entity->weaponB, self, mainEnv);
+		}
 	}
 
 	/**
@@ -155,8 +141,10 @@ void playerThink(Object self, Environment mainEnv){
 uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 
 	if(other){
-		if(other->type == ENEMY){
-			rebound(self,other, cType);
+		if(other->type == ENEMY || other->type == ENEMY_PROJECTILE){
+			if(other->type == ENEMY){
+				rebound(self,other, cType);
+			}
 			if(self->entity->health<other->entity->armor){
 				self->entity->health = 0;
 			}

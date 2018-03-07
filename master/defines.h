@@ -49,5 +49,24 @@
 #define LEFTC	3
 #define RIGHTC	4
 
+//Weapon Types
+#define GUN	1
+#define TRI	2
+#define LAUNCHER 3
+#define HEAVY 4
+#define NOPPY 5
+#define SHOTGUN 6
+#define MACHINE 7
+#define BOUNCE 8
+
+//Bullet Types
+#define BULLET 1
+#define MISSILE 2
+#define DISC 3
+#define SHOT 4
+#define BALL 5
+#define EXPLOSION 6
+
+
 
 #endif /* MASTER_DEFINES_H_ */
