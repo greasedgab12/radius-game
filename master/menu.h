@@ -89,6 +89,8 @@
 #define GAME_OPTIONS_1  41
 #define GAME_OPTIONS_2  42
 
+#define GAME_SHOP_UPGRADE_WEAPON 36
+#define GAME_SHOP_UPGRADE_SHIP 37
 
 
 
@@ -112,8 +114,16 @@
 #define PRICE_SHIP_3 230
 #define PRICE_SHIP_4
 
+
+
 void display_mainmenu(void);
 Object display_gamemenu(Object Player);
 
+//const char *duplicate_text[] = {"Continue","Save","SHOP","OPTIONS","D","/",//5
+//		"SELECT EQUIPMENT","BUY WEAPONS","BUY VESSELS","EQUIPMENT","CHANGE WEAPON",//10
+//		"CHANGE SHIPTYPE","SELECTED","A: GUN","B: ","empty",//15
+//		" ","GUN","MULTI","LAUNCHER","HEAVY",//20
+//		"NOPPY","SHOTGUN","MACHINEGUN","BOUNCE","PATROL",
+//		" "};//25
 
 #endif

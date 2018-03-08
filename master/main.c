@@ -71,18 +71,18 @@ int main(void)
 
 	sei();
 
-	while(1)
-	{
-		if(B_A)uart_putc('a');
-		else if(B_B)uart_putc('b');
-		else if(B_UP)uart_putc('c');
-		else if(B_DOWN)uart_putc('d');
-		else if(B_LEFT)uart_putc('e');
-		else if(B_RIGHT)uart_putc('f');
-		else if(B_PAUSE)uart_putc('g');
-		else if(B_SELECT)uart_putc('h');
-
-	}
+//	while(1)
+//	{
+//		if(B_A)uart_putc('a');
+//		else if(B_B)uart_putc('b');
+//		else if(B_UP)uart_putc('c');
+//		else if(B_DOWN)uart_putc('d');
+//		else if(B_LEFT)uart_putc('e');
+//		else if(B_RIGHT)uart_putc('f');
+//		else if(B_PAUSE)uart_putc('g');
+//		else if(B_SELECT)uart_putc('h');
+//
+//	}
 
 
 	while(1){
