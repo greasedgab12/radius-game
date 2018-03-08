@@ -76,7 +76,7 @@ int main(void)
 	Object obj1 = newPlayer(20,20);
 	obj1->entity->weaponA = newLauncher(0);
 	printN(obj1->entity->weaponA,0,2);
-	obj1->entity->weaponB = newHeavy(0);
+	obj1->entity->weaponB = newBounce(0b00000000);
 
 	printN(obj1->entity->weaponB,0,4);
 	addObject(env,obj1);
@@ -128,7 +128,7 @@ int main(void)
 
 		//Check, wether drawn sprites overlap one another and draw overlapping parts again.
 		//Skip if frames are dropped.
-		if(env->lastTime -env->time == 1){
+		if(env->time -env->lastTime < 3){
 			checkMappedSpriteCollision(env->objectList,env->oPos);
 		}
 		//Update drawState of every object.

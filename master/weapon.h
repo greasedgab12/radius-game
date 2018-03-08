@@ -26,8 +26,8 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv);
 Weapon newShot(uint8_t weaponState);
 void fireShot(Weapon self, Object source, Environment mainEnv);
 
-Weapon newMachine(uint8_t weaponState);
-void fireMachine(Weapon self, Object source, Environment mainEnv);
+Weapon newMachineGun(uint8_t weaponState);
+void fireMachineGun(Weapon self, Object source, Environment mainEnv);
 
 Weapon newNoppy(uint8_t weaponState);
 void fireDisc(Weapon self, Object source, Environment mainEnv);

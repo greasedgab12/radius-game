@@ -32,7 +32,8 @@ const uint8_t player_4[]  PROGMEM = {9,27, 	 //player_4.bmp
 0x30,0xcf,0x0,0xc0,0x30,0x0,0x0,0xf,0x0
 };
 
-const uint8_t shotmiddle[]  PROGMEM = {4,4, 	 //shotmiddle.bmp
+const uint8_t shotmiddle_sprite[]  PROGMEM = {4,8, 	 //shotmiddle_sprite.bmp
+0xaa,0xaa,0xaa,0xaa,
 0xaa,0xaa,0xaa,0xaa
 };
 
@@ -43,14 +44,19 @@ const uint8_t shade[]  PROGMEM = {20,80, 	 //shade.bmp
 0xff,0xaa,0x55,0x0,0xff,0xaa,0x55,0x0,0xff,0xaa,0x55,0x0,0xff,0xaa,0x55,0x0,0xff,0xff,0xff,0x3
 };
 
-const uint8_t shotlower[]  PROGMEM = {4,4, 	 //shotlower.bmp
-0x1,0x6,0x1a,0x6a
+const uint8_t shotupper_sprite[]  PROGMEM = {4,8, 	 //shotupper_sprite.bmp
+0x40,0x1,0x90,0x6,
+0xa4,0x1a,0xa9,0x6a
 };
 
 const uint8_t enemy_4[]  PROGMEM = {9,27, 	 //enemy_4.bmp
 0x0,0xf,0x0,0xc0,0x30,0x0,0x3c,0xcf,0x3,
 0x33,0xcf,0xc,0x33,0xcf,0xc,0x33,0xcf,0xc,
 0xcf,0x30,0xf,0x33,0xcf,0xc,0xf,0xf,0xf
+};
+
+const uint8_t shotlower_sprite[]  PROGMEM = {4,4, 	 //shotlower_sprite.bmp
+0x1,0x6,0x1a,0x6a
 };
 
 const uint8_t dino[]  PROGMEM = {28,196, 	 //dino.bmp
@@ -110,10 +116,6 @@ const uint8_t bulletHeavy_sprite[]  PROGMEM = {6,12, 	 //bulletHeavy_sprite.bmp
 0xff,0x3,0xff,0x3,0xfc,0x0
 };
 
-const uint8_t shotupper[]  PROGMEM = {4,4, 	 //shotupper.bmp
-0x40,0x90,0xa4,0xa9
-};
-
 const uint8_t player_2[]  PROGMEM = {9,27, 	 //player_2.bmp
 0xf0,0xf0,0x0,0xc0,0x3f,0x0,0x0,0xf,0x0,
 0xf,0xf,0xf,0x3f,0xcf,0xf,0xfc,0xff,0x3,
@@ -136,20 +138,20 @@ if (sprite == disc_sprite){ return 2;}
 if (sprite == enemy_2){ return 3;}
 if (sprite == ball_sprite){ return 4;}
 if (sprite == player_4){ return 5;}
-if (sprite == shotmiddle){ return 6;}
+if (sprite == shotmiddle_sprite){ return 6;}
 if (sprite == shade){ return 7;}
-if (sprite == shotlower){ return 8;}
+if (sprite == shotupper_sprite){ return 8;}
 if (sprite == enemy_4){ return 9;}
-if (sprite == dino){ return 10;}
-if (sprite == enemy_3){ return 11;}
-if (sprite == missile_sprite){ return 12;}
-if (sprite == radius){ return 13;}
-if (sprite == player_3){ return 14;}
-if (sprite == enemy_1){ return 15;}
-if (sprite == player_1){ return 16;}
-if (sprite == enemy_0){ return 17;}
-if (sprite == bulletHeavy_sprite){ return 18;}
-if (sprite == shotupper){ return 19;}
+if (sprite == shotlower_sprite){ return 10;}
+if (sprite == dino){ return 11;}
+if (sprite == enemy_3){ return 12;}
+if (sprite == missile_sprite){ return 13;}
+if (sprite == radius){ return 14;}
+if (sprite == player_3){ return 15;}
+if (sprite == enemy_1){ return 16;}
+if (sprite == player_1){ return 17;}
+if (sprite == enemy_0){ return 18;}
+if (sprite == bulletHeavy_sprite){ return 19;}
 if (sprite == player_2){ return 20;}
 if (sprite == bullet_sprite){ return 21;}
 if (sprite == vessel_0){ return 22;}
