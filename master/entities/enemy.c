@@ -24,7 +24,7 @@
 #include "display.h"
 #include "char.h"
 #include "environment.h"
-#include "sprite.h"
+#include "sprites.h"
 
 #include "entity.h"
 #include "entities/enemy.h"

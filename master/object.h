@@ -16,7 +16,7 @@ Environment newEnvironment(Object* objectList);
  * uint8_t *data: pointer to data array in memory.
  * return Object: returns pointer to newly allocated Object.
  */
-Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly, const uint8_t *sprite);
+Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly, const uint8_t* sprite);
 
 /** releaseObject: free memory of given object instance.
  * Object instance: Object to be freed.
@@ -28,7 +28,7 @@ void releaseObject(Object instance);
  * setObjectXY: Change position values of object. This is does not equal moving the object.
  */
 void setObjectXY(Object self, uint8_t x, uint8_t y);
-void setObjectData(Object self, const uint8_t *data);
+void setObjectData(Object self, const uint8_t* sprite);
 
 /**drawObject: map and draw Object on screen.
 **/

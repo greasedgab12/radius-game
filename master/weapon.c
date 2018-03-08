@@ -8,6 +8,8 @@
 #include "structure.h"
 #include "defines.h"
 #include "environment.h"
+#include "uart.h"
+
 
 #include "entities/projectile.h"
 #include "weapon.h"
@@ -169,7 +171,7 @@ void fireTri(Weapon self, Object source, Environment mainEnv){
 
 }
 
-Weapon newMissile(uint8_t weaponState){
+Weapon newLauncher(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
 	self->weaponType = LAUNCHER;
@@ -188,8 +190,8 @@ Weapon newMissile(uint8_t weaponState){
 
 	self->cost = 10;
 
-	self->projSpeed =10 + 10*speedlvl;
-	self->projAccel =1 + uniquelvl;
+	self->projSpeed =20 + 10*speedlvl;
+	self->projAccel =1 + 2*uniquelvl;
 
 	self->rof = 70 - 5*roflvl;
 
@@ -217,6 +219,9 @@ void fireMissile(Weapon self, Object source, Environment mainEnv){
 			b0->entity->v_x = -self->projSpeed;
 
 		}
+
+		b0->entity->v_x += source->entity->v_x/2;
+		b0->entity->v_y += source->entity->v_y/2;
 
 		b0->entity->armor = self->damage;
 		b0->entity->health = 1;
@@ -273,7 +278,7 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv){
 		if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
-		Object b0 = newProjectile(BULLET);
+		Object b0 = newProjectile(BULLETHEAVY);
 
 		if(source->type == PLAYER){
 			b0->type= PLAYER_PROJECTILE;

@@ -6,7 +6,7 @@
  */
 #include <entities/projectile.h>
 #include "entity.h"
-#include "sprite.h"
+#include "sprites.h"
 
 #include <stdlib.h>
 
@@ -76,17 +76,7 @@ void missileThink(Object self, Environment mainEnv){
 				break;
 			}
 		}
-		printN(target,0,8);
 		if(target){
-			if(self->x < target->x){
-				self->entity->a_x = self->entity->acceleration;
-			}
-			else if(self->x + self->lx > target->x){
-				self->entity->a_x = -self->entity->acceleration;
-			}
-			else{
-				self->entity->a_x =0;
-			}
 			if(self->y < target->y){
 				self->entity->a_y = self->entity->acceleration;
 			}
@@ -96,9 +86,6 @@ void missileThink(Object self, Environment mainEnv){
 			else{
 				self->entity->a_y =0;
 			}
-		}
-		if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
-			self->entity->v_x += self->entity->a_x;
 		}
 
 		//y-direction
@@ -164,7 +151,7 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 
 Object newProjectile(uint8_t projectileType){
 	if(projectileType == BULLET){
-		Object self = newObject(0,0,3,2,projectile_1);
+		Object self = newObject(0,0,5,2,bullet_sprite);
 		self->entity = newEntity();
 		self->think =&bulletThink;
 		self->collide = &bulletCollide;
@@ -172,14 +159,22 @@ Object newProjectile(uint8_t projectileType){
 
 	}
 	else if(projectileType == MISSILE){
-		Object self = newObject(0,0,6,6,projectile_3);
+		Object self = newObject(0,0,8,4,missile_sprite);
 		self->entity = newEntity();
 		self->think =&missileThink;
 		self->collide = &bulletCollide;
 		return self;
 	}
 	else if(projectileType == DISC){
-		Object self = newObject(0,0,3,2,projectile_1);
+		Object self = newObject(0,0,6,6,disc_sprite);
+		self->entity = newEntity();
+		self->think =&bulletThink;
+		self->collide = &bulletCollide;
+		return self;
+
+	}
+	else if(projectileType == BULLETHEAVY){
+		Object self = newObject(0,0,8,5,bulletHeavy_sprite);
 		self->entity = newEntity();
 		self->think =&bulletThink;
 		self->collide = &bulletCollide;

@@ -16,7 +16,7 @@
 #include "display.h"
 #include "char.h"
 #include "environment.h"
-#include "sprite.h"
+#include "sprites.h"
 
 
 #include "entities/player.h"
@@ -57,6 +57,8 @@ void playerThink(Object self, Environment mainEnv){
 	/**D-Pad
 	 * Only non opposing directions can be applied to the acceleration.
 	**/
+	printN(self->entity->health,0,0);
+	printN(self->entity->energy,32,0);
 	if(mainEnv->buttons & M_U){
 		a_y = -self->entity->acceleration;
 	}
@@ -97,6 +99,8 @@ void playerThink(Object self, Environment mainEnv){
 		 * Velocity in each direction cannot exceed maximum velocity.
 		 */
 		//x-direction
+
+		self->entity->energy++;
 
 		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
 			self->entity->v_x += a_x;

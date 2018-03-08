@@ -66,7 +66,7 @@
 #define SHOT 4
 #define BALL 5
 #define EXPLOSION 6
-
+#define BULLETHEAVY 7
 
 
 #endif /* MASTER_DEFINES_H_ */

@@ -61,34 +61,33 @@ void rebound(Object self,Object other, uint8_t cType){
 		uy = uy?uy+20:0;
 
 		if(self->x < other->x){
-			self->entity->v_x = -ux;
+			self->entity->v_x = -ux/2;
 			other->entity->v_x = ux;
 		}
 		else{
-			self->entity->v_x = ux;
+			self->entity->v_x = ux/2;
 			other->entity->v_x = -ux;
 		}
 		if(self->y<other->y){
-			self->entity->v_y = -uy;
+			self->entity->v_y = -uy/2;
 			other->entity->v_y = uy;
 		}
 		else{
-			self->entity->v_y = uy;
+			self->entity->v_y = uy/2;
 			other->entity->v_y = -uy;
 		}
 	}
 
 	else if(self->type == ENEMY && other->type == PLAYER_PROJECTILE){
-		BulletEnv bullet = (BulletEnv) other->entity;
-		if(self->entity->armor + bullet->damage==0){
+		if(self->entity->armor + other->entity->armor==0){
 			ux = self->entity->v_x;
 			uy = self->entity->v_y;
-			self->entity->v_x = bullet->v_x;
-			self->entity->v_y = bullet->v_y;
+			self->entity->v_x = other->entity->v_x;
+			self->entity->v_y = other->entity->v_y;
 		}
 		else{
-			ux = 2*(self->entity->v_x*self->entity->armor + bullet->v_x*bullet->damage)/(self->entity->armor + bullet->damage);
-			uy = 2*(self->entity->v_y*self->entity->armor + bullet->v_y*bullet->damage)/(self->entity->armor + bullet->damage);
+			ux = 2*(self->entity->v_x*self->entity->armor + other->entity->v_x*other->entity->armor)/(self->entity->armor + other->entity->armor);
+			uy = 2*(self->entity->v_y*self->entity->armor + other->entity->v_y*other->entity->armor)/(self->entity->armor + other->entity->armor);
 			self->entity->v_x = ux -self->entity->v_x;
 			self->entity->v_y = uy -self->entity->v_y;
 		}
@@ -96,10 +95,10 @@ void rebound(Object self,Object other, uint8_t cType){
 	}
 	else if(other ==0){
 		if(cType == LEFTC || cType ==RIGHTC){
-			self->entity->v_x = -self->entity->v_x;
+			self->entity->v_x = -(self->entity->v_x);
 		}
 		else if(cType == UPPERC || cType == LOWERC){
-			self->entity->v_y = -self->entity->v_y;
+			self->entity->v_y = -(self->entity->v_y);
 		}
 	}
 

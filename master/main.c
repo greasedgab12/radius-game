@@ -70,11 +70,11 @@ int main(void)
     	objectList[i]=0;
     }
 	Environment env = newEnvironment(objectList);
-	
+
 	display_mainmenu();
 	
 	Object obj1 = newPlayer(20,20);
-	obj1->entity->weaponA = newNoppy(0);
+	obj1->entity->weaponA = newLauncher(0);
 	printN(obj1->entity->weaponA,0,2);
 	obj1->entity->weaponB = newHeavy(0);
 

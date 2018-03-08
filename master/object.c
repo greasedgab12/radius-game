@@ -8,7 +8,7 @@
 
 
 
-Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *data){
+Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sprite){
 
     Object self = (Object)malloc(sizeof(struct Object_Struct));
 
@@ -20,7 +20,7 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const uint8_t *dat
     self->ly =ly;
 
     self->setData = &setObjectData;
-    self->setData(self, data);
+    self->setData(self, sprite);
     self->msly = self->sly;
     self->msly += y%4?1:0;
     self->drawState = NOTDRAWN;
@@ -46,8 +46,8 @@ void setObjectXY(Object self, uint8_t x, uint8_t y){
     self->msly += y%4?1:0;
 }
 
-void setObjectData(Object self, const uint8_t *data){
-    self->data = load_sprite(data);
+void setObjectData(Object self, const uint8_t* sprite){
+    self->data = load_sprite(sprite);
 	self->slx = self->data[0];
 	self->sly = self->data[1] / self->data[0];
 
@@ -124,12 +124,12 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 		x = MAXX-self->lx;
 		self->collide(self, 0, RIGHTC, 0);
 	}
-	if(ry < 0 && ry < MINY-self->y){
+	if(ry < 0 && ry < MINY-self->y-1){
 		y = MINY;
 		self->collide(self, 0, UPPERC, 0);
 	}
 	else if(ry >0 && ry > MAXY-self->y-self->ly){
-		y = MAXY-self->ly;
+		y = MAXY-self->ly-1;
 		self->collide(self, 0, LOWERC, 0);
 	}
 
@@ -158,7 +158,7 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 					else if(collisionType ==LOWERC){
 						y = other->y +other->ly;
 					}
-					printN(collisionType,0,0);
+
 					/**
 					//Move only to the positon closest to the current position.
 					if(tx*tx+y*y <= x*x+ty*ty){
