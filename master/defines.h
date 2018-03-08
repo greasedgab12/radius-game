@@ -51,7 +51,7 @@
 
 //Weapon Types
 #define GUN	1
-#define TRI	2
+#define MULTI	2
 #define LAUNCHER 3
 #define HEAVY 4
 #define NOPPY 5

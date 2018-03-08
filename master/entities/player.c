@@ -26,9 +26,14 @@ Object newPlayer(uint8_t x, uint8_t y){
 	Object self = newObject(x,y,9,9,player_1);
 	self->type = PLAYER;
 	self->entity = newEntity();
-	self->entity->health = 20;
-    self->entity->energy = 0;
+	self->entity->health = 30;
+    self->entity->energy = 20;
     self->entity->armor = 1;
+
+    //Maximum energy reserve
+    self->entity->param1 = 30;
+    //Energy regeneration value
+    self->entity->param2 =2;
 
     self->entity->acceleration = 1 + FRICTION;
     self->entity->v_max = 50 + FRICTION;
@@ -99,13 +104,20 @@ void playerThink(Object self, Environment mainEnv){
 		 * Velocity in each direction cannot exceed maximum velocity.
 		 */
 		//x-direction
+		if(mainEnv->time%10==0){
+			if(self->entity->energy <self->entity->param1){
+				self->entity->energy+= self->entity->param2;
+			}
+			else{
+				self->entity->energy = self->entity->param1;
+			}
 
-		self->entity->energy++;
 
-		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
-			self->entity->v_x += a_x;
 		}
 
+		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
+				self->entity->v_x += a_x;
+			}
 		//y-direction
 		if( abs(self->entity->v_y + a_y) < self->entity->v_max){
 			self->entity->v_y += a_y;

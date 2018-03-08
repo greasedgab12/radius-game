@@ -45,7 +45,11 @@ Weapon newGun(uint8_t weaponState){
 
 }
 void fireGun(Weapon self, Object source, Environment mainEnv){
-		print("G",155,23);
+
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
+
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
@@ -86,10 +90,10 @@ void fireGun(Weapon self, Object source, Environment mainEnv){
 
 }
 
-Weapon newTri(uint8_t weaponState){
+Weapon newMulti(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = TRI;
+	self->weaponType = MULTI;
 	self->weaponState = weaponState;
 
 
@@ -112,13 +116,15 @@ Weapon newTri(uint8_t weaponState){
 
 	self->rof = 60 - 5*roflvl;
 
-	self->fire = &fireTri;
+	self->fire = &fireMulti;
 
 	return self;
 
 }
-void fireTri(Weapon self, Object source, Environment mainEnv){
-	print("T",155,23);
+void fireMulti(Weapon self, Object source, Environment mainEnv){
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
@@ -201,7 +207,9 @@ Weapon newLauncher(uint8_t weaponState){
 
 }
 void fireMissile(Weapon self, Object source, Environment mainEnv){
-	print("M",155,23);
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
@@ -275,7 +283,10 @@ Weapon newHeavy(uint8_t weaponState){
 
 }
 void fireHeavy(Weapon self, Object source, Environment mainEnv){
-		if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
 		Object b0 = newProjectile(BULLETHEAVY);
@@ -373,6 +384,9 @@ Weapon newMachine(uint8_t weaponState){
 
 }
 void fireMachine(Weapon self, Object source, Environment mainEnv){
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 
@@ -442,6 +456,9 @@ Weapon newNoppy(uint8_t weaponState){
 
 }
 void fireDisc(Weapon self, Object source, Environment mainEnv){
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
 		uart_putc('a');

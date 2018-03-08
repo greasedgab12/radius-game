@@ -14,8 +14,8 @@
 Weapon newGun(uint8_t weaponState);
 void fireGun(Weapon self, Object source, Environment mainEnv);
 
-Weapon newTri(uint8_t weaponState);
-void fireTri(Weapon self, Object source, Environment mainEnv);
+Weapon newMulti(uint8_t weaponState);
+void fireMulti(Weapon self, Object source, Environment mainEnv);
 
 Weapon newLauncher(uint8_t weaponState);
 void fireMissile(Weapon self, Object source, Environment mainEnv);
