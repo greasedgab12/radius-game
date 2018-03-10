@@ -51,12 +51,12 @@
 
 //Weapon Types
 #define GUN	1
-#define MULTISHOT	2
-#define LAUNCHER 3
+#define MACHINEGUN 2
+#define MULTISHOT	3
 #define HEAVY 4
-#define NOPPY 5
-#define SHOTGUN 6
-#define MACHINGUN 7
+#define SHOTGUN 5
+#define NOPPY 6
+#define LAUNCHER 7
 #define BOUNCE 8
 
 //Bullet Types

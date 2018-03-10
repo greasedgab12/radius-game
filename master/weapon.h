@@ -23,7 +23,7 @@ void fireMissile(Weapon self, Object source, Environment mainEnv);
 Weapon newHeavy(uint8_t weaponState);
 void fireHeavy(Weapon self, Object source, Environment mainEnv);
 
-Weapon newShot(uint8_t weaponState);
+Weapon newShotGun(uint8_t weaponState);
 void fireShot(Weapon self, Object source, Environment mainEnv);
 
 Weapon newMachineGun(uint8_t weaponState);

@@ -20,6 +20,7 @@
 #include "entities/general.h"
 #include "entities/enemy.h"
 #include "weapon.h"
+#include "game.h"
 
 
 #include "sprite.h"
@@ -65,37 +66,40 @@ int main(void)
     uint8_t i,j;
     uint8_t t=0;
 	//Environment Initialization
+
     Object objectList[MAXOBJECTS];
     for(i=0; i<MAXOBJECTS; i++){
     	objectList[i]=0;
     }
-	Environment env = newEnvironment(objectList);
+    //Environment is persistend throughout the entire runtime.
+    Environment env = newEnvironment(objectList);
 
+    //ToDo: Display Startmenu
 	display_mainmenu();
-	
-	Object obj1 = newPlayer(20,20);
-	obj1->entity->weaponA = newLauncher(0);
-	printN(obj1->entity->weaponA,0,2);
-	obj1->entity->weaponB = newBounce(0b00000000);
+	//ToDo: Couple gameState with selection in MainMenu.
+	env->gameState = newGame();
 
-	printN(obj1->entity->weaponB,0,4);
-	addObject(env,obj1);
-
-	Object enemy = 0;
 	sei();
+	//Prevent the games entities from thinking too much.
 	env->lastTime = getMsTimer()/17;
+
 	while(1){
+
+		//Update Environment variables.
 		updateEnvironment(env);
 
-		//For each passed frame execute think of each object.
 
-		if((t<5) && env->time > env->lastTime){
+		if(env->enemiesToSpawn){
+			//ToDo Implement getNextEnemy(Environment mainEnv, Object enemy)
+			if(enemy){
+				addObject(env,enemy);
+			}
 			enemy = newEnemyGlider((uint8_t)random()/16*4,(uint8_t)random()/2);
 			addObject(env,enemy);
 			t++;
 		}
 
-
+		//For each passed frame execute think of each object.
 		for(i=0; i<env->time-env->lastTime+1; i++){
 			for(j=0; j<env->oPos; j++){
 				env->objectList[j]->think(env->objectList[j], env);

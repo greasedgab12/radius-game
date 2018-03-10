@@ -322,7 +322,7 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv){
 		}
 }
 
-Weapon newShot(uint8_t weaponState){
+Weapon newShotGun(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
 	self->weaponType = SHOTGUN;
@@ -397,7 +397,7 @@ void fireShot(Weapon self, Object source, Environment mainEnv){
 Weapon newMachineGun(uint8_t weaponState){
 	Weapon self = (Weapon)malloc(sizeof(struct Weapon_Struct));
 
-	self->weaponType = MACHINGUN;
+	self->weaponType = MACHINEGUN;
 	self->weaponState = weaponState;
 
 	self->projCount = 1;

@@ -20,10 +20,11 @@ Environment newEnvironment(Object* objectList){
     self->lastTime =0;
 	self->time = 0;
     self->gameState =0;
-    self->bPos = 0;
     self->objectList = objectList;
     self->oPos = 0;
     self->buttons =0;
+    self->gameState =0;
+    self->enemiesToSpawn = 0;
     return self;
 }
 
@@ -60,4 +61,6 @@ void removeObject(Environment self, Object instance){
 	}
 
 }
+
+void
 

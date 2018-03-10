@@ -15,6 +15,7 @@ typedef struct Object_Struct* Object;
 typedef struct Block_struct* Block;
 typedef struct Entity_Struct* Entity;
 typedef struct Weapon_Struct* Weapon;
+typedef struct GameState_Struct* GameState;
 
 
 
@@ -61,11 +62,12 @@ struct Environment_struct{
 	uint8_t buttons;
 	uint32_t lastTime;
 	uint32_t time;
-	uint8_t gameState;
+	GameState gameState;
 	Object* objectList;
 	uint8_t oPos;
-	Block* blockList;
-	uint8_t bPos;
+	uint8_t level;
+	uint8_t enemiesToSpawn;
+	uint32_t points;
 };
 
 
@@ -119,6 +121,32 @@ struct Weapon_Struct{
 
 	void (*fire)(Weapon self, Object source, Environment mainEnv);
 
+};
+
+struct GameState_Struct{
+	//Weapon upgrade variables.
+	uint8_t gunUpg;
+	uint8_t machineGunUpg;
+	uint8_t multiUpg;
+	uint8_t heavyUpg;
+	uint8_t shotGunUpg;
+	uint8_t noppyUpg;
+	uint8_t launcherUpg;
+	uint8_t bounceUpg;
+
+	//Currently selected weapon.
+	uint8_t selWeapon;
+	//List of bought weapons.
+	uint8_t boughtWeapon;
+
+	//Currently selected ship.
+	uint8_t selShip;
+	//List of bought ships.
+	uint8_t boughtShip;
+	//Valid Points
+	uint32_t points;
+	//Current Level
+	uint8_t level;
 };
 
 

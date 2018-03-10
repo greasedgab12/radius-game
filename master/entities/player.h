@@ -10,7 +10,7 @@
 #include "structure.h"
 #include "inttypes.h"
 
-Object newPlayer(uint8_t x, uint8_t y);
+Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite);
 
 void playerThink(Object self, Environment mainEnv);
 

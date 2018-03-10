@@ -22,8 +22,11 @@
 #include "entities/player.h"
 #include "entity.h"
 
-Object newPlayer(uint8_t x, uint8_t y){
-	Object self = newObject(x,y,9,9,player_1);
+Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
+	Object self = newObject(x,y,0,0,sprite);
+	self->lx = self->slx;
+	self->ly = self->sly*4;
+
 	self->type = PLAYER;
 	self->entity = newEntity();
 	self->entity->health = 30;
