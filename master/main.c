@@ -26,26 +26,10 @@
 #include "menu.h"
 
 
-volatile Object objectList[MAXOBJECTS];
-
-
-//The Buttons are assigned to the inputBuffer in the following order (Most significant Bit first):
-//UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
-volatile uint8_t inputBuffer;
-
-
 void init();
 
 
-void updateEnvironment(Environment env){
-	cli();
-	env->buttons = inputBuffer;
-	sei();
 
-	env->lastTime = env->time;
-	//Cap time at approximately 60fps
-	env->time = getMsTimer()/17;
-}
 
 void titleScreen(Environment env){
 
@@ -73,17 +57,7 @@ void titleScreen(Environment env){
 
 }
 
-SIGNAL (TIMER0_COMPA_vect){
-	inputBuffer =0;
-	if(B_UP){inputBuffer|=M_U;}
-	if(B_DOWN){inputBuffer|=M_D;}
-	if(B_LEFT){inputBuffer|=M_L;}
-	if(B_RIGHT){inputBuffer|=M_R;}
-	if(B_A){inputBuffer|=M_A;}
-	if(B_B){inputBuffer|=M_B;}
-	if(B_PAUSE){inputBuffer|=M_P;}
-	if(B_SELECT){inputBuffer|=M_S;}
-}
+
 
 int main(void)
 {
@@ -93,12 +67,8 @@ int main(void)
 
 	uint8_t i,j=0;
 	//Environment Initialization
-    Object objectList[MAXOBJECTS];
-    for(i=0; i<MAXOBJECTS; i++){
-    	objectList[i]=0;
-    }
     //Environment is persistend throughout the entire runtime.
-    Environment env = newEnvironment(objectList);
+    Environment env = newEnvironment();
     env->gameState = newGame();
 	sei();
 	/**
@@ -185,7 +155,7 @@ int main(void)
 							env->enemyRemaining++;
 						}
 					}
-					removeObject(env, objectList[i]);
+					removeObject(env, env->objectList[i]);
 
 				}
 			}

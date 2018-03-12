@@ -113,7 +113,6 @@ void rebound(Object self,Object other, uint8_t cType){
 
 	}
 
-
 }
 
 void drag(Object self, uint8_t cff){

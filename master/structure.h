@@ -72,6 +72,11 @@ struct Environment_struct{
 	uint8_t enemyCount;
 	uint8_t enemyMax;
 
+	Object spawnList[4];
+	uint16_t spawnDelay[4];
+	uint8_t spawnPos;
+
+
 	uint32_t points;
 };
 
