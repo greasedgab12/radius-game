@@ -30,13 +30,16 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
 	self->type = PLAYER;
 	self->entity = newEntity();
 	self->entity->health = 30;
-    self->entity->energy = 200;
+	self->entity->maxHealth = 30;
+	self->entity->maxEnergy=100;
+    self->entity->energy = 0;
     self->entity->armor = 1;
 
-    //Maximum energy reserve
-    self->entity->param1 = 200;
     //Energy regeneration value
-    self->entity->param2 = 2;
+    self->entity->param1 = 2;
+
+    //Unused
+    self->entity->param2 = 0;
 
     self->entity->acceleration = 1 + FRICTION;
     self->entity->v_max = 50 + FRICTION;
@@ -49,6 +52,7 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
     self->entity->v_delay =2;// 25;
 
 
+
 	self->think = &playerThink;
 	self->collide =&playerCollide;
 
@@ -58,15 +62,13 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
 }
 
 void playerThink(Object self, Environment mainEnv){
-
 	//Movement
 	int8_t a_x = 0, a_y = 0;
 	//Button reactions
 	/**D-Pad
 	 * Only non opposing directions can be applied to the acceleration.
 	**/
-	printN(self->entity->health,0,0);
-	printN(self->entity->energy,32,0);
+
 	if(mainEnv->buttons & M_U){
 		a_y = -self->entity->acceleration;
 	}
@@ -107,11 +109,11 @@ void playerThink(Object self, Environment mainEnv){
 		 * Velocity in each direction cannot exceed maximum velocity.
 		 */
 		//x-direction
-		if(self->entity->energy <self->entity->param1){
-			self->entity->energy+= self->entity->param2;
+		if(self->entity->energy <self->entity->maxEnergy){
+			self->entity->energy+= self->entity->param1;
 		}
 		else{
-			self->entity->energy = self->entity->param1;
+			self->entity->energy = self->entity->maxEnergy;
 		}
 		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
 				self->entity->v_x += a_x;
@@ -166,7 +168,7 @@ uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 				self->entity->health -= other->entity->armor;
 			}
 			if(self->entity->health ==0){
-				self->isAlive =0;
+				self->killedBy =ENEMY;
 			}
 
 			if(iter){

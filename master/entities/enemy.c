@@ -56,7 +56,7 @@ Object newEnemyGlider(uint8_t y, uint8_t f){
 
 void enemyGliderThink(Object self, Environment mainEnv){
 	//Movement
-	if(!self->isAlive){
+	if(self->killedBy!=0){
 		return;
 	}
 	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
@@ -130,7 +130,7 @@ void enemyGliderThink(Object self, Environment mainEnv){
 
 void enemyThink(Object self, Environment mainEnv){
 	//Movement
-	if(!self->isAlive){
+	if(self->killedBy!=0){
 		return;
 	}
 
@@ -191,7 +191,7 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 				self->entity->health -= other->entity->armor;
 			}
 			if(self->entity->health ==0){
-				self->isAlive =0;
+				self->killedBy = PLAYER;
 			}
 			if(iter){
 				return 1;
@@ -211,7 +211,7 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 				self->entity->health -= other->entity->armor;
 			}
 			if(self->entity->health ==0){
-				self->isAlive =0;
+				self->killedBy =PLAYER;
 			}
 			if(iter){
 				return 1;
@@ -231,7 +231,7 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 	}
 	else{
 		if(cType == LEFTC){
-			self->isAlive =0;
+			self->killedBy =BORDER;
 		}
 		else{
 			rebound(self,0, cType);

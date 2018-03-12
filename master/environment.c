@@ -17,14 +17,22 @@
 
 Environment newEnvironment(Object* objectList){
 	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
-    self->lastTime =0;
+
+	self->buttons =0;
+	self->lastTime =0;
 	self->time = 0;
     self->gameState =0;
+
     self->objectList = objectList;
     self->oPos = 0;
-    self->buttons =0;
-    self->gameState =0;
-    self->enemiesToSpawn = 0;
+
+    self->player=0;
+    self->level =1;
+    self->enemyRemaining =0;
+    self->enemyCount = 0;
+    self->enemyMax =0;
+
+    self->points =0;
     return self;
 }
 
@@ -62,5 +70,16 @@ void removeObject(Environment self, Object instance){
 
 }
 
-void
+void flushObjectList(Environment env){
+
+	uint8_t i;
+	for(i=0; i<MAXOBJECTS; i++){
+		if(env->objectList[i]){
+			releaseObject(env->objectList[i]);
+		}
+	}
+	env->oPos =0;
+}
+
+
 

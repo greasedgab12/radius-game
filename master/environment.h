@@ -15,5 +15,7 @@ void addObject(Environment env,Object instance);
 
 void removeObject(Environment env, Object instance);
 
+void flushObjectList(Environment env);
+
 
 #endif /* MASTER_ENVIRONMENT_H_ */

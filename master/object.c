@@ -15,7 +15,7 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sp
     self->x = x;
     self->y = y;
     self->py = y/4;
-    self->isAlive = 1;
+    self->killedBy = 0;
     self->lx =lx;
     self->ly =ly;
 

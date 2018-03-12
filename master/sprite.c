@@ -2,10 +2,13 @@
 #include "inttypes.h"
 #include <stdlib.h>
 #include "char.h"
+#include "sprites.h"
+#include "display.h"
 
 //check if sprite already in ram
 uint8_t* load_sprite(const uint8_t *sprite)
 {
+
 	uint8_t sprite_nr = getSpriteIndex(sprite);
 
 	if(sprite_in_ram[sprite_nr] == 0)
@@ -19,6 +22,9 @@ uint8_t* load_sprite(const uint8_t *sprite)
 
 void flush_sprite(const uint8_t *sprite)
 {
+	if(sprite == 0){
+		return;
+	}
 	uint8_t sprite_nr = getSpriteIndex(sprite);
 
 	if(sprite_in_ram[sprite_nr] != 0)
@@ -29,6 +35,19 @@ void flush_sprite(const uint8_t *sprite)
 }
 
 
+void drawTitleScreen(){
+	uint8_t *title = (uint8_t*)malloc(sizeof(uint8_t)*96*9+2);
+	memcpy_P(title, radius2, 96*9+2);
+	sendWindow(34,5,96,9,title);
+	free(title);
 
+}
+
+void flushAllSprites(){
+	uint8_t i;
+	for(i=0; i<MAX_SPRITE_COUNT; i++){
+		flush_sprite(sprite_in_ram[i]);
+	}
+}
 
 

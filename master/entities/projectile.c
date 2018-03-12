@@ -121,7 +121,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 					}
 					else{
 						self->entity->health =0;
-						self->isAlive = 0;
+						self->killedBy = PLAYER;
 					}
 					return 1;
 				}
@@ -132,7 +132,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 					}
 					else{
 						self->entity->health =0;
-						self->isAlive = 0;
+						self->killedBy = PLAYER;
 					}
 					return other->collide(other, self, cType, iter);
 				}
@@ -147,7 +147,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 					}
 					else{
 						self->entity->health =0;
-						self->isAlive = 0;
+						self->killedBy = ENEMY;
 					}
 					return 1;
 				}
@@ -158,7 +158,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 					}
 					else{
 						self->entity->health =0;
-						self->isAlive = 0;
+						self->killedBy = ENEMY;
 					}
 					return other->collide(other, self, cType, iter);
 				}
@@ -174,7 +174,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 			return 0;
 		}
 		else{
-			self->isAlive =0;
+			self->killedBy =OBSTACLE;
 			return 1;
 		}
 	}
@@ -185,7 +185,7 @@ uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 		}
 		else{
 			self->entity->health =0;
-			self->isAlive = 0;
+			self->killedBy = BORDER;
 		}
 		return 1;
 	}
@@ -199,10 +199,13 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 				return 0;
 			}
 			else{
+				self->killedBy=PLAYER;
 				if(iter){
+
 					return 1;
 				}
 				else{
+
 					return other->collide(other, self, cType, iter);
 				}
 			}
@@ -213,8 +216,15 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 			}
 			else{
 				drag(other,5);
-				self->isAlive =0;
-				return iter?1:other->collide(other,self,cType, iter++);
+				self->killedBy =ENEMY;
+				if(iter){
+
+					return 1;
+				}
+				else{
+
+					return other->collide(other, self, cType, iter);
+				}
 			}
 		}
 		else if(other->type == PLAYER_PROJECTILE){
@@ -224,12 +234,12 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 			return 0;
 		}
 		else{
-			self->isAlive =0;
+			self->killedBy =OBSTACLE;
 			return 1;
 		}
 	}
 	else{
-		self->isAlive =0;
+		self->killedBy =BORDER;
 		return 1;
 	}
 }
@@ -242,7 +252,7 @@ void shotThink(Object self, Environment mainEnv){
 			self->entity->health--;
 		}
 		else{
-			self->isAlive=0;
+			self->killedBy=PLAYER;
 		}
 	}
 

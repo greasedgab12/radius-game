@@ -20,9 +20,11 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[]
 
 	sendbyte(WINDOW_ENABLE,0);
 
-	uint8_t counter;
+	uint16_t counter;
+	uint16_t max = lx*ly+2;
+
 	if(data){
-		for(counter = 2; counter < data[1]+2;counter++)
+		for(counter = 2; counter < max;counter++)
 		{
 			sendbyte(data[counter],1);
 		}

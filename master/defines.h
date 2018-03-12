@@ -13,7 +13,7 @@
 #define MAXBLOCKS 32
 #define MAXOVERLAPS 16
 #define MINX 0
-#define MINY 8
+#define MINY 16
 #define MAXX 160
 #define MAXY 104
 
@@ -37,11 +37,12 @@
 //Definitions for entities.
 #define FRICTION 2
 //Definitions of objects.
-#define PLAYER 1
-#define PLAYER_PROJECTILE 2
-#define ENEMY 3
-#define ENEMY_PROJECTILE 4
-#define OBSTACLE 4
+#define BORDER 1
+#define PLAYER 2
+#define PLAYER_PROJECTILE 3
+#define ENEMY 4
+#define ENEMY_PROJECTILE 5
+#define OBSTACLE 6
 //Collision types
 #define NOC 	0
 #define UPPERC	1
@@ -52,7 +53,7 @@
 //Weapon Types
 #define GUN	1
 #define MACHINEGUN 2
-#define MULTISHOT	3
+#define MULTISHOT 3
 #define HEAVY 4
 #define SHOTGUN 5
 #define NOPPY 6
@@ -69,6 +70,7 @@
 #define BALL 7
 #define EXPLOSION 8
 #define BULLETHEAVY 9
+
 
 
 #endif /* MASTER_DEFINES_H_ */

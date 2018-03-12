@@ -16,5 +16,10 @@ GameState loadGame();
 
 Object playerFromGameState(Environment mainEnv, GameState state);
 
+void getNextEnemy(Environment mainEnv);
+
+uint16_t getPoints(Environment mainEnv, Object enemy);
+
+void drawHud(Environment mainEnv);
 
 #endif /* MASTER_GAME_H_ */

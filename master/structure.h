@@ -43,7 +43,7 @@ struct Object_Struct{
 	//Type of the Object. See Objectlist for types
 	uint8_t type;
 	//State of the object i.e. will cause the object to be cleaned up.
-	uint8_t isAlive;
+	uint8_t killedBy;
 	//methods
     void (*setXY)(Object self, uint8_t x, uint8_t y);
     void (*setData)(Object self, const uint8_t *sprite);
@@ -65,8 +65,13 @@ struct Environment_struct{
 	GameState gameState;
 	Object* objectList;
 	uint8_t oPos;
+
+	Object player;
 	uint8_t level;
-	uint8_t enemiesToSpawn;
+	uint8_t enemyRemaining;
+	uint8_t enemyCount;
+	uint8_t enemyMax;
+
 	uint32_t points;
 };
 
@@ -93,7 +98,9 @@ struct Entity_Struct{
 	uint8_t state;
 
 	uint8_t health;
+	uint8_t maxHealth;
 	uint8_t energy;
+	uint8_t maxEnergy;
 	uint8_t armor;
 
 	uint8_t param1;
