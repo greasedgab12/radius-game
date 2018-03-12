@@ -79,7 +79,7 @@ void printN(const uint16_t *number,uint8_t x,uint8_t y)
 	print(num, x, y);
 }
 
-void printB(const uint8_t *number,uint8_t x,uint8_t y)
+void printB(const uint16_t *number,uint8_t x,uint8_t y)
 {
 	char num[8];
 	itoa(number, num, 2);

@@ -97,10 +97,21 @@ int main(void)
     for(i=0; i<MAXOBJECTS; i++){
     	objectList[i]=0;
     }
+<<<<<<< HEAD
     //Environment is persistend throughout the entire runtime.
     Environment env = newEnvironment(objectList);
     env->gameState = newGame();
+=======
+	Environment env = newEnvironment(objectList);
+	
+	//display_mainmenu();
+	
+	Object obj1 = newPlayer(20,20);
+	addObject(env,obj1);
+
+>>>>>>> refs/heads/sieglein_branch
 	sei();
+<<<<<<< HEAD
 	/**
     titleScreen(env);
 	_delay_ms(200);
@@ -124,9 +135,26 @@ int main(void)
 		//ToDo: Add displayLevel
     	//ToDo: Add displayStart
 		//Prevent the games entities from thinking too much.
+=======
+
+//	while(1)
+//	{
+//		if(B_A)uart_putc('a');
+//		else if(B_B)uart_putc('b');
+//		else if(B_UP)uart_putc('c');
+//		else if(B_DOWN)uart_putc('d');
+//		else if(B_LEFT)uart_putc('e');
+//		else if(B_RIGHT)uart_putc('f');
+//		else if(B_PAUSE)uart_putc('g');
+//		else if(B_SELECT)uart_putc('h');
+//
+//	}
+>>>>>>> refs/heads/sieglein_branch
 
 
 		updateEnvironment(env);
+		if(env->buttons & M_P) obj1 = display_gamemenu(obj1);
+
 
 		while(env->enemyRemaining || env->enemyCount){
 
