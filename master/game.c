@@ -160,7 +160,6 @@ void drawHud(Environment mainEnv){
 	static uint8_t lastHP=0, lastE=0;
 	Object player = mainEnv->player;
 
-
 	if(player){
 		if((player->entity->health != lastHP)){
 			uint8_t *bar0 = load_sprite(healthbar_0);
@@ -171,12 +170,9 @@ void drawHud(Environment mainEnv){
 			sendWindow(0,0,1 + value, 2, bar0);
 			flush_sprite(healthbar_0);
 			flush_sprite(healthbar_1);
-			print("YES",0,2);
 			lastHP = player->entity->health;
 		}
-		else{
-			print("NO",0,2);
-		}
+
 
 		if((player->entity->energy != lastE)){
 			uint8_t *bar0 = load_sprite(energybar_0);
@@ -189,7 +185,7 @@ void drawHud(Environment mainEnv){
 			sendWindow(46,0,1 + value%41, 2, bar0);
 			flush_sprite(energybar_0);
 			flush_sprite(energybar_1);
-			lastHP = player->entity->energy;
+			lastE = player->entity->energy;
 		}
 
 	}
