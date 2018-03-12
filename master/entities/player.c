@@ -26,34 +26,6 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
 	Object self = newObject(x,y,0,0,sprite);
 	self->lx = self->slx;
 	self->ly = self->sly*4;
-
-<<<<<<< HEAD
-=======
-PlayerEnv newPlayerEnv(){
-
-    PlayerEnv self = (PlayerEnv)malloc(sizeof(struct PlayerEnv_Struct));
-    self->health = 5;
-    self->energy = 0;
-    self->defense = 0;
-
-
-    self->acceleration = 7;
-    self->v_max = 10 + FRICTION;
-    self->v_x = 0;
-    self->v_y = 0;
-
-    self->v_time = 0;
-    self->v_delay =25;// 25;
-
-    self->rof_time =0;
-    self->rof_delay = 50;
-
-    return self;
-}
-
-Object newPlayer(uint8_t x, uint8_t y){
-	Object self = newObject(x,y,8,8,vessel_0);
->>>>>>> refs/heads/sieglein_branch
 	self->type = PLAYER;
 	self->entity = newEntity();
 	self->entity->health = 30;

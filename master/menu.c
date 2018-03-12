@@ -831,7 +831,7 @@ void shop_menu(void)
 							print("       ",100,zeile);
 							print("UPGRADE",100,zeile);
 						}
-						else if((weapons_bought & (1<<scroll_start-1)))
+						else if((weapons_bought & (1<<(scroll_start-1))))
 						{
 							print("       ",100,zeile);
 							print("UPGRADE",100,zeile);
@@ -865,7 +865,7 @@ void shop_menu(void)
 					print("          ",20,zeile);
 					print(weapons_text[scroll_start],20,zeile);
 
-					if(weapons_bought & (1<<scroll_start-1))
+					if(weapons_bought & (1<<(scroll_start-1)))
 					{
 						print("       ",100,zeile);
 						print("UPGRADE",100,zeile);
