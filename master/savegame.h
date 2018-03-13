@@ -10,4 +10,10 @@ extern GameState EEMEM EEsave3;
 extern uint8_t   EEMEM EEcurrent_safe;
 
 
+uint8_t getCurrentSave();
+GameState loadSave(uint8_t safe_number);
+void safeSave(uint8_t safe_number, GameState gamestate);
+
+
+
 #endif

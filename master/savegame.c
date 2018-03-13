@@ -19,7 +19,7 @@ GameState EEMEM EEsave3;
 uint8_t   EEMEM EEcurrent_safe = 1 ;
 
 
-uint8_t getCurrentSave()//not finished
+uint8_t getCurrentSave()
 {
 	return eeprom_read_byte(&EEcurrent_safe);
 }
