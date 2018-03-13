@@ -107,8 +107,11 @@ int main(void)
 			//put the game pause menu here
 			if(env->buttons & M_P)
 			{
+				printN(env->gameState->points,120,1);
+				env->gameState = main_menu(env);
+				printN(env->gameState->points,120,4);
 				//pause_menu(env)
-				if(shop_menu(env)){
+				if(1){
 					print("pause 1",1,1);
 				}
 				else

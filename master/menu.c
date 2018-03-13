@@ -191,23 +191,27 @@ void printUpgrade(GameState gameState, uint8_t weapon)
 	{
 		if((upgrade & (0b11<<offset)) == (0b00<<offset))
 		{
-			printN(1,70,nextZeile);
+			print("%",70,nextZeile);
 			printN(price_upgrade[0]* price_weapons[weapon],110,nextZeile);
+			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b01<<offset))
 		{
-			printN(2,70,nextZeile);
+			print("%%",70,nextZeile);
 			printN(price_upgrade[1]* price_weapons[weapon],110,nextZeile);
+			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b10<<offset))
 		{
-			printN(3,70,nextZeile);
+			print("%%%",70,nextZeile);
 			printN(price_upgrade[2]* price_weapons[weapon],110,nextZeile);
+			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b11<<offset))
 		{
-			printN(4,70,nextZeile);
-			printN(price_upgrade[3]* price_weapons[weapon],110,nextZeile);
+			print("%%%%",70,nextZeile);
+			print("-",110,nextZeile);
+			print("$",100,nextZeile);
 		}
 		offset += 2;
 		nextZeile += 4;
@@ -870,6 +874,7 @@ print("  ",13,1);
 		case SHOP_WEAPONS:
 			print("WEAPONS",20,5);
 			printN(env->gameState->points,100,5);
+			print("$",90,5);
 
 			next_col =0;
 			zeile = 9;
@@ -898,6 +903,7 @@ print("  ",13,1);
 							print("       ",100,zeile);
 							//printN(scroll_start,100,zeile);
 							printN(price_weapons[scroll_start-1],100,zeile);
+							print("$",90,zeile);
 						}
 
 						zeile +=4;
@@ -948,6 +954,7 @@ print("  ",13,1);
 		case SHOP_SHIPS:
 			print("SHIPS",20,5);
 			printN(env->gameState->points,100,5);
+			print("$",90,5);
 
 			next_col =0;
 			zeile = 9;
@@ -969,6 +976,7 @@ print("  ",13,1);
 						{
 							print("          ",100,zeile);
 							printN(price_ships[next_col],100,zeile);
+							print("$",90,zeile);
 						}
 						zeile +=4;
 						next_col ++;
@@ -985,13 +993,14 @@ print("  ",13,1);
 			print("UPGRADE",20,2);
 			print(weapons_text[weapon],24,5);
 			printN(env->gameState->points,110,5);
+			print("$",100,zeile);
 
 			printUpgrade(env->gameState,weapon);
 
 
 			break;
 		case SAVE:
-			safeSave(getCurrentSave(),env);
+			safeSave(env->gameState);
 			menu_state = MAIN;
 			menu_cursor = 4;
 			break;
@@ -1142,7 +1151,7 @@ uint8_t pause_menu(Environment env)
 				return 0;
 
 			case SAVE2:
-				safeSave(getCurrentSave(),env->gameState);
+				safeSave(env->gameState);
 				menu_state = MAIN;
 				menu_cursor = 3;
 				break;
@@ -1384,42 +1393,23 @@ GameState main_menu(Environment env)
 				print("%%",1,4);
 				print("$$",1,8);
 				print("CONTINUE",20,5);
-				print("SELECT GAME",20,9);
-				print("HIGHSCORES",20,13);
+				print("NEW GAME",20,9);
+				print("HIGHSCORE",20,13);
 				print("OPTIONS",20,17);
 				break;
 
 			case CONTINUE:
-				env->gameState->points = 10;
-				return env->gameState;
+				return loadSave();
 				//return env->gameState = loadSave(getCurrentSave());
 
-
 			case SELECTGAME:
-				print("SELECT GAME",20,5);
-				print("SAVE1",20,9);
-				print("SAVE2",20,9);
-				print("SAVE3",20,9);
-				break;
-
-			case SELECTGAME_1:
-				print("sAVE1",1,1);
-				while(1);
-				break;
-			case SELECTGAME_2:
-				print("sAVE1",1,1);
-				while(1);
-				break;
-			case SELECTGAME_3:
-				print("sAVE1",1,1);
-				while(1);
-				break;
+				return newGame();
 
 			case HIGHSCORES:
-				print("HIGHSCORES",20,5);
-				print("SAVE1",20,9);
-				print("SAVE2",20,13);
-				print("SAVE3",20,17);
+				print("CURRENT HIGHSCORE:",20,5);
+				uint32_t highscore;
+				eeprom_read_block (&highscore,&EEhighscore, sizeof(uint32_t));
+				print32(highscore,20,11);
 				break;
 
 

@@ -98,6 +98,13 @@ void printB(const uint16_t *number,uint8_t x,uint8_t y)
 	print(num, x, y);
 }
 
+void print32(const uint32_t *number,uint8_t x,uint8_t y)
+{
+	char num[32];
+	itoa(number, num, 10);
+	print(num, x, y);
+}
+
 
 const uint8_t alphabet[46][14] PROGMEM = {
 {6,12, 	 // space.bmp Dez 32

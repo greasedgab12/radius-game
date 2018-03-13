@@ -14,70 +14,33 @@
 #include "char.h"
 
 GameState EEMEM EEsave1;
-GameState EEMEM EEsave2;
-GameState EEMEM EEsave3;
-uint8_t   EEMEM EEcurrent_safe = 5 ;
+uint32_t EEMEM EEhighscore;
 
 void prepEEPROM()
 {
-	//set current safe first
-	eeprom_write_byte(&EEcurrent_safe,1);
+	uint32_t highscore = 0;
 	//set all savegames to basic values
 	eeprom_write_block(newGame(),  &EEsave1, sizeof(GameState));
-	eeprom_write_block(newGame(),  &EEsave2, sizeof(GameState));
-	eeprom_write_block(newGame(),  &EEsave3, sizeof(GameState));
+	eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
 }
 
 
-
-uint8_t getCurrentSave()
-{
-	return (uint8_t)eeprom_read_byte(&EEcurrent_safe);
-}
-
-GameState loadSave(uint8_t safe_number)
+GameState loadSave()
 {
 	GameState safegame = newGame();
-	if(safe_number ==1)
-	{
-		eeprom_read_block(&safegame, &EEsave1, sizeof(EEsave1));
-	}
-	else if(safe_number ==2)
-	{
-		eeprom_read_block(&safegame, &EEsave2, sizeof(EEsave2));
-	}
-	else if(safe_number ==3)
-	{
-		eeprom_read_block(&safegame, &EEsave3, sizeof(EEsave3));
-	}
-	else
-	{
-		print("E read error",1,1);
-	}
+	eeprom_read_block(&safegame, &EEsave1, sizeof(EEsave1));
 	return safegame;
 }
 
 
-void safeSave(uint8_t safe_number, GameState gamestate)
+void safeSave(GameState gamestate)
 {
-	if(safe_number == 1)
+	uint32_t highscore;
+	eeprom_read_block (&highscore,&EEhighscore, sizeof(uint32_t));
+	if(gamestate->points > highscore)
 	{
-		eeprom_write_block(&gamestate,  &EEsave1, sizeof(EEsave1));
-		eeprom_write_byte(&EEcurrent_safe,safe_number);
+		eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
 	}
-	else if(safe_number == 2)
-	{
-		eeprom_write_block(&gamestate,  &EEsave2, sizeof(EEsave2));
-		eeprom_write_byte(&EEcurrent_safe,safe_number);
-	}
-	else if(safe_number == 3)
-	{
-		eeprom_write_block(&gamestate,  &EEsave3, sizeof(EEsave3));
-		eeprom_write_byte(&EEcurrent_safe,safe_number);
-	}
-	else
-	{
-		print("E write error",1,1);
-	}
-	return;
+	eeprom_write_block(&gamestate,  &EEsave1, sizeof(EEsave1));
 }
+
