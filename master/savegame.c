@@ -11,17 +11,28 @@
 #include "entities/stats.h"
 #include <avr/eeprom.h>
 #include "savegame.h"
-
+#include "char.h"
 
 GameState EEMEM EEsave1;
 GameState EEMEM EEsave2;
 GameState EEMEM EEsave3;
-uint8_t   EEMEM EEcurrent_safe = 1 ;
+uint8_t   EEMEM EEcurrent_safe = 5 ;
+
+void prepEEPROM()
+{
+	//set current safe first
+	eeprom_write_byte(&EEcurrent_safe,1);
+	//set all savegames to basic values
+	eeprom_write_block(newGame(),  &EEsave1, sizeof(GameState));
+	eeprom_write_block(newGame(),  &EEsave2, sizeof(GameState));
+	eeprom_write_block(newGame(),  &EEsave3, sizeof(GameState));
+}
+
 
 
 uint8_t getCurrentSave()
 {
-	return eeprom_read_byte(&EEcurrent_safe);
+	return (uint8_t)eeprom_read_byte(&EEcurrent_safe);
 }
 
 GameState loadSave(uint8_t safe_number)
