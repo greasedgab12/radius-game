@@ -103,12 +103,12 @@ int main(void)
 
 		updateEnvironment(env);
 
-
 		while(env->enemyRemaining || env->enemyCount){
 			//put the game pause menu here
 			if(env->buttons & M_P)
 			{
-				if(pause_menu(env)){
+				//pause_menu(env)
+				if(shop_menu(env)){
 					print("pause 1",1,1);
 				}
 				else

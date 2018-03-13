@@ -13,7 +13,6 @@
 
 
 
-
 uint8_t set_options 	= 0b00000001;
 
 const char *menu_text[] = {};
@@ -50,7 +49,16 @@ GameState shop_menu(Environment env)
 
 	while(1){
 
-	updateEnviroment(env);
+	printB(env->gameState->boughtShip ,130,1);
+	printB(env->gameState->boughtWeapon,130,3);
+	printN(env->gameState->selShip ,130,5);
+	printN(env->gameState->selWeapon,130,7);
+
+	printN(weapon,130,10);
+	printN(menu_cursor,130,12);
+
+
+	updateEnvironment(env);
 
 	if( (env->buttons & M_U) && ( env->time >= time_old))//control upper menu boundary
 	{
@@ -111,6 +119,13 @@ GameState shop_menu(Environment env)
 			if(menu_cursor <= SHOP_UPGRADE_WEAPON_UPPER_BOUNDARY)
 			{
 				menu_cursor = SHOP_UPGRADE_WEAPON_UPPER_BOUNDARY;
+			}
+		}
+		else if(menu_state == SHOP_UPGRADE_WEAPON)//scrollable display with menu cursor
+		{
+			if(menu_cursor <= 2)
+			{
+				menu_cursor = 2;
 			}
 		}
 		else if(menu_cursor <= 1)
@@ -264,6 +279,14 @@ GameState shop_menu(Environment env)
 				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
 			}
 		}
+		else if(menu_state == SHOP_UPGRADE_WEAPON)//scrollable display with menu cursor
+		{
+			if(menu_cursor >= 5)
+			{
+				menu_cursor = 5;
+			}
+			print("/",13,1 + 4 * menu_cursor);
+		}
 
 		time_old = env->time + MENU_DELAY;
 	}
@@ -304,41 +327,49 @@ GameState shop_menu(Environment env)
 		}
 		else if(menu_state == SHOP_WEAPONS)
 		{
-			if(menu_cursor-3 >= 0){
+			if(menu_cursor >= 3){	//menu_cursor = 2 -> GUN UPGRADE
 				if((env->gameState->boughtWeapon & (1<<(menu_cursor-3))) == 0)
 				{
-
-					if(price_weapons[menu_cursor -3]<= env->points)
+					if(price_weapons[menu_cursor -3]<= env->gameState->points)
 					{
-						env->points = env->points - price_weapons[menu_cursor-3];
+						env->gameState->points = env->gameState->points - price_weapons[menu_cursor-3];
 						env->gameState->boughtWeapon |= (1<<(menu_cursor-3));
 					}
 				}
 				else if((env->gameState->boughtWeapon & (1<<(menu_cursor-3))) == 1)
 				{
-					weapon = menu_cursor -2;
+					weapon = menu_cursor -2; //weapon 0 == GUN
 					menu_state = SHOP_UPGRADE_WEAPON;
 					menu_cursor = 2;
 				}
 			}
+			else if(menu_cursor == 2)
+			{
+				weapon = menu_cursor -2; //weapon 0 == GUN
+				menu_state = SHOP_UPGRADE_WEAPON;
+				menu_cursor = 2;
+			}
+
 			if(menu_cursor >=5)
 			{
-
 				print("/",13,21);
 			}
 		}
 		else if(menu_state == SHOP_SHIPS)
 		{
-			if(menu_cursor-3 >= 0){
-			if((env->gameState->boughtShip & (1<<(menu_cursor-2))) == 0)
+			if(menu_cursor-2 >= 0)
 			{
-
-				if(price_ships[menu_cursor -2]<= env->points)
+				if((env->gameState->boughtShip & (1<<(menu_cursor-2))) == 0)
 				{
-					env->points = env->points - price_ships[menu_cursor-2];
-					env->gameState->boughtShip |= (1<<(menu_cursor-2));
+
+					if(price_ships[menu_cursor -2]<= env->gameState->points)
+					{
+						env->gameState->points = env->gameState->points - price_ships[menu_cursor-2];
+						env->gameState->boughtShip |= (1<<(menu_cursor-2));
+					}
 				}
-			}}
+			}
+
 			if(menu_cursor >=5)
 			{
 				print("/",13,21);
@@ -347,30 +378,20 @@ GameState shop_menu(Environment env)
 		//select ships
 		else if(menu_state == INVENTORY_SHIPS)
 		{
-			env->gameState->selShip = menu_cursor -2;
+			env->gameState->selShip = menu_cursor -1;
 
 		}
 		//select weapons
 		else if(menu_state == INVENTORY_WEAPONS)
 		{
-			env->gameState->selWeapon = menu_cursor -2;
+			env->gameState->selWeapon = menu_cursor -1;
 		}
 		//upgrade selected weapon
 		else if(menu_state == SHOP_UPGRADE_WEAPON)
 		{
-			//GUN
-			if(weapon == 0)
-			{
-
-
-
-
-			}
-
-
+			//upgrade selected weapon
 
 		}
-
 
 		print("/",13,1 + 4 * menu_cursor);
 		time_old = env->time + MENU_DELAY;
@@ -382,7 +403,6 @@ GameState shop_menu(Environment env)
 		{
 			menu_state = MAIN;
 			menu_cursor = INVENTORY + 1;
-
 		}
 		else if(menu_state == INVENTORY_WEAPONS)
 		{
@@ -412,7 +432,7 @@ GameState shop_menu(Environment env)
 		else if(menu_state == SHOP_UPGRADE_WEAPON)
 		{
 			menu_state = SHOP_WEAPONS;
-			menu_cursor = upgrade_selector;
+			menu_cursor = weapon + 2;
 		}
 
 		print("/",13,1 + 4 * menu_cursor);
@@ -428,12 +448,10 @@ GameState shop_menu(Environment env)
 			print("INVENTORY",20,9);
 			print("SHOP",20,13);
 			print("SAVE",20,17);
-			print("QUIT",20,21);
 			break;
 
 //		case CONTINUE:
 //			return env->gameState;
-
 
 		case INVENTORY:
 			print("INVENTORY",20,5);
@@ -441,8 +459,15 @@ GameState shop_menu(Environment env)
 			print("SHIPS",20,13);
 			break;
 		case INVENTORY_WEAPONS://show all bought weapons
-			print("SELSECUNDARY:",20,4);
-			print("EXAMPLE",90,4);
+			print("SECUNDARY:",20,4);
+			if(env->gameState->selWeapon != 0)
+			{
+				print(weapons_text[env->gameState->selWeapon],90,4);
+			}
+			else
+			{
+				print("NONE",90,4);
+			}
 
 			iter =0;
 			zeile = 9;
@@ -456,9 +481,13 @@ GameState shop_menu(Environment env)
 					{
 						print("          ",20,zeile);
 						print(weapons_text[1+iter],20,zeile);
-						if(1/*selected*/)
+						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)//selWeapon == 0 -> no B weapon slected
 						{
 							print("current",100,zeile);
+						}
+						else
+						{
+							print("       ",100,zeile);
 						}
 						zeile +=4;
 					}
@@ -477,9 +506,13 @@ GameState shop_menu(Environment env)
 					{
 						print("          ",20,zeile);
 						print(weapons_text[1+iter],20,zeile);
-						if(1/*selected*/)
+						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)//selWeapon == 0 -> no B weapon slected
 						{
 							print("current",100,zeile);
+						}
+						else
+						{
+							print("       ",100,zeile);
 						}
 						zeile +=4;
 						scroll_start++;
@@ -496,7 +529,15 @@ GameState shop_menu(Environment env)
 			break;
 		case INVENTORY_SHIPS:
 			print("SHIP:",20,4);
-			print("EXAMPLE",90,4);
+			if(env->gameState->selShip != 0)
+			{
+				print(ships_text[env->gameState->selShip-1],90,4);
+			}
+			else
+			{
+				print("NONE",90,4);
+			}
+
 
 			iter =0;
 			zeile = 9;
@@ -510,9 +551,13 @@ GameState shop_menu(Environment env)
 					{
 						print("          ",20,zeile);
 						print(ships_text[iter],20,zeile);
-						if(1/*selected*/)
+						if(env->gameState->selShip >=1 && env->gameState->selShip == iter+1)//selWeapon == 0 -> no B weapon slected
 						{
 							print("current",100,zeile);
+						}
+						else
+						{
+							print("       ",100,zeile);
 						}
 						zeile +=4;
 					}
@@ -538,7 +583,7 @@ GameState shop_menu(Environment env)
 			break;
 		case SHOP_WEAPONS:
 			print("WEAPONS",20,5);
-			printN(env->points,100,5);
+			printN(env->gameState->points,100,5);
 
 			next_col =0;
 			zeile = 9;
@@ -586,7 +631,7 @@ GameState shop_menu(Environment env)
 				}
 
 				// display all bought ships until screen is full starting at scroll_starts
-				while(zeile <= 21 && menu_cursor >= scroll_start+1)
+				while(zeile <= 21 && menu_cursor >= scroll_start)
 				{
 					print("          ",20,zeile);
 					print(weapons_text[scroll_start],20,zeile);
@@ -616,8 +661,7 @@ GameState shop_menu(Environment env)
 			break;
 		case SHOP_SHIPS:
 			print("SHIPS",20,5);
-			printN(env->points,100,5);
-
+			printN(env->gameState->points,100,5);
 
 			next_col =0;
 			zeile = 9;
@@ -652,17 +696,19 @@ GameState shop_menu(Environment env)
 
 			break;
 		case SHOP_UPGRADE_WEAPON:
+			print("UPGRADE",20,5);
+			print("MACHINEGUN",70,5);
+			printN(weapon,1,1);
+			print("DMG",20,9);
+			print("SPEED",20,13);
+			print("ROF",20,17);
+			print("LVL",20,21);
 
 			break;
 		case SAVE:
 			menu_state = MAIN;
 			menu_cursor = 4;
 			//save state to selected safe game
-			break;
-		case QUIT:
-			//return to start screen
-			menu_state = MAIN;
-			menu_cursor = 5;
 			break;
 
 	}

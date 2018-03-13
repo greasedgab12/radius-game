@@ -12,6 +12,13 @@
 #include <avr/eeprom.h>
 #include "savegame.h"
 
+
+GameState EEMEM EEsave1;
+GameState EEMEM EEsave2;
+GameState EEMEM EEsave3;
+uint8_t   EEMEM EEcurrent_safe = 1 ;
+
+
 uint8_t getCurrentSave()//not finished
 {
 	return eeprom_read_byte(&EEcurrent_safe);

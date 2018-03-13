@@ -28,13 +28,13 @@ GameState newGame(){
 	self->bounceUpg=0;
 
 	self->selWeapon =0;
-	self->boughtWeapon =0;
+	self->boughtWeapon =0b0;
 
-	self->selShip =0;
-	self->boughtShip =0;
+	self->selShip =1;
+	self->boughtShip =0b0001;
 
 	self->level =1;
-	self->points =0;
+	self->points =1000;
 
 	return self;
 }

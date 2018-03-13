@@ -4,10 +4,10 @@
 #include <inttypes.h>
 #include <avr/eeprom.h>
 
-GameState EEMEM EEsave1;
-GameState EEMEM EEsave2;
-GameState EEMEM EEsave3;
-uint8_t   EEMEM EEcurrent_safe = 1 ;
+extern GameState EEMEM EEsave1;
+extern GameState EEMEM EEsave2;
+extern GameState EEMEM EEsave3;
+extern uint8_t   EEMEM EEcurrent_safe;
 
 
 #endif
