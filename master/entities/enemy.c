@@ -44,16 +44,30 @@ Object newEnemy(uint8_t x, uint8_t y){
 }
 
 Object newEnemyGlider(uint8_t y, uint8_t f){
-	Object self = newEnemy(MAXX,y);
-	self->setXY(self,MAXX -self->lx, y);
+	Object self = newObject(0,y,9,9,enemy_0);
+	self->type = ENEMY;
+	self->entity = newEntity();
+	self->collide =&enemyCollide;
 	self->think = &enemyGliderThink;
 
+	self->setXY(self,MAXX -self->lx, y);
 	self->entity->param1 = f;
 	return self;
 
 
 }
+/**
+Object newEnemyTracker(uint8_t y){
+	Object self = newObject(0,y,9,9,enemy_0);
+	self->type = ENEMY;
+	self->entity = newEntity();
+	self->think = &enemyThink;
+	self->collide =&enemyCollide;
 
+	return self;
+
+}
+**/
 void enemyGliderThink(Object self, Environment mainEnv){
 	//Movement
 	if(self->killedBy!=0){

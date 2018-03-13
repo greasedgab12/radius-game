@@ -131,10 +131,36 @@ Object playerFromGameState(GameState state){
 	}
 	return player;
 }
-/**
-void getNextEnemy(Environment mainEnv){
-	static uint16_t lastTime=mainEnv->time;
-	uint8_t SpawnDelay=180;
+//Only execute setSpawn when SpawnList is empty;
+void setSpawn(Environment env){
+	uint8_t level = env->level;
+	uint8_t SpawnDelay=120 - (5*level)%90;
+	uint8_t strength = 2*level;
+	uint8_t value;
+
+	uint8_t health,armor,speed;
+
+	value = random()%strength;
+	strength -= value;
+	health = value;
+
+	value = random()%strength;
+	strength -= value;
+	armor = value;
+
+	value = random()%strength;
+	strength -= value;
+	speed = value;
+	
+	uint8_t shipTypes;
+	shipTypes = level>4 + level>6 + level >8;
+	shipTypes = random()%shipTypes;
+	uint8_t spawnTypes;
+	spawnTypes = level>3 + level>6 + level>9 + level>12 + level>15;
+	spawnTypes = random()%spawnTypes;
+	if(shipTypes == 0);
+	
+
 
 
 
@@ -145,7 +171,39 @@ void getNextEnemy(Environment mainEnv){
 
 
 }
-**/
+
+uint8_t isSpawnListEmpty(Environment env){
+	uint8_t i;
+	for(i=0; i<4;i++){
+		if(env->spawnList[i]){
+			return 0;
+		}
+	}
+	return 1;
+}
+
+void getNextEnemy(Environment env){
+	uint8_t i;
+	for(i=0; i<4;i++){
+		if(env->enemyCount < env->enemyMax){
+
+			if(env->spawnList[i]){
+				if(env->time > env->spawnDelay[i]){
+					addObject(env, env->spawnList[i]);
+					env->enemyCount++;
+					env->spawnList[i]  =0;
+					env->spawnDelay[i] =0;
+				}
+			}
+		}
+	}
+
+
+
+
+}
+
+
 
 
 
