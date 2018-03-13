@@ -57,6 +57,33 @@ void titleScreen(Environment env){
 
 }
 
+void displayLevel(Environment env){
+	uint16_t time = env->time;
+	print("LEVEL ",63,10);
+	printN(env->level,99,10);
+	_delay_ms(2000);
+
+	displayClear();
+}
+void displayStart(Environment env){
+	uint16_t time = env->time;
+	print("READY",66,10);
+	_delay_ms(1000);
+	print("START",66,14);
+	_delay_ms(1000);
+	displayClear();
+}
+void displayFinished(Environment env){
+	uint16_t time = env->time;
+	print("LEVEL ",63,10);
+	printN(env->level,99,10);
+	print("CLEARED",60,12);
+	print("POINTS:",50,16);
+	printN(env->gameState->points,100,16);
+	_delay_ms(3000);
+	displayClear();
+}
+
 
 
 int main(void)
@@ -71,29 +98,36 @@ int main(void)
     Environment env = newEnvironment();
     env->gameState = newGame();
 	sei();
-	/**
+
     titleScreen(env);
 	_delay_ms(200);
-    display_mainmenu();
-	**/
+    //display_mainmenu();
+
 	//ToDo: Couple gameState with selection in MainMenu.
-	//env->gameState = newGame();
 
     Object enemy;
 
     //Game loop
     while(1){
     	//Reloading the player object.
-		env->player = playerFromGameState(env, env->gameState);
+		env->player = getPlayerFromGameState(env, env->gameState);
 		env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
+		free(env->player->entity->weaponA);
+		env->player->entity->weaponA = newMachineGun(255);
+		env->player->entity->weaponB = newBounce(255);
+		env->gameState->level = 10;
 		addObject(env, env->player);
 
-		env->enemyRemaining = 10;
-		env->enemyMax =1;
+		env->enemyRemaining = 4 + 2*env->level;
+		env->enemyMax =1 + env->level/2;
 
-		//ToDo: Add displayLevel
-    	//ToDo: Add displayStart
+		updateEnvironment(env);
+
+		displayLevel(env);
+		displayStart(env);
+
 		//Prevent the games entities from thinking too much.
+
 
 
 		updateEnvironment(env);
@@ -103,17 +137,16 @@ int main(void)
 
 			//Update Environment variables.
 			updateEnvironment(env);
-			//ToDo: Add HUD
 			drawHud(env);
-			printN(env->points,100,0);
 
 
 			if(env->enemyCount < env->enemyMax && env->enemyRemaining){
-				//ToDo Implement getNextEnemy(Environment mainEnv, Object enemy)
-				enemy = newEnemyGlider(MINY +random()%(MAXY-MINY),(uint8_t)random()/2);
-				addObject(env,enemy);
-				env->enemyCount++;
-				env->enemyRemaining--;
+				if(isSpawnListEmpty(env) && (env->enemyCount == 0)){
+					setSpawnList(env);
+				}
+				else{
+					getNextEnemy(env);
+				}
 			}
 
 			//For each passed frame execute think of each object.
@@ -181,6 +214,9 @@ int main(void)
 		env->player =0;
 		flushAllSprites();
 		displayClear();
+		env->gameState->points += env->points;
+		env->points =0;
+		displayFinished(env);
 
 		//ToDo: integrate shopScreen
 		/**

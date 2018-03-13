@@ -57,14 +57,14 @@ void fireGun(Weapon self, Object source, Environment mainEnv){
 
 		if(source->type == PLAYER){
 			b0->type= PLAYER_PROJECTILE;
-			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
+			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2 - b0->ly);
 			b0->entity->v_x = self->projSpeed;
 			b0->entity->a_x = self->projAccel;
 
 		}
 		else if( source->type == ENEMY){
 			b0->type = ENEMY_PROJECTILE;
-			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
+			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2- b0->ly);
 			b0->entity->v_x = -self->projSpeed;
 			b0->entity->a_x = -self->projAccel;
 

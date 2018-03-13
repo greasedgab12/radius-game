@@ -71,6 +71,17 @@
 #define EXPLOSION 8
 #define BULLETHEAVY 9
 
+//Enemy Types
+#define FLOATER 0
+#define GLIDER 1
+#define TRACKER 2
+#define SHOOTER 3
 
+//Spawn Types
+#define SINGLE 0
+#define DOUBLE 1
+#define TRIPLE 2
+#define TRIPLECHAIN 3
+#define QUADCHAIN 4
 
 #endif /* MASTER_DEFINES_H_ */

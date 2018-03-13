@@ -38,8 +38,17 @@ void releaseObject(Object instance){
 
 
 void setObjectXY(Object self, uint8_t x, uint8_t y){
-    self->x = x;
+    if(x + self->lx > (MAXX)){
+    	x=MAXX - self->lx;
+    }
+
+	self->x = x;
+
+	if(y + self->ly  >= (MAXY )){
+		y=(MAXY - self->ly);
+	}
     self->y = y;
+
     self->py = y/4;
     self->msly = self->sly;
     self->msly += y%4?1:0;
