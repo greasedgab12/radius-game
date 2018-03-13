@@ -79,4 +79,5 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor);
 void printUpgrade(GameState gameState, uint8_t weapon);
 GameState shop_menu(Environment env);
 uint8_t pause_menu(Environment env);
+GameState main_menu(Environment env);
 #endif

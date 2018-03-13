@@ -1001,8 +1001,6 @@ print("  ",13,1);
 
 }
 
-
-
 //returns 1 when back to main menu else 0
 uint8_t pause_menu(Environment env)
 {
@@ -1082,7 +1080,10 @@ uint8_t pause_menu(Environment env)
 			if(menu_state == MAIN)
 			{
 				menu_state = menu_cursor -1;
-				menu_cursor = 2;
+				if(menu_state == SAVE2){
+					menu_cursor = 3;
+				}
+				else menu_cursor = 2;
 			}
 			else if(menu_state == OPTIONS)
 			{
@@ -1097,10 +1098,10 @@ uint8_t pause_menu(Environment env)
 					menu_cursor = 3;
 				}
 			}
-			else
+			else if(menu_state == SAVE2)
 			{
 				menu_state = MAIN;
-				menu_cursor = 2;
+				menu_cursor = 3;
 			}
 			displayClear();
 			print("/",13,1 + 4 * menu_cursor);
@@ -1141,8 +1142,7 @@ uint8_t pause_menu(Environment env)
 				return 0;
 
 			case SAVE2:
-				//safe to current safegame and go back to main
-				print("SAVE",1,1);
+				safeSave(getCurrentSave(),env->gameState);
 				menu_state = MAIN;
 				menu_cursor = 3;
 				break;
@@ -1208,247 +1208,276 @@ uint8_t pause_menu(Environment env)
 	}
 }
 
-//
-//void main_menu()
-//{
-//
-//	uint8_t menu_state = MAIN;
-//	uint8_t menu_cursor = 2;
-//	print("/",13,1 + 4 * menu_cursor);
-//	while(1){
-//
-//		env->time = getMsTimer();
-//
-//	if( B_UP && ( env->time >= time_old))
-//	{
-//		print(" ",13,1 + 4 * menu_cursor);
-//		menu_cursor-=1;
-//
-//		if(menu_state == MAIN)
-//		{
-//			if(menu_cursor <=1)
-//			{
-//				menu_cursor = 1;
-//			}
-//		}
-//		else if(menu_state == OPTIONS)
-//		{
-//			if(menu_cursor <= 2)
-//			{
-//				menu_cursor = 2;
-//			}
-//		}
-//		else
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 2;
-//		}
-//
-//		print("/",13,1 + 4 * menu_cursor);
-//		time_old = getMsTimer() + MENU_DELAY;
-//	}
-//
-//	if( B_DOWN && ( env->time >= time_old))
-//	{
-//		print(" ",13,1 + 4 * menu_cursor);
-//		menu_cursor+=1;
-//
-//		if(menu_state == MAIN)
-//		{
-//			if(menu_cursor >= 4)
-//			{
-//				menu_cursor = 4;
-//			}
-//
-//		}
-//		else if(menu_state == OPTIONS)
-//		{
-//			if(menu_cursor >= 3)
-//			{
-//				menu_cursor = 3;
-//			}
-//		}
-//		else
-//		{
-//			menu_cursor = 2;
-//			menu_state = MAIN;
-//		}
-//
-//		print("/",13,1 + 4 * menu_cursor);
-//		time_old = getMsTimer() + MENU_DELAY;
-//	}
-//
-//	if( B_A && ( env->time >= time_old))
-//	{
-//		if(menu_state == MAIN)
-//		{
-//			menu_state = menu_cursor -1;
-//			menu_cursor = 2;
-//		}
-//		else if(menu_state == SELECTGAME)
-//		{
-//			menu_state = menu_cursor + 20;
-//		}
-//		else if(menu_state == OPTIONS)
-//		{
-//			if(menu_cursor == 2) // music
-//			{
-//				menu_cursor = 2;
-//				menu_state = OPTIONS_1;
-//			}
-//			if(menu_cursor == 3) // invert
-//			{
-//				menu_state = OPTIONS_2;
-//				menu_cursor = 3;
-//			}
-//		}
-//		else if(menu_state == HIGHSCORES)
-//		{
-//			//do nothing
-//			menu_state = HIGHSCORES;
-//			menu_cursor = 2;
-//
-//		}
-//		else
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 2;
-//		}
-//		displayClear();
-//		if(menu_state != HIGHSCORES)
-//		{
-//			print("/",13,1 + 4 * menu_cursor);
-//		}
-//		time_old = getMsTimer() + MENU_DELAY;
-//	}
-//
-//	if( B_B && ( env->time >= time_old))
-//	{
-//		if(menu_state == OPTIONS)
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 4;
-//		}
-//		if(menu_state == SELECTGAME)
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 2;
-//		}
-//		if(menu_state == HIGHSCORES)
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 3;
-//		}
-//		else
-//		{
-//			menu_state = MAIN;
-//			menu_cursor = 2;
-//		}
-//
-//		displayClear();
-//		print("/",13,1 + 4 * menu_cursor);
-//		time_old = getMsTimer() + MENU_DELAY;
-//	}
-//
-//
-//	switch(menu_state)
-//	{
-//		case MAIN:
-//			print("CONTINUE",20,5);
-//			print("SELECT GAME",20,9);
-//			print("HIGHSCORES",20,13);
-//			print("OPTIONS",20,17);
-//			break;
-//
-//		case CONTINUE:
-//			//do sth
-//			print("Cont",1,1);
-//			while(1);
-//			break;
-//
-//		case SELECTGAME:
-//			print("SELECT GAME",20,5);
-//			print("SAVE1",20,9);
-//			print("SAVE2",20,9);
-//			print("SAVE3",20,9);
-//			break;
-//
-//		case SELECTGAME_1:
-//			print("sAVE1",1,1);
-//			while(1);
-//			break;
-//		case SELECTGAME_2:
-//			print("sAVE1",1,1);
-//			while(1);
-//			break;
-//		case SELECTGAME_3:
-//			print("sAVE1",1,1);
-//			while(1);
-//			break;
-//
-//		case HIGHSCORES:
-//			print("HIGHSCORES",20,5);
-//			print("SAVE1",20,9);
-//			print("SAVE2",20,13);
-//			print("SAVE3",20,17);
-//			break;
-//
-//
-//		case OPTIONS2:
-//			print("OPTIONS",20,5);
-//			print("Music",20,9);
-//			if( set_options & (1<<0))
-//			{
-//				print("ON",50,9);
-//			}
-//			else
-//			{
-//				print("OFF",50,9);
-//			}
-//
-//			print("Invert Colours",20,13);
-//			if( set_options & (1<<1))
-//			{
-//				print("ON  ",106,13);
-//			}
-//			else
-//			{
-//				print("OFF",106,13);
-//			}
-//			break;
-//
-//		case OPTIONS_1:
-//			if( set_options & (1<<0))
-//			{
-//				set_options &= ~(1<<0);
-//			}
-//			else
-//			{
-//				set_options |= (1<<0);
-//			}
-//			//disable music
-//			//so sth
-//			menu_state = OPTIONS2;
-//			menu_cursor = 2;
-//
-//			break;
-//
-//		case OPTIONS_2:
-//			if( set_options & (1<<1))
-//			{
-//				set_options &= ~(1<<1);
-//			}
-//			else
-//			{
-//				set_options |= (1<<1);
-//			}
-//			displayInverse(set_options & (1<<1));
-//			menu_state = OPTIONS2;
-//			menu_cursor = 3;
-//			break;
-//	}
-//}
-//}
+
+GameState main_menu(Environment env)
+{
+
+	uint8_t menu_state = MAIN;
+	uint8_t menu_cursor = 1;
+	displayClear();
+	print("/",13,1 + 4 * menu_cursor);
+
+	uint32_t time_old = env->time + MENU_DELAY;
+
+	while(1)
+	{
+		updateEnvironment(env);
+
+
+		if((env->buttons & M_U) && ( env->time >= time_old))
+		{
+			print(" ",13,1 + 4 * menu_cursor);
+			menu_cursor-=1;
+
+			if(menu_state == MAIN)
+			{
+				if(menu_cursor <=1)
+				{
+					menu_cursor = 1;
+				}
+			}
+			else if(menu_state == OPTIONS)
+			{
+				if(menu_cursor <= 2)
+				{
+					menu_cursor = 2;
+				}
+			}
+			else
+			{
+				menu_state = MAIN;
+				menu_cursor = 2;
+			}
+
+			print("/",13,1 + 4 * menu_cursor);
+			time_old = env->time + MENU_DELAY;
+		}
+
+		if((env->buttons & M_D) && ( env->time >= time_old))
+		{
+			print(" ",13,1 + 4 * menu_cursor);
+			menu_cursor+=1;
+
+			if(menu_state == MAIN)
+			{
+				if(menu_cursor >= 4)
+				{
+					menu_cursor = 4;
+				}
+
+			}
+			else if(menu_state == OPTIONS)
+			{
+				if(menu_cursor >= 3)
+				{
+					menu_cursor = 3;
+				}
+			}
+			else
+			{
+				menu_cursor = 2;
+				menu_state = MAIN;
+			}
+
+			if(menu_state != HIGHSCORES)
+			{
+				print("/",13,1 + 4 * menu_cursor);
+			}
+			time_old = env->time + MENU_DELAY;
+		}
+
+		if( (env->buttons & M_A) && ( env->time >= time_old))
+		{
+			if(menu_state == MAIN)
+			{
+				if(menu_cursor == 1)
+				{
+					menu_state = CONTINUE;
+				}
+				else if(menu_cursor == 2)
+				{
+					menu_state = SELECTGAME;
+					menu_cursor = 2;
+				}
+				else if(menu_cursor == 3)
+				{
+					menu_state = HIGHSCORES;
+
+				}
+				else if(menu_cursor == 4)
+				{
+					menu_state = OPTIONS;
+					menu_cursor = 2;
+				}
+			}
+
+			else if(menu_state == SELECTGAME)
+			{
+				menu_state = menu_cursor + 20;
+			}
+			else if(menu_state == OPTIONS)
+			{
+				if(menu_cursor == 2) // music
+				{
+					menu_cursor = 2;
+					menu_state = OPTIONS_1;
+				}
+				if(menu_cursor == 3) // invert
+				{
+					menu_state = OPTIONS_2;
+					menu_cursor = 3;
+				}
+			}
+			else if(menu_state == HIGHSCORES)
+			{
+				//do nothing
+				menu_state = HIGHSCORES;
+				menu_cursor = 2;
+
+			}
+			else
+			{
+				menu_state = MAIN;
+				menu_cursor = 2;
+			}
+			displayClear();
+			if(menu_state != HIGHSCORES)
+			{
+				print("/",13,1 + 4 * menu_cursor);
+			}
+			time_old = env->time + MENU_DELAY;
+		}
+
+		if( (env->buttons & M_B) && ( env->time >= time_old))
+		{
+			if(menu_state == OPTIONS)
+			{
+				menu_state = MAIN;
+				menu_cursor = 4;
+			}
+			if(menu_state == SELECTGAME)
+			{
+				menu_state = MAIN;
+				menu_cursor = 2;
+			}
+			if(menu_state == HIGHSCORES)
+			{
+				menu_state = MAIN;
+				menu_cursor = 3;
+			}
+			else
+			{
+				menu_state = MAIN;
+				menu_cursor = 2;
+			}
+
+			displayClear();
+			print("/",13,1 + 4 * menu_cursor);
+			time_old = env->time + MENU_DELAY;
+		}
+
+
+		switch(menu_state)
+		{
+			case MAIN:
+				print("!!",1,1);
+				print("%%",1,4);
+				print("$$",1,8);
+				print("CONTINUE",20,5);
+				print("SELECT GAME",20,9);
+				print("HIGHSCORES",20,13);
+				print("OPTIONS",20,17);
+				break;
+
+			case CONTINUE:
+				env->gameState->points = 10;
+				return env->gameState;
+				//return env->gameState = loadSave(getCurrentSave());
+
+
+			case SELECTGAME:
+				print("SELECT GAME",20,5);
+				print("SAVE1",20,9);
+				print("SAVE2",20,9);
+				print("SAVE3",20,9);
+				break;
+
+			case SELECTGAME_1:
+				print("sAVE1",1,1);
+				while(1);
+				break;
+			case SELECTGAME_2:
+				print("sAVE1",1,1);
+				while(1);
+				break;
+			case SELECTGAME_3:
+				print("sAVE1",1,1);
+				while(1);
+				break;
+
+			case HIGHSCORES:
+				print("HIGHSCORES",20,5);
+				print("SAVE1",20,9);
+				print("SAVE2",20,13);
+				print("SAVE3",20,17);
+				break;
+
+
+			case OPTIONS2:
+				print("OPTIONS",20,5);
+				print("Music",20,9);
+				if( set_options & (1<<0))
+				{
+					print("ON",50,9);
+				}
+				else
+				{
+					print("OFF",50,9);
+				}
+
+				print("Invert Colours",20,13);
+				if( set_options & (1<<1))
+				{
+					print("ON  ",106,13);
+				}
+				else
+				{
+					print("OFF",106,13);
+				}
+				break;
+
+			case OPTIONS_1:
+				if( set_options & (1<<0))
+				{
+					set_options &= ~(1<<0);
+				}
+				else
+				{
+					set_options |= (1<<0);
+				}
+				//disable music
+				//so sth
+				menu_state = OPTIONS2;
+				menu_cursor = 2;
+
+				break;
+
+			case OPTIONS_2:
+				if( set_options & (1<<1))
+				{
+					set_options &= ~(1<<1);
+				}
+				else
+				{
+					set_options |= (1<<1);
+				}
+				displayInverse(set_options & (1<<1));
+				menu_state = OPTIONS2;
+				menu_cursor = 3;
+				break;
+		}
+	}
+}
 
 
 

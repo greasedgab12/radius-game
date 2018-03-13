@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 //contains all chars
-extern const uint8_t alphabet[43][14] PROGMEM;
+extern const uint8_t alphabet[46][14] PROGMEM;
 
 void sendChar(uint8_t x,uint8_t y,uint8_t lx,uint8_t ly, const uint8_t Bstabe);
 
