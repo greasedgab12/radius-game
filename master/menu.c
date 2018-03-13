@@ -11,21 +11,209 @@
 #include "entities/stats.h"
 #include <avr/eeprom.h>
 
-
-
 uint8_t set_options 	= 0b00000001;
-
-const char *menu_text[] = {};
-const char *pause_text[] = {};
-const char *shop_text[] = {};
 
 const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE"};
 const char *ships_text[] = {"PATROL","LIGHT","HEAVY","DESTROYER"};
 
 uint8_t price_weapons[] = { 61,62,63,64,65,66,67 };
 uint8_t price_ships[] =  { 51,52,53,54,55,56,57 };
-uint8_t price_upgrade[] = {2,3,4,5,6};
+uint8_t price_upgrade[] = {2,3,4,5};
 uint8_t weapon = 0;
+
+GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
+{
+	uint8_t upgrade;
+	uint8_t offset;
+
+	//select offset per cursor
+	if(menu_cursor == 2 )
+	{
+		offset = 0;
+	}
+	else if(menu_cursor == 3)
+	{
+		offset = 2;
+	}
+	else if(menu_cursor == 4)
+	{
+		offset = 4;
+	}
+	else if(menu_cursor == 5)
+	{
+		offset = 6;
+	}
+
+	if(weapon == 0)//gun
+	{
+		upgrade = gameState->gunUpg;
+	}
+	else if(weapon == 1)//machine
+	{
+		upgrade = gameState->machineGunUpg;
+	}
+	else if(weapon == 2)//multi
+	{
+		upgrade = gameState->multiUpg;
+	}
+	else if(weapon == 3)//heavy
+	{
+		upgrade = gameState->heavyUpg;
+	}
+	else if(weapon == 4)//shot
+	{
+		upgrade = gameState->shotGunUpg;
+	}
+	else if(weapon == 5)//noppy
+	{
+		upgrade = gameState->noppyUpg;
+	}
+	else if(weapon == 6)//launcher
+	{
+		upgrade = gameState->launcherUpg;
+	}
+	else if(weapon == 6)//bounceUpg
+	{
+		upgrade = gameState->bounceUpg;
+	}
+
+
+	if((upgrade & (0b11<<offset)) == (0b00<<offset))
+	{
+		if(price_upgrade[0]* price_weapons[weapon] <= gameState->points)
+		{
+			gameState->points = gameState->points - (price_upgrade[0]* price_weapons[weapon]) ;
+			upgrade &= ~(0b11<<offset);
+			upgrade |= (0b01<<offset);
+		}
+	}
+	else if ((upgrade & (0b11<<offset)) == (0b01<<offset))
+	{
+		if(price_upgrade[1]* price_weapons[weapon] <= gameState->points)
+		{
+			gameState->points = gameState->points - (price_upgrade[1]* price_weapons[weapon]) ;
+			upgrade &= ~(0b11<<offset);
+			upgrade |= (0b10<<offset);
+		}
+	}
+	else if ((upgrade & (0b11<<offset)) == (0b10<<offset))
+	{
+		if(price_upgrade[2]* price_weapons[weapon] <= gameState->points)
+		{
+			gameState->points = gameState->points -price_upgrade[0]* price_weapons[weapon] ;
+			upgrade &= ~(0b11<<offset);
+			upgrade |= (0b11<<offset);
+		}
+	}
+
+	if(weapon == 0)//gun
+	{
+		gameState->gunUpg = upgrade;
+	}
+	else if(weapon == 1)//machine
+	{
+		gameState->machineGunUpg = upgrade;
+	}
+	else if(weapon == 2)//multi
+	{
+		gameState->multiUpg = upgrade;
+	}
+	else if(weapon == 3)//heavyUpg
+	{
+		gameState->heavyUpg = upgrade;
+	}
+	else if(weapon == 4)//shotGunUpg
+	{
+		gameState->shotGunUpg = upgrade;
+	}
+	else if(weapon == 5)//noppyUpg
+	{
+		gameState->noppyUpg = upgrade;
+	}
+	else if(weapon == 6)//launcherUpg
+	{
+		gameState->launcherUpg = upgrade;
+	}
+	else if(weapon == 7)//bounceUpg
+	{
+		gameState->bounceUpg = upgrade;
+	}
+
+	return gameState;
+}
+
+
+void printUpgrade(GameState gameState, uint8_t weapon)
+{
+	uint8_t offset = 0;
+	uint8_t upgrade;
+	uint8_t nextZeile = 9;
+
+	if(weapon == 0)//gun
+	{
+		upgrade = gameState->gunUpg;
+	}
+	if(weapon == 1)//machineGunUpg
+	{
+		upgrade = gameState->machineGunUpg;
+	}
+	if(weapon == 2)//multiUpg
+	{
+		upgrade = gameState->multiUpg;
+	}
+	if(weapon == 3)//heavyUpg
+	{
+		upgrade = gameState->heavyUpg;
+	}
+	if(weapon == 4)//shotGunUpg
+	{
+		upgrade = gameState->shotGunUpg;
+	}
+	if(weapon == 5)//noppyUpg
+	{
+		upgrade = gameState->noppyUpg;
+	}
+	if(weapon == 6)//launcherUpg
+	{
+		upgrade = gameState->launcherUpg;
+	}
+	if(weapon == 7)//bounceUpg
+	{
+		upgrade = gameState->bounceUpg;
+	}
+
+	print("DMG",20,9);
+	print("SPEED",20,13);
+	print("ROF",20,17);
+	print("LVL",20,21);
+
+	while(offset<=6)
+	{
+		if((upgrade & (0b11<<offset)) == (0b00<<offset))
+		{
+			printN(1,70,nextZeile);
+			printN(price_upgrade[0]* price_weapons[weapon],110,nextZeile);
+		}
+		else if ((upgrade & (0b11<<offset)) == (0b01<<offset))
+		{
+			printN(2,70,nextZeile);
+			printN(price_upgrade[1]* price_weapons[weapon],110,nextZeile);
+		}
+		else if ((upgrade & (0b11<<offset)) == (0b10<<offset))
+		{
+			printN(3,70,nextZeile);
+			printN(price_upgrade[2]* price_weapons[weapon],110,nextZeile);
+		}
+		else if ((upgrade & (0b11<<offset)) == (0b11<<offset))
+		{
+			printN(4,70,nextZeile);
+			printN(price_upgrade[3]* price_weapons[weapon],110,nextZeile);
+		}
+		offset += 2;
+		nextZeile += 4;
+	}
+}
+
 
 //choose weapons/ships from inventory or upgrade
 GameState shop_menu(Environment env)
@@ -48,15 +236,6 @@ GameState shop_menu(Environment env)
 	print("/",13,1 + 4 * menu_cursor);
 
 	while(1){
-
-//	printB(env->gameState->boughtShip ,130,1);
-//	printB(env->gameState->boughtWeapon,130,3);
-//	printN(env->gameState->selShip ,130,5);
-//	printN(env->gameState->selWeapon,130,7);
-//
- 	printN(menu_state,130,10);
-	printN(menu_cursor,130,12);
-
 
 	updateEnvironment(env);
 
@@ -283,6 +462,7 @@ GameState shop_menu(Environment env)
 		{
 			if(menu_cursor >= 5)
 			{
+				menu_cursor = 5;
 				print("/",13,21);
 			}
 			else
@@ -422,6 +602,9 @@ GameState shop_menu(Environment env)
 		{
 			//upgrade selected weapon
 			//with info from current cursor
+			env->gameState = weaponUpgrade(env->gameState,weapon,menu_cursor);
+
+
 
 		}
 
@@ -470,6 +653,7 @@ GameState shop_menu(Environment env)
 			menu_cursor = weapon + 2;
 			if(menu_cursor >= 5)
 			{
+
 				print("/",13,21);
 				print(" ",13,2);
 			}
@@ -744,13 +928,12 @@ GameState shop_menu(Environment env)
 
 			break;
 		case SHOP_UPGRADE_WEAPON:
-			print("UPGRADE",20,5);
-			print("MACHINEGUN",70,5);
-			printN(weapon,1,1);
-			print("DMG",20,9);
-			print("SPEED",20,13);
-			print("ROF",20,17);
-			print("LVL",20,21);
+			print("UPGRADE",20,2);
+			print(weapons_text[weapon],24,5);
+			printN(env->gameState->points,110,5);
+
+			printUpgrade(env->gameState,weapon);
+
 
 			break;
 		case SAVE:
@@ -1212,3 +1395,12 @@ uint8_t pause_menu(Environment env)
 //	}
 //}
 //}
+
+
+
+
+
+
+
+
+

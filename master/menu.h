@@ -60,6 +60,23 @@
 #define OPTIONS_UPPER_BOUNDARY 2
 #define OPTIONS_LOWER_BOUNDARY 4
 
+
+extern uint8_t set_options;
+
+//extern const char *menu_text[] = {};
+//extern const char *pause_text[] = {};
+//extern const char *shop_text[] = {};
+
+extern const char *weapons_text[8];
+extern const char *ships_text[4];
+
+extern uint8_t price_weapons[7];
+extern uint8_t price_ships[7];
+extern uint8_t price_upgrade[4];
+extern uint8_t weapon;
+
+GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor);
+void printUpgrade(GameState gameState, uint8_t weapon);
 GameState shop_menu(Environment env);
 uint8_t pause_menu(Environment env);
 #endif
