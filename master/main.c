@@ -87,6 +87,8 @@ SIGNAL (TIMER0_COMPA_vect){
 
 int main(void)
 {
+
+
 	init();
 
 
@@ -104,8 +106,11 @@ int main(void)
 	/**
     titleScreen(env);
 	_delay_ms(200);
-    display_mainmenu();
 	**/
+
+	//ToDo
+	//env->gameState = main_menu(env);
+
 	//ToDo: Couple gameState with selection in MainMenu.
 	//env->gameState = newGame();
 
@@ -130,6 +135,19 @@ int main(void)
 
 
 		while(env->enemyRemaining || env->enemyCount){
+			//put the game pause menu here
+			if(env->buttons & M_P)
+			{
+				if(pause_menu(env)){
+					print("pause 1",1,1);
+				}
+				else
+				{
+					print("pause 0",1,1);
+				}
+				updateEnvironment(env);
+				updateEnvironment(env);
+			}
 
 			//Update Environment variables.
 			updateEnvironment(env);
@@ -213,11 +231,11 @@ int main(void)
 		displayClear();
 
 		//ToDo: integrate shopScreen
-		/**
+
 		if(env->level % 2 ==0){
-			shopScreen();
+			env->gameState = shop_menu(env);
 		}
-		**/
+
 
     }
 }

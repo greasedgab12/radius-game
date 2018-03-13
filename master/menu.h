@@ -4,7 +4,7 @@
 #include"object.h"
 
 
-#define MENU_DELAY 150
+#define MENU_DELAY 10
 #define MAIN 0
 #define MAIN_UPPER_BOUNDARY 1
 #define MAIN_LOWER_BOUNDARY 5
@@ -59,6 +59,6 @@
 #define OPTIONS_UPPER_BOUNDARY 2
 #define OPTIONS_LOWER_BOUNDARY 4
 
-void shop_menu(void);
-
+GameState shop_menu(Environment env);
+uint8_t pause_menu(Environment env);
 #endif
