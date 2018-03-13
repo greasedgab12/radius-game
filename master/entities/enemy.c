@@ -65,7 +65,6 @@ Object newEnemyGlider(uint8_t * sprite,uint8_t y, uint8_t f){
 Object newEnemyTracker(uint8_t * sprite,uint8_t y){
 	Object self = newEnemy(sprite,0,y);
 	self->think = &enemyTrackerThink;
-	self->entity->acceleration = 1;
 	self->setXY(self,MAXX -self->lx, y);
 	return self;
 
@@ -87,68 +86,59 @@ void enemyThink(Object self, Environment mainEnv){
 		return;
 	}
 
-	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
 
-		//Update time variable to correctly acquire time passed.
-		self->entity->v_time = mainEnv->time;
-
-		printN(self->entity->v_x, 100 , 2);
-		/**Apply acceleration to velocity
-		 * Velocity in each direction cannot exceed maximum velocity.
-		 */
-		//x-direction
-		if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
-			self->entity->v_x += self->entity->a_x;
-		}
-		else if ( abs(self->entity->v_x)<= self->entity->v_max){
-			if(self->entity->v_x>0){
-				self->entity->v_x = self->entity->v_max;
-			}
-			else{
-				self->entity->v_x = -self->entity->v_max;
-			}
-		}
-		//y-direction
-		if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
-			self->entity->v_y += self->entity->a_y;
-		}
-		else if ( abs(self->entity->v_y)<= self->entity->v_max){
-			if(self->entity->v_y>0){
-				self->entity->v_y = self->entity->v_max;
-			}
-			else{
-				self->entity->v_y = -self->entity->v_max;
-			}
-		}
-
-		//Apply Friction to velocity
-		//x-direction
-		if(self->entity->v_x > FRICTION){
-			self->entity->v_x -=FRICTION;
-		}
-		else if( self->entity->v_x < -FRICTION){
-			self->entity->v_x +=FRICTION;
-		}
-		else{
-			self->entity->v_x = 0;
-		}
-		//y-direction
-		if(self->entity->v_y > FRICTION){
-			self->entity->v_y -=FRICTION;
-		}
-		else if( self->entity->v_y < -FRICTION){
-			self->entity->v_y +=FRICTION;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
-		//Apply velocitiy to position.
-		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
-		//Add the remainder to the next step:
-		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
-		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
-
+	//Apply accelertation to velocity.
+	//x-direction
+	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
+		self->entity->v_x += self->entity->a_x;
 	}
+	else if ( abs(self->entity->v_x)<= self->entity->v_max){
+		if(self->entity->v_x>0){
+			self->entity->v_x = self->entity->v_max;
+		}
+		else{
+			self->entity->v_x = -self->entity->v_max;
+		}
+	}
+	//y-direction
+	if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
+		self->entity->v_y += self->entity->a_y;
+	}
+	else if ( abs(self->entity->v_y)<= self->entity->v_max){
+		if(self->entity->v_y>0){
+			self->entity->v_y = self->entity->v_max;
+		}
+		else{
+			self->entity->v_y = -self->entity->v_max;
+		}
+	}
+
+	//Apply Friction to velocity
+	//x-direction
+	if(self->entity->v_x > FRICTION){
+		self->entity->v_x -=FRICTION;
+	}
+	else if( self->entity->v_x < -FRICTION){
+		self->entity->v_x +=FRICTION;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
+	//y-direction
+	if(self->entity->v_y > FRICTION){
+		self->entity->v_y -=FRICTION;
+	}
+	else if( self->entity->v_y < -FRICTION){
+		self->entity->v_y +=FRICTION;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+	//Apply velocity to position.
+	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
+
+
+
 }
 
 
@@ -157,83 +147,73 @@ void enemyGliderThink(Object self, Environment mainEnv){
 	if(self->killedBy!=0){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
 
-		//Update time variable to correctly acquire time passed.
-		self->entity->v_time = mainEnv->time;
+	//Calculate acceleration based on the state (param1) of the entity.
+	if(self->entity->state<self->entity->param1){
+		self->entity->state++;
+	}
+	else{
+		self->entity->state =0;
+	}
+	//Accelerate either upwards or downwards.
+	if(self->entity->state < self->entity->param1/2){
 
-		//Calculate acceleration based on the state (param1) of the entity.
-		if(self->entity->state<self->entity->param1){
-			self->entity->state++;
-		}
-		else{
-			self->entity->state =0;
-		}
-		//Accelerate either upwards or downwards.
-		if(self->entity->state < self->entity->param1/2){
-
-			self->entity->a_y =1 + FRICTION;
-		}
-		else{
-			self->entity->a_y =-1 -FRICTION;
-		}
-
-
-		//Apply accelertation to velocity.
-		//x-direction
-		if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
-			self->entity->v_x += self->entity->a_x;
-		}
-		else if ( abs(self->entity->v_x)<= self->entity->v_max){
-			if(self->entity->v_x>0){
-				self->entity->v_x = self->entity->v_max;
-			}
-			else{
-				self->entity->v_x = -self->entity->v_max;
-			}
-		}
-		//y-direction
-		if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
-			self->entity->v_y += self->entity->a_y;
-		}
-		else if ( abs(self->entity->v_y)<= self->entity->v_max){
-			if(self->entity->v_y>0){
-				self->entity->v_y = self->entity->v_max;
-			}
-			else{
-				self->entity->v_y = -self->entity->v_max;
-			}
-		}
-
-		//Apply Friction to velocity
-		//x-direction
-		if(self->entity->v_x > FRICTION){
-			self->entity->v_x -=FRICTION;
-		}
-		else if( self->entity->v_x < -FRICTION){
-			self->entity->v_x +=FRICTION;
-		}
-		else{
-			self->entity->v_x = 0;
-		}
-		//y-direction
-		if(self->entity->v_y > FRICTION){
-			self->entity->v_y -=FRICTION;
-		}
-		else if( self->entity->v_y < -FRICTION){
-			self->entity->v_y +=FRICTION;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
-		//Apply velocity to position.
-		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
-		//Add the remainder to the next step:
-		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
-		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
-
+		self->entity->a_y =1 + FRICTION;
+	}
+	else{
+		self->entity->a_y =-1 -FRICTION;
 	}
 
+
+	//Apply accelertation to velocity.
+	//x-direction
+	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
+		self->entity->v_x += self->entity->a_x;
+	}
+	else if ( abs(self->entity->v_x)<= self->entity->v_max){
+		if(self->entity->v_x>0){
+			self->entity->v_x = self->entity->v_max;
+		}
+		else{
+			self->entity->v_x = -self->entity->v_max;
+		}
+	}
+	//y-direction
+	if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
+		self->entity->v_y += self->entity->a_y;
+	}
+	else if ( abs(self->entity->v_y)<= self->entity->v_max){
+		if(self->entity->v_y>0){
+			self->entity->v_y = self->entity->v_max;
+		}
+		else{
+			self->entity->v_y = -self->entity->v_max;
+		}
+	}
+
+	//Apply Friction to velocity
+	//x-direction
+	if(self->entity->v_x > FRICTION){
+		self->entity->v_x -=FRICTION;
+	}
+	else if( self->entity->v_x < -FRICTION){
+		self->entity->v_x +=FRICTION;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
+	//y-direction
+	if(self->entity->v_y > FRICTION){
+		self->entity->v_y -=FRICTION;
+	}
+	else if( self->entity->v_y < -FRICTION){
+		self->entity->v_y +=FRICTION;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+		//Apply velocity to position.
+	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
 }
 
 void enemyTrackerThink(Object self, Environment mainEnv){
@@ -241,83 +221,74 @@ void enemyTrackerThink(Object self, Environment mainEnv){
 	if(self->killedBy!=0){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
-
-		//Update time variable to correctly acquire time passed.
-		self->entity->v_time = mainEnv->time;
-
-		Object target=mainEnv->player;
-		//Search for a valid target.
+	Object target=mainEnv->player;
+	//Search for a valid target.
 
 
-		//Calculate acceleration based on target position.
-		//The tracker enemy can only accelerate in the y-axis.
-		if(target){
-			if(self->y < target->y){
-				self->entity->a_y = self->entity->acceleration;
-			}
-			else if(self->y + self->ly > target->y){
-				self->entity->a_y = -self->entity->acceleration;
-			}
-			else{
-				self->entity->a_y =0;
-			}
+	//Calculate acceleration based on target position.
+	//The tracker enemy can only accelerate in the y-axis.
+	if(target){
+		if(self->y < target->y){
+			self->entity->a_y = 10 + FRICTION;
 		}
-
-		//Apply acceleration to velocity.
-		//y-direction
-		if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
-			self->entity->v_x += self->entity->a_x;
-		}
-		else if ( abs(self->entity->v_x)<= self->entity->v_max){
-			if(self->entity->v_x>0){
-				self->entity->v_x = self->entity->v_max;
-			}
-			else{
-				self->entity->v_x = -self->entity->v_max;
-			}
-		}
-		//y-direction
-		if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
-			self->entity->v_y += self->entity->a_y;
-		}
-		else if ( abs(self->entity->v_y)<= self->entity->v_max){
-			if(self->entity->v_y>0){
-				self->entity->v_y = self->entity->v_max;
-			}
-			else{
-				self->entity->v_y = -self->entity->v_max;
-			}
-		}
-
-		//Apply Friction to velocity
-		//x-direction.
-		if(self->entity->v_x > FRICTION){
-			self->entity->v_x -=FRICTION;
-		}
-		else if( self->entity->v_x < -FRICTION){
-			self->entity->v_x +=FRICTION;
+		else if(self->y + self->ly > target->y){
+			self->entity->a_y = -(10 + FRICTION);
 		}
 		else{
-			self->entity->v_x = 0;
+			self->entity->a_y =0;
 		}
-		//y-direction
-		if(self->entity->v_y > FRICTION){
-			self->entity->v_y -=FRICTION;
-		}
-		else if( self->entity->v_y < -FRICTION){
-			self->entity->v_y +=FRICTION;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
-		//Apply velocitiy to position.
-		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
-		//Add the remainder to the next step:
-		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
-		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
-
 	}
+
+	//Apply acceleration to velocity.
+	//y-direction
+	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
+		self->entity->v_x += self->entity->a_x;
+	}
+	else if ( abs(self->entity->v_x)<= self->entity->v_max){
+		if(self->entity->v_x>0){
+			self->entity->v_x = self->entity->v_max;
+		}
+		else{
+			self->entity->v_x = -self->entity->v_max;
+		}
+	}
+	//y-direction
+	if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
+		self->entity->v_y += self->entity->a_y;
+	}
+	else if ( abs(self->entity->v_y)<= self->entity->v_max){
+		if(self->entity->v_y>0){
+			self->entity->v_y = self->entity->v_max;
+		}
+		else{
+			self->entity->v_y = -self->entity->v_max;
+		}
+	}
+
+	//Apply Friction to velocity
+	//x-direction.
+	if(self->entity->v_x > FRICTION){
+		self->entity->v_x -=FRICTION;
+	}
+	else if( self->entity->v_x < -FRICTION){
+		self->entity->v_x +=FRICTION;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
+	//y-direction
+	if(self->entity->v_y > FRICTION){
+		self->entity->v_y -=FRICTION;
+	}
+	else if( self->entity->v_y < -FRICTION){
+		self->entity->v_y +=FRICTION;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+	//Apply velocitiy to position.
+	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
+
 
 }
 
@@ -326,68 +297,59 @@ void enemyShooterThink(Object self, Environment mainEnv){
 	if(self->killedBy!=0){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
-
-		//Update time variable to correctly acquire time passed.
-		self->entity->v_time = mainEnv->time;
-		//Since the shooter enemy can fire a weapon, the energy attribute must be usable.
-		if(self->entity->energy <self->entity->maxEnergy){
-			self->entity->energy+= 1;
-		}
-		else{
-			self->entity->energy = self->entity->maxEnergy;
-		}
-		//Shoot at a random time. The probability is inversly proportional to param1.
-		if(!(random()%(self->entity->param1+1))){
-			self->entity->weaponA->fire(self->entity->weaponA, self, mainEnv);
-		}
-		/**Apply acceleration to velocity
-		 * Velocity in each direction cannot exceed maximum velocity.
-		 */
-		//x-direction
-		if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
-			self->entity->v_x += self->entity->a_x;
-		}
-		else if ( abs(self->entity->v_x)<= self->entity->v_max){
-			if(self->entity->v_x>0){
-				self->entity->v_x = self->entity->v_max;
-			}
-			else{
-				self->entity->v_x = -self->entity->v_max;
-			}
-		}
-
-		//Apply Friction to velocity
-		//x-direction
-		if(self->entity->v_x > FRICTION){
-			self->entity->v_x -=FRICTION;
-		}
-		else if( self->entity->v_x < -FRICTION){
-			self->entity->v_x +=FRICTION;
-		}
-		else{
-			self->entity->v_x = 0;
-		}
-		//y-direction
-		if(self->entity->v_y > FRICTION){
-			self->entity->v_y -=FRICTION;
-		}
-		else if( self->entity->v_y < -FRICTION){
-			self->entity->v_y +=FRICTION;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
-		//Apply velocitiy to position.
-		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
-		//Add the remainder to the next step:
-		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
-		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
-
+//Since the shooter enemy can fire a weapon, the energy attribute must be usable.
+	if(self->entity->energy <self->entity->maxEnergy){
+		self->entity->energy+= 1;
 	}
+	else{
+		self->entity->energy = self->entity->maxEnergy;
+	}
+	//Shoot at a random time. The probability is inversly proportional to param1.
+	if(!(random()%(self->entity->param1+1))){
+		self->entity->weaponA->fire(self->entity->weaponA, self, mainEnv);
+	}
+	/**Apply acceleration to velocity
+	 * Velocity in each direction cannot exceed maximum velocity.
+	 */
+	//x-direction
+	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
+		self->entity->v_x += self->entity->a_x;
+	}
+	else if ( abs(self->entity->v_x)<= self->entity->v_max){
+		if(self->entity->v_x>0){
+			self->entity->v_x = self->entity->v_max;
+		}
+		else{
+			self->entity->v_x = -self->entity->v_max;
+		}
+	}
+
+	//Apply Friction to velocity
+	//x-direction
+	if(self->entity->v_x > FRICTION){
+		self->entity->v_x -=FRICTION;
+	}
+	else if( self->entity->v_x < -FRICTION){
+		self->entity->v_x +=FRICTION;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
+	//y-direction
+	if(self->entity->v_y > FRICTION){
+		self->entity->v_y -=FRICTION;
+	}
+	else if( self->entity->v_y < -FRICTION){
+		self->entity->v_y +=FRICTION;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+	//Apply velocitiy to position.
+	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
+
+
 }
-
-
 
 
 uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
@@ -481,7 +443,6 @@ Object getEnemyByType( uint8_t type, uint8_t* sprite,uint8_t health,uint8_t armo
 	enemy->entity->a_x = -speed;
 	enemy->entity->v_x = -speed;
 	enemy->entity->v_max = speed;
-	enemy->entity->acceleration = speed/2;
 	return enemy;
 
 

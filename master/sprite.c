@@ -5,6 +5,15 @@
 #include "sprites.h"
 #include "display.h"
 
+uint8_t* sprite_in_ram[MAX_SPRITE_COUNT];
+
+void spriteInit(){
+	uint8_t i;
+	for(i=0; i<MAX_SPRITE_COUNT; i++){
+		sprite_in_ram[i]=0;
+	}
+}
+
 //check if sprite already in ram
 uint8_t* load_sprite(const uint8_t *sprite)
 {

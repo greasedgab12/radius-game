@@ -14,7 +14,6 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sp
 
     self->x = x;
     self->y = y;
-    self->py = y/4;
     self->killedBy = 0;
     self->lx =lx;
     self->ly =ly;
@@ -32,7 +31,10 @@ Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sp
 
 
 void releaseObject(Object instance){
-	releaseEntity(instance->entity);
+
+	free(instance->entity->weaponA);
+	free(instance->entity->weaponB);
+	free(instance->entity);
 	free(instance);
 }
 
@@ -49,7 +51,6 @@ void setObjectXY(Object self, uint8_t x, uint8_t y){
 	}
     self->y = y;
 
-    self->py = y/4;
     self->msly = self->sly;
     self->msly += y%4?1:0;
 }
@@ -67,7 +68,7 @@ void setObjectData(Object self, const uint8_t* sprite){
 void drawObject(Object instance){
 	uint8_t *mdata;
 	mdata = mapData(instance->data, instance->y);
-	sendWindow(instance->x, instance->py,mdata[0], mdata[1]/mdata[0], mdata);
+	sendWindow(instance->x, instance->y/4,mdata[0], mdata[1]/mdata[0], mdata);
 	free(mdata);
 }
 uint8_t* mapData(const uint8_t* data, uint8_t ty){
@@ -79,7 +80,7 @@ uint8_t* mapData(const uint8_t* data, uint8_t ty){
 	if(offset){
 		ply = data[1]/data[0] +1;
 		//Allocate memory for ndata array.
-		ndata = calloc((lx*ply + 2),sizeof(uint8_t));
+		ndata = (uint8_t*)malloc((lx*ply + 2)*sizeof(uint8_t));
 
 
 		//Set first two entries to width of Object and overall length of the array.
@@ -99,7 +100,7 @@ uint8_t* mapData(const uint8_t* data, uint8_t ty){
 	}
 	else{
 		//Without offset only the y coordinate is mapped.
-		ndata = calloc(data[1] +2, sizeof(uint8_t));
+		ndata = (uint8_t*)malloc(data[1] +2 *sizeof(uint8_t));
 		ndata[0] = lx;
 		ndata[1] = data[1];
 		for(x=2; x<data[1]+2; x++){
@@ -224,7 +225,7 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 	if( dx> instance->slx || dy > instance->msly || (dx == 0 && dy==0)){
 
 
-		sendWindow(instance->x, instance->py, instance->slx, instance->msly, 0);
+		sendWindow(instance->x, instance->y/4, instance->slx, instance->msly, 0);
 		return;
 	}
 
@@ -232,18 +233,18 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 	uint8_t nx,ny,slx,msly;
 	if(dy!=0){
 
-		if( instance->py < y/4){
+		if( instance->y/4 < y/4){
 					nx = instance->x;
-			ny = instance->py;
+			ny = instance->y/4;
 		}
 		else{
 			nx = instance->x;
-			ny = instance->py + instance->msly - dy;
+			ny = instance->y/4 + instance->msly - dy;
 		}
 
 		msly = dy;
 
-		if(instance->py > y && y%4==0){
+		if(instance->y/4 > y && y%4==0){
 			ny = ny ==0 ? 0 : ny -1;
 			msly = ny + msly +1 < MAXY ? msly +1: msly;
 		}
@@ -254,24 +255,24 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 
 	//Block1:
 	if(dx !=0){
-		if(instance->py < y/4){
+		if(instance->y/4 < y/4){
 			if(instance->x < x){
 				nx = instance->x;
-				ny = instance->py + abs(dy);
+				ny = instance->y/4 + abs(dy);
 			}
 			else{
 				nx = instance->x +instance->slx - dx ;
-				ny = instance->py + abs(dy);
+				ny = instance->y/4 + abs(dy);
 			}
 		}
 		else{
 			if(instance->x < x){
 				nx = instance->x;
-				ny = instance->py;
+				ny = instance->y/4;
 			}
 			else{
 				nx = instance->x +instance->slx - dx ;
-				ny = instance->py;
+				ny = instance->y/4;
 
 			}
 		}
@@ -342,7 +343,7 @@ uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy){
 	int8_t dx, dy;
 	uint8_t checkVal=0;
 	dx = other->x-self->x-rx;
-	dy = other->py-self->py-rpy;
+	dy = other->y/4-self->y/4-rpy;
 	if(dx > 0){
 		if(dx <self->slx){
 			checkVal++;
@@ -401,36 +402,36 @@ void drawOverlap(Object a, Object b){
 	bdata = mapData(b->data,b->y);
 
 	dx 		= a->x>b->x		?	a->x-b->x	:	b->x-a->x;
-	dy 		= a->py>b->py	?	a->py-b->py	:	b->py-a->py;
+	dy 		= a->y/4>b->y/4	?	a->y/4-b->y/4	:	b->y/4-a->y/4;
 
 	poslx = (a->x+a->slx)<(b->x+b->slx)		?(a->x+a->slx)	:(b->x+b->slx);
-	posly = (a->py+a->msly)<(b->py+b->msly)	?(a->py+a->msly):(b->py+b->msly);
+	posly = (a->y/4+a->msly)<(b->y/4+b->msly)	?(a->y/4+a->msly):(b->y/4+b->msly);
 
 	posx 	= a->x>b->x		?	a->x		:	b->x;
-	posy 	= a->py>b->py	?	a->py		:	b->py;
+	posy 	= a->y/4>b->y/4	?	a->y/4		:	b->y/4;
 
 	dlx 	= poslx -posx;
 	dly 	= posly -posy;
 
-	uint8_t *ndata = calloc(dlx*dly +2 ,sizeof(uint8_t));
+	uint8_t *ndata = (uint8_t*)malloc(dlx*dly +2 * sizeof(uint8_t));
 	ndata[0] = dlx;
 	ndata[1] = dlx*dly;
 
 	for(y=0;y<dly; y++){
 		for(x=0; x<dlx; x++){
 
-			if		(a->x <= b->x && a->py <= b->py){
+			if		(a->x <= b->x && a->y/4 <= b->y/4){
 				ndata[2 + x*dly + y] =  adata[2 + (x+dx)	*a->msly + y + dy] |
 										bdata[2 + (x)		*b->msly + y];
 
 
 			}
-			else if	(b->x < a->x && a->py <= b->py){
+			else if	(b->x < a->x && a->y/4 <= b->y/4){
 				ndata[2 + x*dly + y] =  adata[2 + (x)		*a->msly + y + dy] |
 										bdata[2 + (x+dx)	*b->msly + y];
 
 			}
-			else if	(a->x <= b->x && b->py < a->py){
+			else if	(a->x <= b->x && b->y/4 < a->y/4){
 				ndata[2 + x*dly + y] =  adata[2 + (x+dx)	*a->msly + y ] |
 										bdata[2 + (x)		*b->msly + y + dy];
 

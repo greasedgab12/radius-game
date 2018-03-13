@@ -53,11 +53,6 @@ uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy);
 void moveObject(Object self, Environment mainEnv, int8_t r_x, int8_t r_y);
 
 
-/* mapObject: Create new Block from Object instance
- * Object instance: Object to be mapped to a Block of pages.
- * return Block: Resulting Block.
- */
-Block mapObject(Object instance);
 
 uint8_t* mapData(const uint8_t* data, uint8_t ty);
 

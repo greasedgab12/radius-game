@@ -60,7 +60,6 @@ Environment newEnvironment(){
     	self->spawnDelay[i]=0;
     }
 
-    self->spawnPos=0;
 
     self->points =0;
     return self;
@@ -73,7 +72,7 @@ void updateEnvironment(Environment env){
 
 	env->lastTime = env->time;
 	//Cap time at approximately 60fps
-	env->time = getMsTimer()/17;
+	env->time = getMsTimer()/34;
 }
 
 void addObject(Environment self, Object instance){
@@ -91,8 +90,8 @@ void removeObject(Environment self, Object instance){
 	//Search and remove given object isntance from list:
 	for(i=0; i<self->oPos; i++){
 		if(self->objectList[i] == instance){
-			self->objectList[i] =0;
 			releaseObject(instance);
+			self->objectList[i] =0;
 		}
 	}
 
@@ -116,6 +115,7 @@ void flushObjectList(Environment env){
 	for(i=0; i<MAXOBJECTS; i++){
 		if(env->objectList[i]){
 			releaseObject(env->objectList[i]);
+			env->objectList[i]=0;
 		}
 	}
 	env->oPos =0;

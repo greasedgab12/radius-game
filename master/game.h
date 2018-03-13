@@ -23,13 +23,13 @@ GameState loadGame();
 /** getPlayerFromGameState
  *
  */
-Object getPlayerFromGameState(Environment mainEnv, GameState state);
+Object getPlayerFromGameState(Environment mainEnv);
 
 void getNextEnemy(Environment mainEnv);
 
 uint16_t getPoints(Environment mainEnv, Object enemy);
 
-void drawHud(Environment mainEnv);
+void drawHud(uint8_t health,uint8_t maxHealth, uint8_t energy,uint8_t maxEnergy, uint32_t points);
 
 void setSpawnList(Environment env);
 

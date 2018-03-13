@@ -58,7 +58,6 @@ void titleScreen(Environment env){
 }
 
 void displayLevel(Environment env){
-	uint16_t time = env->time;
 	print("LEVEL ",63,10);
 	printN(env->level,99,10);
 	_delay_ms(2000);
@@ -66,7 +65,6 @@ void displayLevel(Environment env){
 	displayClear();
 }
 void displayStart(Environment env){
-	uint16_t time = env->time;
 	print("READY",66,10);
 	_delay_ms(1000);
 	print("START",66,14);
@@ -74,7 +72,6 @@ void displayStart(Environment env){
 	displayClear();
 }
 void displayFinished(Environment env){
-	uint16_t time = env->time;
 	print("LEVEL ",63,10);
 	printN(env->level,99,10);
 	print("CLEARED",60,12);
@@ -82,6 +79,12 @@ void displayFinished(Environment env){
 	printN(env->gameState->points,100,16);
 	_delay_ms(3000);
 	displayClear();
+}
+
+int freeRam () {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
 
@@ -98,50 +101,55 @@ int main(void)
     Environment env = newEnvironment();
     env->gameState = newGame();
 	sei();
-
+	/**
     titleScreen(env);
 	_delay_ms(200);
     //display_mainmenu();
-
+	**/
 	//ToDo: Couple gameState with selection in MainMenu.
 
-    Object enemy;
 
     //Game loop
     while(1){
     	//Reloading the player object.
-		env->player = getPlayerFromGameState(env, env->gameState);
+    	env->gameState->selShip = 0b00001000;
+		env->gameState->selWeapon = 0b00000001;
+		env->gameState->machineGunUpg = 255;
+		env->gameState->gunUpg = 255;
+
+    	env->player = getPlayerFromGameState(env);
 		env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
-		free(env->player->entity->weaponA);
-		env->player->entity->weaponA = newMachineGun(255);
-		env->player->entity->weaponB = newBounce(255);
-		env->gameState->level = 10;
+
+		env->gameState->level = 20;
+		env->level = env->gameState->level;
 		addObject(env, env->player);
 
 		env->enemyRemaining = 4 + 2*env->level;
-		env->enemyMax =1 + env->level/2;
+		env->enemyMax =1 + (env->level/2<5?env->level/2:5);
 
 		updateEnvironment(env);
-
+		/**
 		displayLevel(env);
 		displayStart(env);
-
+		**/
 		//Prevent the games entities from thinking too much.
 
 
 
 		updateEnvironment(env);
-
-
+		//Force redraw of HUD
+		drawHud(0,1,0,1,0);
 		while(env->enemyRemaining || env->enemyCount){
-
+			printN(freeRam(),0,2);
+			printN(env->player->entity->weaponB,0,4);
 			//Update Environment variables.
 			updateEnvironment(env);
-			drawHud(env);
+			drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
+
 
 
 			if(env->enemyCount < env->enemyMax && env->enemyRemaining){
-				if(isSpawnListEmpty(env) && (env->enemyCount == 0)){
+				if(isSpawnListEmpty(env)){
 					setSpawnList(env);
 				}
 				else{
@@ -151,7 +159,7 @@ int main(void)
 
 			//For each passed frame execute think of each object.
 
-			for(i=0; i<env->time-env->lastTime+1; i++){
+			for(i=0; i<env->time-(env->lastTime); i++){
 				for(j=0; j<env->oPos; j++){
 					env->objectList[j]->think(env->objectList[j], env);
 				}
@@ -166,7 +174,7 @@ int main(void)
 					}
 				}
 				else{
-					sendWindow(env->objectList[i]->x,env->objectList[i]->py,
+					sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,
 							env->objectList[i]->slx, env->objectList[i]->msly,0);
 				}
 			}
@@ -207,15 +215,17 @@ int main(void)
 					env->objectList[i]->drawState = DESTROY;
 				}
 			}
+			flushAllSprites();
 		}
 		//After the game loop clean the objectList, and flush loaded Sprites as to conserve memory.
 
 		flushObjectList(env);
 		env->player =0;
-		flushAllSprites();
-		displayClear();
 		env->gameState->points += env->points;
 		env->points =0;
+		flushAllSprites();
+		displayClear();
+
 		displayFinished(env);
 
 		//ToDo: integrate shopScreen
@@ -237,6 +247,7 @@ void init()
 	timerInit();  // "Systemzeit" initialisieren
 	buttonsInit();
 	displayInit();
+	spriteInit();
 
 	//Timer0 Initialization
     TCCR0A |= (1<<WGM01);

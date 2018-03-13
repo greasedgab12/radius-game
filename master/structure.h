@@ -12,18 +12,10 @@
 
 typedef struct Environment_struct* Environment;
 typedef struct Object_Struct* Object;
-typedef struct Block_struct* Block;
 typedef struct Entity_Struct* Entity;
 typedef struct Weapon_Struct* Weapon;
 typedef struct GameState_Struct* GameState;
 
-
-
-struct Block_struct{
-	uint8_t x,y,lx,ly;
-	uint8_t blockType;
-	uint8_t *data;
-};
 
 struct Object_Struct{
 	//Position and object size measured in pixels.
@@ -34,7 +26,7 @@ struct Object_Struct{
 	 * slx: Sprite length in x-direction.
 	 * msly: Mapped Sprite length in y-direction. Length measured in pages.
 	 */
-	uint8_t py,slx,sly,msly;
+	uint8_t slx,sly,msly;
 	//State of the Sprite i.e. NOTDRAWN or DRAWN.
 	uint8_t drawState;
 
@@ -74,7 +66,6 @@ struct Environment_struct{
 
 	Object spawnList[4];
 	uint16_t spawnDelay[4];
-	uint8_t spawnPos;
 
 
 	uint32_t points;
@@ -85,19 +76,12 @@ struct Environment_struct{
 struct Entity_Struct{
 
 	//Velocity variables
-	uint8_t acceleration;
 	int8_t a_x;
     int8_t a_y;
-
-	uint16_t v_time;
-	uint8_t v_delay;
 
     uint8_t v_max;
     int8_t v_x;
 	int8_t v_y;
-
-	int8_t s_x;
-	int8_t s_y;
 
 	//Variables governing entity behavior.
 	uint8_t state;
@@ -109,7 +93,6 @@ struct Entity_Struct{
 	uint8_t armor;
 
 	uint8_t param1;
-	uint8_t param2;
 
 	Weapon weaponA;
 	Weapon weaponB;
@@ -122,7 +105,6 @@ struct Weapon_Struct{
 	uint8_t projCount;
 
 	uint8_t projSpeed;
-	uint8_t projAccel;
 
 	uint16_t rofTime;
 	uint8_t rof;

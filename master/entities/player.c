@@ -37,18 +37,10 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
     //Energy regeneration value
     self->entity->param1 = 2;
 
-    //Unused
-    self->entity->param2 = 0;
 
-    self->entity->acceleration = 1 + FRICTION;
     self->entity->v_max = 50 + FRICTION;
     self->entity->v_x = 0;
     self->entity->v_y = 0;
-    self->entity->s_x = 0;
-    self->entity->s_y = 0;
-
-    self->entity->v_time = 0;
-    self->entity->v_delay =2;// 25;
 
 
 
@@ -69,17 +61,17 @@ void playerThink(Object self, Environment mainEnv){
 	**/
 
 	if(mainEnv->buttons & M_U){
-		a_y = -self->entity->acceleration;
+		a_y = -(self->entity->v_max/5+FRICTION);
 	}
 	else if(mainEnv->buttons & M_D){
-		a_y = self->entity->acceleration;
+		a_y = (self->entity->v_max/5+FRICTION);
 	}
 
 	if(mainEnv->buttons & M_L){
-		a_x = -self->entity->acceleration;
+		a_x = -(self->entity->v_max/5+FRICTION);
 	}
 	else if(mainEnv->buttons & M_R){
-		a_x = self->entity->acceleration;
+		a_x = (self->entity->v_max/5+FRICTION);
 	}
 	/**
 	 * A and B buttons.
@@ -99,58 +91,50 @@ void playerThink(Object self, Environment mainEnv){
 	 * Calculate movement of the player.
 	 */
 
-
-	if(((uint16_t) mainEnv->time) >= self->entity->v_time + self->entity->v_delay){
-
-		//Update time variable to correctly acquire time passed.
-		self->entity->v_time = mainEnv->time;
-		/**Apply acceleration to velocity
-		 * Velocity in each direction cannot exceed maximum velocity.
-		 */
-		//x-direction
-		if(self->entity->energy <self->entity->maxEnergy){
-			self->entity->energy+= self->entity->param1;
-		}
-		else{
-			self->entity->energy = self->entity->maxEnergy;
-		}
-		if( abs(self->entity->v_x + a_x) < self->entity->v_max){
-				self->entity->v_x += a_x;
-			}
-		//y-direction
-		if( abs(self->entity->v_y + a_y) < self->entity->v_max){
-			self->entity->v_y += a_y;
-		}
-
-
-		//Apply Friction to velocity
-		//x-direction
-		if(self->entity->v_x > FRICTION){
-			self->entity->v_x -=FRICTION;
-		}
-		else if( self->entity->v_x < -FRICTION){
-			self->entity->v_x +=FRICTION;
-		}
-		else{
-			self->entity->v_x = 0;
-		}
-		//y-direction
-		if(self->entity->v_y > FRICTION){
-			self->entity->v_y -=FRICTION;
-		}
-		else if( self->entity->v_y < -FRICTION){
-			self->entity->v_y +=FRICTION;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
-		//Apply velocitiy to position.
-		moveObject(self, mainEnv,(self->entity->s_x+self->entity->v_x)/10,(self->entity->s_y+self->entity->v_y)/10);
-		//Add the remainder to the next step:
-		self->entity->s_x = (self->entity->s_x+self->entity->v_x)%10;
-		self->entity->s_y = (self->entity->s_y+self->entity->v_y)%10;
-
+	/**Apply acceleration to velocity
+	 * Velocity in each direction cannot exceed maximum velocity.
+	 */
+	//x-direction
+	if(self->entity->energy <self->entity->maxEnergy){
+		self->entity->energy+= self->entity->param1;
 	}
+	else{
+		self->entity->energy = self->entity->maxEnergy;
+	}
+	if( abs(self->entity->v_x + a_x) < self->entity->v_max){
+			self->entity->v_x += a_x;
+		}
+	//y-direction
+	if( abs(self->entity->v_y + a_y) < self->entity->v_max){
+		self->entity->v_y += a_y;
+	}
+
+
+	//Apply Friction to velocity
+	//x-direction
+	if(self->entity->v_x > FRICTION){
+		self->entity->v_x -=FRICTION;
+	}
+	else if( self->entity->v_x < -FRICTION){
+		self->entity->v_x +=FRICTION;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
+	//y-direction
+	if(self->entity->v_y > FRICTION){
+		self->entity->v_y -=FRICTION;
+	}
+	else if( self->entity->v_y < -FRICTION){
+		self->entity->v_y +=FRICTION;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+	//Apply velocitiy to position.
+	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
+	//Add the remainder to the next step:
+
 }
 
 uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){

@@ -34,9 +34,8 @@ Weapon newGun(uint8_t weaponState){
 	self->cost = 5 - 1*uniquelvl;
 
 	self->projSpeed =15 + 10*speedlvl;
-	self->projAccel =0;
 
-	self->rof = 30 - 5*roflvl;
+	self->rof = 15 - 2*roflvl;
 	self->rofTime =0;
 
 	self->fire = &fireGun;
@@ -59,14 +58,14 @@ void fireGun(Weapon self, Object source, Environment mainEnv){
 			b0->type= PLAYER_PROJECTILE;
 			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2 - b0->ly);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 
 		}
 		else if( source->type == ENEMY){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2- b0->ly);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 
 		}
 
@@ -112,9 +111,8 @@ Weapon newMulti(uint8_t weaponState){
 	self->cost = 50 + 10*uniquelvl;
 
 	self->projSpeed =30 + 10*speedlvl;
-	self->projAccel =0;
 
-	self->rof = 60 - 5*roflvl;
+	self->rof = 30 - 2*roflvl;
 
 	self->fire = &fireMulti;
 
@@ -141,7 +139,7 @@ void fireMulti(Weapon self, Object source, Environment mainEnv){
 
 			b0->setXY(b0,source->x+source->lx, offsety +b0->ly*i);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 			if(!self->projCount%2){
 				b0->entity->v_y = -10 + (20/self->projCount*i);
 			}
@@ -154,7 +152,7 @@ void fireMulti(Weapon self, Object source, Environment mainEnv){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 
 		}
 
@@ -197,9 +195,8 @@ Weapon newLauncher(uint8_t weaponState){
 	self->cost = 40;
 
 	self->projSpeed =20 + 10*speedlvl;
-	self->projAccel =1 + 2*uniquelvl;
 
-	self->rof = 70 - 5*roflvl;
+	self->rof = 35 - 3*roflvl;
 
 	self->fire = &fireMissile;
 
@@ -233,8 +230,7 @@ void fireMissile(Weapon self, Object source, Environment mainEnv){
 
 		b0->entity->armor = self->damage;
 		b0->entity->health = 1;
-		b0->entity->acceleration = self->projAccel;
-		b0->entity->v_max = 20 +5*((self->weaponState&0b00001100)>>2);
+		b0->entity->v_max = 20 +5*((self->weaponState&0b11000000)>>6);
 
 		if(source->entity->energy > self->cost){
 			source->entity->energy -= self->cost;
@@ -273,9 +269,8 @@ Weapon newHeavy(uint8_t weaponState){
 	self->cost = 60 - 5*uniquelvl;
 
 	self->projSpeed =30 + 10*speedlvl;
-	self->projAccel =0;
 
-	self->rof = 60 - 5*roflvl;
+	self->rof = 30 - 2*roflvl;
 
 	self->fire = &fireHeavy;
 
@@ -295,7 +290,7 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv){
 			b0->type= PLAYER_PROJECTILE;
 			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 			source->entity->v_x-=20;
 
 		}
@@ -303,7 +298,7 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 			source->entity->v_x+=20;
 		}
 
@@ -342,9 +337,8 @@ Weapon newShotGun(uint8_t weaponState){
 	self->cost = 40;
 
 	self->projSpeed =8 + 2*speedlvl;
-	self->projAccel =0;
 
-	self->rof = 60 - 5*roflvl;
+	self->rof = 30 - 3*roflvl;
 
 	self->fire = &fireShot;
 
@@ -414,9 +408,8 @@ Weapon newMachineGun(uint8_t weaponState){
 	self->cost = 20 - 3*uniquelvl;
 
 	self->projSpeed =20 + 10*speedlvl;
-	self->projAccel =0;
 
-	self->rof = 16 - 3*roflvl;
+	self->rof = 8 - 1*roflvl;
 
 	self->fire = &fireMachineGun;
 
@@ -438,7 +431,7 @@ void fireMachineGun(Weapon self, Object source, Environment mainEnv){
 			randpos = ((uint8_t) random())%source->ly;
 			b0->setXY(b0,source->x+source->lx, source->y + randpos);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 			source->entity->v_x-=5;
 
 		}
@@ -446,7 +439,7 @@ void fireMachineGun(Weapon self, Object source, Environment mainEnv){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 			source->entity->v_x+=5;
 		}
 
@@ -486,7 +479,6 @@ Weapon newNoppy(uint8_t weaponState){
 	self->cost = 20 - uniquelvl;
 
 	self->projSpeed =20 + 6*speedlvl;
-	self->projAccel =0;
 
 	self->rof = 30 - 5*roflvl;
 
@@ -509,7 +501,7 @@ void fireDisc(Weapon self, Object source, Environment mainEnv){
 			b0->type= PLAYER_PROJECTILE;
 			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 
 
 		}
@@ -517,7 +509,7 @@ void fireDisc(Weapon self, Object source, Environment mainEnv){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 		}
 
 		b0->entity->v_y = source->entity->v_y%b0->entity->v_max;
@@ -557,7 +549,6 @@ Weapon newBounce(uint8_t weaponState){
 	self->cost = 40;
 
 	self->projSpeed =15 + 10*speedlvl;
-	self->projAccel =0;
 
 	self->rof = 50 - 5*roflvl;
 
@@ -583,7 +574,7 @@ void fireBounce(Weapon self, Object source, Environment mainEnv){
 			b0->type= PLAYER_PROJECTILE;
 			b0->setXY(b0,source->x+source->lx, source->y + source->ly/2);
 			b0->entity->v_x = self->projSpeed;
-			b0->entity->a_x = self->projAccel;
+			b0->entity->a_x = self->projSpeed/5;
 
 
 		}
@@ -591,7 +582,7 @@ void fireBounce(Weapon self, Object source, Environment mainEnv){
 			b0->type = ENEMY_PROJECTILE;
 			b0->setXY(b0,source->x - b0->lx, source->y + source->ly/2);
 			b0->entity->v_x = -self->projSpeed;
-			b0->entity->a_x = -self->projAccel;
+			b0->entity->a_x = -self->projSpeed/5;
 		}
 
 		b0->entity->v_y = source->entity->v_y%b0->entity->v_max;

@@ -43,52 +43,45 @@ GameState newGame(){
 
 
 
-Object getPlayerFromGameState(GameState state){
+Object getPlayerFromGameState(Environment env){
+	GameState state = env->gameState;
 	Object player;
 	switch(state->selShip){
-		case 1:
+		case 0b00000001:
 			player = newPlayer(0,0,player_0);
 			player->entity->health = 15;
 			player->entity->maxHealth = 15;
 			player->entity->maxEnergy=100;
 			player->entity->armor =2;
 			player->entity->param1=1;
-			player->entity->param2=0;
-			player->entity->acceleration = 3;
 			player->entity->v_max = 15;
 
 			break;
-		case 2:
+		case 0b00000010:
 			player = newPlayer(0,0,player_1);
 			player->entity->health = 20;
 			player->entity->maxHealth = 20;
 			player->entity->maxEnergy=120;
 			player->entity->armor =2;
 			player->entity->param1=2;
-			player->entity->param2=0;
-			player->entity->acceleration = 4;
 			player->entity->v_max = 20;
 			break;
-		case 4:
+		case 0b00000100:
 			player = newPlayer(0,0,player_2);
 			player->entity->health = 40;
 			player->entity->maxHealth = 40;
 			player->entity->maxEnergy=150;
 			player->entity->armor =3;
 			player->entity->param1=2;
-			player->entity->param2=0;
-			player->entity->acceleration = 5;
 			player->entity->v_max = 20;
 			break;
-		case 8:
+		case 0b00001000:
 			player = newPlayer(0,0,player_3);
 			player->entity->health = 100;
 			player->entity->maxHealth = 100;
 			player->entity->maxEnergy=200;
 			player->entity->armor =4;
 			player->entity->param1=3;
-			player->entity->param2=0;
-			player->entity->acceleration = 5;
 			player->entity->v_max = 30;
 			break;
 		default:
@@ -98,14 +91,13 @@ Object getPlayerFromGameState(GameState state){
 			player->entity->maxEnergy=100;
 			player->entity->armor =1;
 			player->entity->param1=1;
-			player->entity->param2=0;
-			player->entity->acceleration = 3;
 			player->entity->v_max = 15;
 			break;
 	}
 
 
 	player->entity->weaponA = newGun(state->gunUpg);
+
 	switch(state->selWeapon){
 		case (1<<(MACHINEGUN-2)):
 			player->entity->weaponB = newMachineGun(state->machineGunUpg);
@@ -135,9 +127,8 @@ Object getPlayerFromGameState(GameState state){
 }
 //Only execute setSpawn when SpawnList is empty;
 void setSpawnList(Environment env){
-	print("SPAWN",0,2);
 	uint8_t level = env->level;
-	uint8_t delay=120 - (5*level)%90;
+	uint8_t delay=80 - (2*level)%45;
 	uint8_t strength = 2*level;
 	uint8_t value;
 
@@ -153,7 +144,7 @@ void setSpawnList(Environment env){
 
 	value = (uint8_t)(random())%(strength+1);
 	strength -= value;
-	speed = 6+ FRICTION + value;
+	speed = 10+ FRICTION + value;
 	
 	uint8_t* shipSprite = enemy_0;
 	uint8_t shipType = 0;
@@ -250,12 +241,12 @@ void setSpawnList(Environment env){
 		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
 		enemy->setXY(enemy,enemy->x, enemy->y );
 		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay + 45;
+		env->spawnDelay[1] = env->time + delay + 10;
 
 		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
 		enemy->setXY(enemy,enemy->x, enemy->y );
 		env->spawnList[2] = enemy;
-		env->spawnDelay[2] = env->time + delay + 90;
+		env->spawnDelay[2] = env->time + delay + 20;
 
 	}
 	else if(spawnType == QUADCHAIN){
@@ -270,17 +261,17 @@ void setSpawnList(Environment env){
 		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
 		enemy->setXY(enemy,enemy->x, enemy->y );
 		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay + 45;
+		env->spawnDelay[1] = env->time + delay + 10;
 
 		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
 		enemy->setXY(enemy,enemy->x, enemy->y );
 		env->spawnList[2] = enemy;
-		env->spawnDelay[2] = env->time + delay + 90;
+		env->spawnDelay[2] = env->time + delay + 20;
 
 		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
 		enemy->setXY(enemy,enemy->x, enemy->y );
 		env->spawnList[3] = enemy;
-		env->spawnDelay[3] = env->time + delay + 135;
+		env->spawnDelay[3] = env->time + delay + 30;
 
 	}
 }
@@ -326,46 +317,44 @@ uint16_t getPoints(Environment mainEnv, Object enemy){
 
 }
 
-void drawHud(Environment mainEnv){
+void drawHud(uint8_t health,uint8_t maxHealth, uint8_t energy,uint8_t maxEnergy, uint32_t points){
 	static uint8_t lastHP=0, lastE=0, lastP=0;
-	Object player = mainEnv->player;
 
-	if(player){
-		if((player->entity->health != lastHP)){
-			uint8_t *bar0 = load_sprite(healthbar_0);
-			uint8_t *bar1 = load_sprite(healthbar_1);
-			uint16_t value = ((player->entity->maxHealth-player->entity->health)*100)/player->entity->maxHealth;
-			value = (value*40)/100;
-			sendWindow(0,0,42,2,bar1);
-			sendWindow(0,0,1 + value, 2, bar0);
-			flush_sprite(healthbar_0);
-			flush_sprite(healthbar_1);
-			lastHP = player->entity->health;
-		}
-
-
-		if((player->entity->energy != lastE)){
-			uint8_t *bar0 = load_sprite(energybar_0);
-			uint8_t *bar1 = load_sprite(energybar_1);
-			uint16_t value = ((player->entity->maxEnergy-player->entity->energy)*100)/player->entity->maxEnergy;
-			value = (value*40)/100;
-
-			sendWindow(46,0,42,2,bar1);
-			sendWindow(46,0,1 + value%41, 2, bar0);
-			flush_sprite(energybar_0);
-			flush_sprite(energybar_1);
-			lastE = player->entity->energy;
-		}
-
-		if(mainEnv->points != lastP){
-			lastP = mainEnv->points;
-			printN(mainEnv->points,120,0);
-		}
-
+	if((health != lastHP)){
+		uint8_t *bar0 = load_sprite(healthbar_0);
+		uint8_t *bar1 = load_sprite(healthbar_1);
+		uint16_t value = ((maxHealth-health)*100)/maxHealth;
+		value = (value*40)/100;
+		sendWindow(0,0,42,2,bar1);
+		sendWindow(0,0,1 + value, 2, bar0);
+		flush_sprite(healthbar_0);
+		flush_sprite(healthbar_1);
+		lastHP = health;
 	}
 
 
+	if((energy != lastE)){
+		uint8_t *bar0 = load_sprite(energybar_0);
+		uint8_t *bar1 = load_sprite(energybar_1);
+		uint16_t value = ((maxEnergy-energy)*100)/maxEnergy;
+		value = (value*40)/100;
 
+		sendWindow(46,0,42,2,bar1);
+		sendWindow(46,0,1 + value%41, 2, bar0);
+		flush_sprite(energybar_0);
+		flush_sprite(energybar_1);
+		lastE = energy;
+	}
+
+	if(points != lastP){
+		lastP = points;
+		printN(points,120,0);
+	}
 
 }
+
+
+
+
+
 
