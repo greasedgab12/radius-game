@@ -81,7 +81,7 @@ void displayLevel(Environment env);
 void displayStart(Environment env);
 void displayFinished(Environment env);
 
-
+void displayGameOver(Environment env);
 GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor);
 void printUpgrade(GameState gameState, uint8_t weapon);
 void  shop_menu(Environment env);

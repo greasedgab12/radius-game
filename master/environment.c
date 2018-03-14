@@ -15,6 +15,7 @@
 #include "environment.h"
 #include "defines.h"
 #include "object.h"
+#include "entities/general.h"
 
 Object objectList[MAXOBJECTS];
 struct Object_Struct objects[MAXOBJECTS];
@@ -131,6 +132,21 @@ Object getProjectileSlot(Environment env){
 		}
 	}
 	return 0;
+}
+
+void newEffect(Environment env, uint8_t x, uint8_t y, uint8_t* effectType){
+	uint8_t i;
+	for(i=1+MAXENEMIES+MAXPROJECTILES; i<=MAXOBJECTS; i++){
+		if(env->objectList[i]->activeState==EMPTY){
+			env->objectList[i]->activeState=ACTIVE;
+			newObject(env->objectList[i],x,y,0,0,effectType);
+			env->objectList[i]->lx = env->objectList[i]->slx;
+			env->objectList[i]->ly = env->objectList[i]->sly;
+			env->objectList[i]->type = 0;
+			env->objectList[i]->think = &noOp;
+			env->objectList[i]->collide = &noCollide;
+		}
+	}
 }
 
 

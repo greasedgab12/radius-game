@@ -27,16 +27,16 @@ void newGame(GameState self){
 	self->noppyUpg=0;
 	self->launcherUpg=0;
 	self->bounceUpg=0;
-	self->laserUpg= 255;
+	self->laserUpg= 0;
 
-	self->selWeapon = LASER-1;
-	self->boughtWeapon =255;
+	self->selWeapon = 0;
+	self->boughtWeapon =0;
 
 	self->selShip =1;
 	self->boughtShip =1;
 
 	self->level =1;
-	self->points =1000;
+	self->points =0;
 
 
 }
@@ -415,6 +415,7 @@ void drawHud(uint8_t health,uint8_t maxHealth, uint8_t energy,uint8_t maxEnergy,
 
 	if(points != lastP){
 		lastP = points;
+		print("$", 110,0);
 		printN(points,120,0);
 	}
 

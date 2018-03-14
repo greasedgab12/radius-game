@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 #include <avr/eeprom.h>
+#include "game.h"
+#include "structure.h"
 
 extern struct GameState_Struct EEMEM EEsave1;
 extern uint32_t EEMEM EEhighscore;

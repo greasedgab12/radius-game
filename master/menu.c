@@ -23,7 +23,17 @@ uint8_t price_upgrade[] = {1,2,3,4};
 uint8_t weapon = 0;
 
 
-
+void displayGameOver(Environment env){
+	sendWindow(20,5,90,16,0);
+	print("Game Over", 57, 5);
+	_delay_ms(300);
+	if(saveHighScore(env->gameState->points)){
+		print("NEW HIGHSCORE:",19,9);
+		_delay_ms(300);
+		printN(env->gameState->points,50,13);
+	}
+	_delay_ms(3000);
+}
 
 void titleScreen(){
 
@@ -328,7 +338,6 @@ void shop_menu(Environment env)
 	uint8_t scroll_start=0;
 	uint8_t counter = 0;
 	uint8_t lower_boundary = 0;
-	env->gameState->points = 10000;
 
 
 	uint32_t time_old = env->time + MENU_DELAY;

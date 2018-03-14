@@ -29,8 +29,8 @@ void newGun(Weapon self, uint8_t weaponState){
 
 	self->cost = 5 - 1*uniquelvl;
 
-	self->projSpeed =15 + 10*speedlvl;
-	self->rof = 15 - 2*roflvl;
+	self->projSpeed =20 + 10*speedlvl;
+	self->rof = 13 - 2*roflvl;
 	self->rofTime =0;
 
 	self->fire = &fireGun;
@@ -48,6 +48,7 @@ void fireGun(Weapon self, Object source, Environment mainEnv){
 		if(!slot){
 			return;
 		}
+		uart_putc('a');
 		newProjectile(slot,BULLET);
 
 		if(source->type == PLAYER){
@@ -151,7 +152,7 @@ void fireMulti(Weapon self, Object source, Environment mainEnv){
 		slot->entity->health = 1;
 
 		}
-
+		uart_putc('d');
 		if(source->entity->energy > self->cost){
 			source->entity->energy -= self->cost;
 		}
@@ -183,7 +184,7 @@ void newLauncher(Weapon self,uint8_t weaponState){
 
 	self->projSpeed =20 + 10*speedlvl;
 
-	self->rof = 35 - 3*roflvl;
+	self->rof = 20 - 3*roflvl;
 
 	self->fire = &fireMissile;
 
@@ -199,7 +200,7 @@ void fireMissile(Weapon self, Object source, Environment mainEnv){
 		if(!slot){
 			return;
 		}
-
+		uart_putc('c');
 		newProjectile(slot, MISSILE);
 
 		if(source->type == PLAYER){
@@ -254,7 +255,7 @@ void newHeavy(Weapon self,uint8_t weaponState){
 
 	self->projSpeed =30 + 10*speedlvl;
 
-	self->rof = 30 - 2*roflvl;
+	self->rof = 25 - 2*roflvl;
 
 	self->fire = &fireHeavy;
 
@@ -271,7 +272,7 @@ void fireHeavy(Weapon self, Object source, Environment mainEnv){
 			return;
 		}
 		newProjectile(slot, BULLETHEAVY);
-
+		uart_putc('l');
 		if(source->type == PLAYER){
 			slot->type= PLAYER_PROJECTILE;
 			slot->setXY(slot,source->x+source->lx, source->y + source->ly/2);
@@ -375,7 +376,7 @@ void fireShot(Weapon self, Object source, Environment mainEnv){
 		}
 
 
-
+		uart_putc('d');
 		}
 }
 
@@ -419,7 +420,7 @@ void fireMachineGun(Weapon self, Object source, Environment mainEnv){
 			return;
 		}
 		newProjectile(slot, BULLET);
-
+		uart_putc('a');
 		if(source->type == PLAYER){
 			slot->type= PLAYER_PROJECTILE;
 			uint8_t randpos;
@@ -486,7 +487,7 @@ void fireDisc(Weapon self, Object source, Environment mainEnv){
 	}
 	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
 		self->rofTime= mainEnv->time;
-		uart_putc('a');
+		uart_putc('b');
 		Object slot = getProjectileSlot(mainEnv);
 		if(!slot){
 			return;
@@ -565,7 +566,7 @@ void fireBounce(Weapon self, Object source, Environment mainEnv){
 		if(!slot){
 			return;
 		}
-		uart_putc('a');
+		uart_putc('e');
 		newProjectile(slot, BALL);
 
 		if(source->type == PLAYER){
@@ -633,7 +634,7 @@ void fireLaser(Weapon self, Object source, Environment mainEnv){
 		if(!slot){
 			return;
 		}
-		uart_putc('a');
+		uart_putc('g');
 		switch((self->weaponState& 0b11000000)>>6)
 		{
 			case 1:

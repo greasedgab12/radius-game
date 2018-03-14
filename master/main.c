@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <avr/io.h>
+
+#include <avr/eeprom.h>
+#include "savegame.h"
 #include <avr/interrupt.h>
 #include <entities/general.h>
 #include <entities/projectile.h>
@@ -33,61 +36,9 @@ void init();
 
 
 
-void titleScreen(){
-
-	drawTitleScreen();
-	_delay_ms(1000);
-	displayClear();
-}
-
-void displayLevel(Environment env){
-	print("LEVEL ",63,10);
-	printN(env->level,99,10);
-	_delay_ms(2000);
-
-	displayClear();
-}
-void displayStart(Environment env){
-	print("READY",66,10);
-	_delay_ms(1000);
-	print("START",66,14);
-	_delay_ms(1000);
-	displayClear();
-}
-void displayFinished(Environment env){
-	print("LEVEL ",63,10);
-	printN(env->level,99,10);
-	print("CLEARED",60,12);
-	print("POINTS:",50,16);
-	printN(env->gameState->points,100,16);
-	_delay_ms(3000);
-	displayClear();
-}
-
-void displayGameOver(Environment env){
-	sendWindow(20,5,90,16,0);
-	print("Game Over", 57, 5);
-	_delay_ms(300);
-	if(saveHighScore(env->gameState->points)){
-		print("NEW HIGHSCORE:",19,9);
-		_delay_ms(300);
-		printN(env->gameState->points,50,13);
-	}
-	_delay_ms(3000);
-}
-
-
-int freeRam () {
-  extern int __heap_start, *__brkval;
-  int v;
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-}
-
-
 int main(void)
 {
 	init();
-
 	//titleScreen();
 
 	uint8_t i,j=0;
@@ -116,7 +67,7 @@ int main(void)
 
 			env->level = env->gameState->level;
 
-			env->enemyRemaining =  4 + 2*env->level;
+			env->enemyRemaining =  4 + env->level;
 			env->enemyMax =1 + (env->level/2<5?env->level/2:5);
 
 			displayClear();
@@ -128,7 +79,7 @@ int main(void)
 
 			updateEnvironment(env);
 			//Force redraw of HUD
-			drawHud(1,2,1,2,0);
+			drawHud(1,2,1,2,1);
 
 			while(env->enemyRemaining || env->enemyCount){
 				//Update Environment variables.
@@ -156,9 +107,6 @@ int main(void)
 				}
 
 
-
-				printN(freeRam(),0,2);
-				printN(env->time,0,4);
 				drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
 
 

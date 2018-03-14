@@ -11,10 +11,11 @@
 //Definitions for overall Project.
 #define MAXENEMIES 6
 #define MAXPROJECTILES 8
-#define MAXOBJECTS 1+MAXENEMIES+MAXPROJECTILES
+#define MAXEFFECTS 3
+#define MAXOBJECTS 1+MAXENEMIES+MAXPROJECTILES+MAXEFFECTS
 #define MAXOVERLAPS 16
 #define MINX 0
-#define MINY 16
+#define MINY 9
 #define MAXX 160
 #define MAXY 104
 
@@ -76,7 +77,6 @@
 #define SHOTLOWER 5
 #define SHOTMIDDLE 6
 #define BALL 7
-#define EXPLOSION 8
 #define BULLETHEAVY 9
 #define BULLETENEMY 10
 #define LASER0 11
@@ -96,5 +96,10 @@
 #define TRIPLE 2
 #define TRIPLECHAIN 3
 #define QUADCHAIN 4
+
+//Effect Types
+#define EXPLOSION 0
+#define COLLISION 1
+#define IMPACT 2
 
 #endif /* MASTER_DEFINES_H_ */

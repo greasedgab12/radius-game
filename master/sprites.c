@@ -26,10 +26,6 @@ const uint8_t enemy_2[]  PROGMEM = {9,27, 	 //enemy_2.bmp
 0x33,0xcf,0xc,0xc3,0x30,0xc,0x3f,0xc0,0xf
 };
 
-const uint8_t impact[]  PROGMEM = {4,4, 	 //impact.bmp
-0x57,0xdd,0x37,0x3c
-};
-
 const uint8_t ball_sprite[]  PROGMEM = {8,16, 	 //ball_sprite.bmp
 0x50,0x5,0xf4,0x1f,0xfd,0x7f,0xfd,0x7f,
 0xfd,0x7f,0xfd,0x7f,0xf4,0x1f,0x50,0x5
@@ -124,10 +120,6 @@ const uint8_t energybar_1[]  PROGMEM = {42,84, 	 //energybar_1.bmp
 0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xea,0xc0,0xff
 };
 
-const uint8_t collision[]  PROGMEM = {4,4, 	 //collision.bmp
-0x14,0xa9,0x61,0x18
-};
-
 const uint8_t player_1[]  PROGMEM = {9,18, 	 //player_1.bmp
 0xc,0x30,0x3c,0x3c,0xf7,0xdf,0x7b,0xed,0xbc,
 0x3e,0xf0,0xf,0xb0,0xe,0x30,0xc,0xc0,0x3
@@ -192,35 +184,33 @@ if (sprite == player_0){ return 1;}
 if (sprite == collision_sprite){ return 2;}
 if (sprite == disc_sprite){ return 3;}
 if (sprite == enemy_2){ return 4;}
-if (sprite == impact){ return 5;}
-if (sprite == ball_sprite){ return 6;}
-if (sprite == energybar_0){ return 7;}
-if (sprite == bulletEnemy_sprite){ return 8;}
-if (sprite == shotmiddle_sprite){ return 9;}
-if (sprite == shade){ return 10;}
-if (sprite == shotupper_sprite){ return 11;}
-if (sprite == laser0_sprite){ return 12;}
-if (sprite == enemy_4){ return 13;}
-if (sprite == dino){ return 14;}
-if (sprite == enemy_3){ return 15;}
-if (sprite == missile_sprite){ return 16;}
-if (sprite == laser2_sprite){ return 17;}
-if (sprite == radius){ return 18;}
-if (sprite == player_3){ return 19;}
-if (sprite == enemy_1){ return 20;}
-if (sprite == energybar_1){ return 21;}
-if (sprite == collision){ return 22;}
-if (sprite == player_1){ return 23;}
-if (sprite == enemy_0){ return 24;}
-if (sprite == bulletHeavy_sprite){ return 25;}
-if (sprite == laser1_sprite){ return 26;}
-if (sprite == explosion_sprite){ return 27;}
-if (sprite == healthbar_1){ return 28;}
-if (sprite == impact_sprite){ return 29;}
-if (sprite == laser3_sprite){ return 30;}
-if (sprite == player_2){ return 31;}
-if (sprite == bullet_sprite){ return 32;}
-if (sprite == vessel_0){ return 33;}
-if (sprite == healthbar_0){ return 34;}
+if (sprite == ball_sprite){ return 5;}
+if (sprite == energybar_0){ return 6;}
+if (sprite == bulletEnemy_sprite){ return 7;}
+if (sprite == shotmiddle_sprite){ return 8;}
+if (sprite == shade){ return 9;}
+if (sprite == shotupper_sprite){ return 10;}
+if (sprite == laser0_sprite){ return 11;}
+if (sprite == enemy_4){ return 12;}
+if (sprite == dino){ return 13;}
+if (sprite == enemy_3){ return 14;}
+if (sprite == missile_sprite){ return 15;}
+if (sprite == laser2_sprite){ return 16;}
+if (sprite == radius){ return 17;}
+if (sprite == player_3){ return 18;}
+if (sprite == enemy_1){ return 19;}
+if (sprite == energybar_1){ return 20;}
+if (sprite == player_1){ return 21;}
+if (sprite == enemy_0){ return 22;}
+if (sprite == bulletHeavy_sprite){ return 23;}
+if (sprite == laser1_sprite){ return 24;}
+if (sprite == explosion_sprite){ return 25;}
+if (sprite == healthbar_1){ return 26;}
+if (sprite == impact_sprite){ return 27;}
+if (sprite == laser3_sprite){ return 28;}
+if (sprite == player_2){ return 29;}
+if (sprite == bullet_sprite){ return 30;}
+if (sprite == vessel_0){ return 31;}
+if (sprite == healthbar_0){ return 32;}
 return 0;
 }
