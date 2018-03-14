@@ -401,7 +401,7 @@ void newMachineGun(Weapon self,uint8_t weaponState){
 
 	self->projSpeed =20 + 10*speedlvl;
 
-	self->rof = 8 - 1*roflvl;
+	self->rof = 6 - 1*roflvl;
 
 	self->fire = &fireMachineGun;
 

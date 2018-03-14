@@ -27,6 +27,7 @@
 #include "menu.h"
 
 
+
 #include "sprite.h"
 
 
@@ -39,7 +40,7 @@ void init();
 int main(void)
 {
 	init();
-	//titleScreen();
+	titleScreen();
 
 	uint8_t i,j=0;
 
@@ -215,6 +216,7 @@ void init()
 	buttonsInit();
 	displayInit();
 	spriteInit();
+
 
 	//Timer0 Initialization
     TCCR0A |= (1<<WGM01);

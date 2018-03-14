@@ -11,6 +11,7 @@
 #include "entities/stats.h"
 #include <avr/eeprom.h>
 #include <util/delay.h>
+#include "adc.h"
 
 uint8_t set_options 	= 0b00000001;
 
@@ -1158,6 +1159,9 @@ void shop_menu(Environment env)
 }
 
 }
+
+
+
 
 //returns 0 when back to main menu else 1
 uint8_t pause_menu(Environment env)
