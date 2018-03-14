@@ -18,8 +18,7 @@
 #include "char.h"
 #include "buttons.h"
 
-GameState newGame(){
-	GameState self = (GameState)malloc(sizeof(struct GameState_Struct));
+void newGame(GameState self){
 	self->gunUpg =0;
 	self->machineGunUpg =0;
 	self->multiUpg =0;
@@ -34,12 +33,11 @@ GameState newGame(){
 	self->boughtWeapon =0b0;
 
 	self->selShip =1;
-	self->boughtShip =0b0001;
+	self->boughtShip =1;
 
 	self->level =1;
 	self->points =1000;
 
-	return self;
 }
 
 
@@ -49,7 +47,7 @@ void getPlayerFromGameState(Environment env){
 	Object player = env->player;
 
 	switch(state->selShip){
-		case 0b00000001:
+		case 1:
 			newPlayer(player,0,0,player_0);
 			player->entity->health = 15;
 			player->entity->maxHealth = 15;
@@ -59,7 +57,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->v_max = 15;
 
 			break;
-		case 0b00000010:
+		case 2:
 			newPlayer(player,0,0,player_1);
 			player->entity->health = 20;
 			player->entity->maxHealth = 20;
@@ -68,7 +66,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->param1=2;
 			player->entity->v_max = 20;
 			break;
-		case 0b00000100:
+		case 3:
 			newPlayer(player,0,0,player_2);
 			player->entity->health = 40;
 			player->entity->maxHealth = 40;
@@ -77,7 +75,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->param1=2;
 			player->entity->v_max = 20;
 			break;
-		case 0b00001000:
+		case 4:
 			newPlayer(player,0,0,player_3);
 			player->entity->health = 100;
 			player->entity->maxHealth = 100;
@@ -98,26 +96,25 @@ void getPlayerFromGameState(Environment env){
 	}
 	newGun(env->weaponA,state->gunUpg);
 	switch(state->selWeapon){
-		case (1<<(MACHINEGUN-2)):
-
+		case ((MACHINEGUN-1)):
 			newMachineGun(env->weaponB,state->machineGunUpg);
 			break;
-		case (1<<(MULTISHOT-2)):
+		case ((MULTISHOT-1)):
 			newMulti(env->weaponB,state->multiUpg);
 			break;
-		case (1<<(HEAVY-2)):
+		case ((HEAVY-1)):
 			newHeavy(env->weaponB,state->heavyUpg);
 			break;
-		case (1<<(SHOTGUN-2)):
+		case ((SHOTGUN-1)):
 			newShotGun(env->weaponB,state->shotGunUpg);
 			break;
-		case (1<<(NOPPY-2)):
+		case ((NOPPY-1)):
 			newNoppy(env->weaponB,state->noppyUpg);
 			break;
-		case (1<<(LAUNCHER-2)):
+		case (LAUNCHER-1):
 			newLauncher(env->weaponB,state->launcherUpg);
 			break;
-		case (1<<(BOUNCE-2)):
+		case ((BOUNCE-1)):
 			newBounce(env->weaponB,state->bounceUpg);
 			break;
 		default:

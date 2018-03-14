@@ -23,8 +23,8 @@ uint8_t weapon = 0;
 
 GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 {
-	uint8_t upgrade;
-	uint8_t offset;
+	uint8_t upgrade =0;
+	uint8_t offset =0;
 
 	//select offset per cursor
 	if(menu_cursor == 2 )
@@ -154,7 +154,7 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 void printUpgrade(GameState gameState, uint8_t weapon)
 {
 	uint8_t offset = 0;
-	uint8_t upgrade;
+	uint8_t upgrade=0;
 	uint8_t nextZeile = 9;
 
 	if(weapon == 0)//gun
@@ -241,9 +241,10 @@ void printUpgrade(GameState gameState, uint8_t weapon)
 
 
 //choose weapons/ships from inventory or upgrade
-GameState shop_menu(Environment env)
+void shop_menu(Environment env)
 {
 	displayClear();
+
 	uint8_t menu_state = MAIN;
 	uint8_t menu_cursor = 1;
 
@@ -265,6 +266,8 @@ GameState shop_menu(Environment env)
 	while(1){
 
 	updateEnvironment(env);
+	printN(time_old, 0 , 0);
+	printB(env->buttons, 64, 0);
 
 	if( (env->buttons & M_U) && ( env->time >= time_old))//control upper menu boundary
 	{
@@ -788,7 +791,7 @@ GameState shop_menu(Environment env)
 
 		case CONTINUE3:
 			displayClear();
-			return env->gameState;
+			return;
 
 		case INVENTORY:
 			print("INVENTORY",20,5);
@@ -1062,7 +1065,7 @@ GameState shop_menu(Environment env)
 
 }
 
-//returns 1 when back to main menu else 0
+//returns 0 when back to main menu else 1
 uint8_t pause_menu(Environment env)
 {
 	uint32_t time_old = env->time + MENU_DELAY;
@@ -1200,7 +1203,7 @@ uint8_t pause_menu(Environment env)
 
 			case CONTINUE:
 				displayClear();
-				return 0;
+				return 1;
 
 			case SAVE2:
 				safeSave(env->gameState);
@@ -1263,18 +1266,18 @@ uint8_t pause_menu(Environment env)
 
 			case QUIT:
 				displayClear();
-				return 1;
+				return 0;
 
 		}
 	}
 }
 
 
-GameState main_menu(Environment env)
+void main_menu(Environment env)
 {
 
 	uint8_t menu_state = MAIN;
-	uint8_t menu_cursor = 1;
+	uint8_t menu_cursor = 2;
 	displayClear();
 	print("/",13,1 + 4 * menu_cursor);
 
@@ -1292,25 +1295,22 @@ GameState main_menu(Environment env)
 
 			if(menu_state == MAIN)
 			{
-				if(menu_cursor <=1)
+				if(menu_cursor <=2)
 				{
-					menu_cursor = 1;
+					menu_cursor = 2;
 				}
 			}
-			else if(menu_state == OPTIONS)
+			else if(menu_state == OPTIONS2)
 			{
 				if(menu_cursor <= 2)
 				{
 					menu_cursor = 2;
 				}
 			}
-			else
-			{
-				menu_state = MAIN;
-				menu_cursor = 2;
-			}
 
-			print("/",13,1 + 4 * menu_cursor);
+			if(menu_state != HIGHSCORES){
+				print("/",13,1 + 4 * menu_cursor);
+			}
 			time_old = env->time + MENU_DELAY;
 		}
 
@@ -1321,23 +1321,18 @@ GameState main_menu(Environment env)
 
 			if(menu_state == MAIN)
 			{
-				if(menu_cursor >= 4)
+				if(menu_cursor >= 5)
 				{
-					menu_cursor = 4;
+					menu_cursor = 5;
 				}
 
 			}
-			else if(menu_state == OPTIONS)
+			else if(menu_state == OPTIONS2)
 			{
 				if(menu_cursor >= 3)
 				{
 					menu_cursor = 3;
 				}
-			}
-			else
-			{
-				menu_cursor = 2;
-				menu_state = MAIN;
 			}
 
 			if(menu_state != HIGHSCORES)
@@ -1351,23 +1346,23 @@ GameState main_menu(Environment env)
 		{
 			if(menu_state == MAIN)
 			{
-				if(menu_cursor == 1)
+				if(menu_cursor == 2)
 				{
 					menu_state = CONTINUE;
 				}
-				else if(menu_cursor == 2)
+				else if(menu_cursor == 3)
 				{
 					menu_state = SELECTGAME;
 					menu_cursor = 2;
 				}
-				else if(menu_cursor == 3)
+				else if(menu_cursor == 4)
 				{
 					menu_state = HIGHSCORES;
 
 				}
-				else if(menu_cursor == 4)
+				else if(menu_cursor == 5)
 				{
-					menu_state = OPTIONS;
+					menu_state = OPTIONS2;
 					menu_cursor = 2;
 				}
 			}
@@ -1376,7 +1371,7 @@ GameState main_menu(Environment env)
 			{
 				menu_state = menu_cursor + 20;
 			}
-			else if(menu_state == OPTIONS)
+			else if(menu_state == OPTIONS2)
 			{
 				if(menu_cursor == 2) // music
 				{
@@ -1411,20 +1406,15 @@ GameState main_menu(Environment env)
 
 		if( (env->buttons & M_B) && ( env->time >= time_old))
 		{
-			if(menu_state == OPTIONS)
+			if(menu_state == OPTIONS2)
+			{
+				menu_state = MAIN;
+				menu_cursor = 5;
+			}
+			else if(menu_state == HIGHSCORES)
 			{
 				menu_state = MAIN;
 				menu_cursor = 4;
-			}
-			if(menu_state == SELECTGAME)
-			{
-				menu_state = MAIN;
-				menu_cursor = 2;
-			}
-			if(menu_state == HIGHSCORES)
-			{
-				menu_state = MAIN;
-				menu_cursor = 3;
 			}
 			else
 			{
@@ -1441,27 +1431,25 @@ GameState main_menu(Environment env)
 		switch(menu_state)
 		{
 			case MAIN:
-				print("!!",1,1);
-				print("%%",1,4);
-				print("$$",1,8);
-				print("CONTINUE",20,5);
-				print("NEW GAME",20,9);
-				print("HIGHSCORE",20,13);
-				print("OPTIONS",20,17);
+				print("MAIN MENU",55,3);
+
+				print("CONTINUE",20,9);
+				print("NEW GAME",20,13);
+				print("HIGHSCORE",20,17);
+				print("OPTIONS",20,21);
 				break;
 
 			case CONTINUE:
-				return loadSave();
-				//return env->gameState = loadSave(getCurrentSave());
+				loadSave(env->gameState);
+				return;
 
 			case SELECTGAME:
-				return newGame();
+				newGame(env->gameState);
+				return;
 
 			case HIGHSCORES:
 				print("CURRENT HIGHSCORE:",20,5);
-				uint32_t highscore;
-				eeprom_read_block (&highscore,&EEhighscore, sizeof(uint32_t));
-				print32(highscore,20,11);
+				print32(loadHighScore(),20,11);
 				break;
 
 

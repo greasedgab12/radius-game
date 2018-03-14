@@ -21,9 +21,11 @@
 #include "weapon.h"
 #include "game.h"
 #include "sprites.h"
+#include "menu.h"
+
 
 #include "sprite.h"
-#include "menu.h"
+
 
 
 void init();
@@ -74,152 +76,162 @@ int main(void)
 {
 	init();
 
-	//titleScreen();
+	titleScreen();
 
 	uint8_t i,j=0;
+
 
 
 	//Environment Initialization
     //Environment is persistend throughout the entire runtime.
     Environment env = newEnvironment();
-    env->gameState = newGame();
-	//sei();
+    sei();
 
-
-	//_delay_ms(200);
-    //display_mainmenu();
-	//ToDo: Couple gameState with selection in MainMenu.
-
-
-    //Game loop
     while(1){
-    	//Reloading the player object.
-    	env->gameState->selShip = 0b00001000;
-		env->gameState->selWeapon = 0b01000000;
-		env->gameState->bounceUpg = 255;
-		env->gameState->gunUpg = 255;
-    	getPlayerFromGameState(env);
-
-    	env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
-    	_delay_ms(1000);
-
-    	env->gameState->level = 1;
-		env->level = env->gameState->level;
-
-		env->enemyRemaining = 4 + 2*env->level;
-		env->enemyMax =1 + (env->level/2<5?env->level/2:5);
-
-		updateEnvironment(env);
-		/**
-		displayLevel(env);
-		displayStart(env);
-		**/
-		//Prevent the games entities from thinking too much.
+		flushObjectList(env);
+		flushAllSprites();
+    	_delay_ms(200);
+		main_menu(env);
+		uint8_t continueGame = 1;
+		//ToDo: Couple gameState with selection in MainMenu.
 
 
+		//Game loop
+		while(continueGame){
+			//Reloading the player object.
+			getPlayerFromGameState(env);
+			env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
 
-		updateEnvironment(env);
-		//Force redraw of HUD
-		drawHud(1,2,1,2,0);
-		while(env->enemyRemaining || env->enemyCount){
-			//Update Environment variables.
+			env->level = env->gameState->level;
+
+			env->enemyRemaining = 1; // 4 + 2*env->level;
+			env->enemyMax =1; //1 + (env->level/2<5?env->level/2:5);
+
+			displayClear();
+			displayLevel(env);
+			displayStart(env);
+			//Prevent the games entities from thinking too much.
+
+
+
 			updateEnvironment(env);
-			printN(freeRam(),0,2);
-			printN(env->time,0,4);
-			drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
+			//Force redraw of HUD
+			drawHud(1,2,1,2,0);
 
-
-
-			if(env->enemyCount < env->enemyMax && env->enemyRemaining){
-				if(isSpawnListEmpty(env)){
-					setSpawnList(env);
-				}
-				else{
-					getNextEnemy(env);
-				}
-			}
-
-			//For each passed frame execute think of each object.
-
-			for(i=0; i<env->time-(env->lastTime); i++){
-				for(j=0; j<MAXOBJECTS; j++){
-					if(env->objectList[j]->activeState == ACTIVE){
-						env->objectList[j]->think(env->objectList[j], env);
+			while(env->enemyRemaining || env->enemyCount){
+				//Update Environment variables.
+				updateEnvironment(env);
+				if(env->buttons & M_P){
+					continueGame = pause_menu(env);
+					if(!continueGame){
+						break;
 					}
-				}
-			}
-
-			//printN(env->time, 64,0);
-			//Clean up dead objects and draw alive ones if they haven't been drawn already.
-			for(i=0; i<MAXOBJECTS; i++){
-				if(env->objectList[i]->killedBy==0){
-					if((env->objectList[i]->activeState == ACTIVE) &&(env->objectList[i]->drawState == NOTDRAWN)){
-						drawObject(env->objectList[i]);
-					}
-				}
-			}
-
-			//Remove dead objects from list.
-			for(i=0; i<MAXOBJECTS; i++){
-				if(env->objectList[i]->killedBy!=0){
-					if(env->objectList[i]->activeState==ACTIVE){
-						if(env->objectList[i]->type == ENEMY){
-							//If dead Object is of type ENEMY decrease enemyCount, to allow more enemies to spawned.
-							env->enemyCount--;
-							/**Should the kill owner be the PlAYER increase Points,
-							 * else increase enemyRemaining so that the level only ends
-							 * on all enemies destroyed by the player.
-							 */
-							if(env->objectList[i]->killedBy == PLAYER){
-								env->points+=getPoints(env,env->objectList[i]);
-							}
-							else{
-								env->enemyRemaining++;
-							}
+					drawHud(1,2,1,2,0);
+					for(i=0; i<MAXOBJECTS; i++){
+						if(env->objectList[i]->activeState == ACTIVE){
+							env->objectList[i]->drawState = NOTDRAWN;
 						}
-						sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,env->objectList[i]->slx+1,env->objectList[i]->msly,0);
-						env->objectList[i]->activeState =EMPTY;
 					}
 				}
-			}
 
-			//Check, wether drawn sprites overlap one another and draw overlapping parts again.
-			//Skip if frames are dropped.
-			if(env->time -env->lastTime < 3){
-				checkMappedSpriteCollision(env->objectList);
-			}
-			//Update drawState of every object.
-			for(i=0; i<MAXOBJECTS; i++){
-				if(env->objectList[i]->activeState == ACTIVE){
-					if(env->objectList[i]->drawState== NOTDRAWN){
+
+				printN(freeRam(),0,2);
+				printN(env->time,0,4);
+				drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
+
+
+
+				if(env->enemyCount < env->enemyMax && env->enemyRemaining){
+					if(isSpawnListEmpty(env)){
+						setSpawnList(env);
+					}
+					else{
+						getNextEnemy(env);
+					}
+				}
+
+				//For each passed frame execute think of each object.
+
+				for(i=0; i<env->time-(env->lastTime); i++){
+					for(j=0; j<MAXOBJECTS; j++){
+						if(env->objectList[j]->activeState == ACTIVE){
+							env->objectList[j]->think(env->objectList[j], env);
+						}
+					}
+				}
+
+				//printN(env->time, 64,0);
+				//Clean up dead objects and draw alive ones if they haven't been drawn already.
+				for(i=0; i<MAXOBJECTS; i++){
+					if(env->objectList[i]->killedBy==0){
+						if((env->objectList[i]->activeState == ACTIVE) &&(env->objectList[i]->drawState == NOTDRAWN)){
+							drawObject(env->objectList[i]);
+						}
+					}
+				}
+
+				//Remove dead objects from list.
+				for(i=0; i<MAXOBJECTS; i++){
+					if(env->objectList[i]->killedBy!=0){
+						if(env->objectList[i]->activeState==ACTIVE){
+							if(env->objectList[i]->type == ENEMY){
+								//If dead Object is of type ENEMY decrease enemyCount, to allow more enemies to spawned.
+								env->enemyCount--;
+								/**Should the kill owner be the PlAYER increase Points,
+								 * else increase enemyRemaining so that the level only ends
+								 * on all enemies destroyed by the player.
+								 */
+								if(env->objectList[i]->killedBy == PLAYER){
+									env->points+=getPoints(env,env->objectList[i]);
+								}
+								else{
+									env->enemyRemaining++;
+								}
+							}
+							sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,env->objectList[i]->slx+1,env->objectList[i]->msly,0);
+							env->objectList[i]->activeState =EMPTY;
+						}
+					}
+				}
+
+				//Check, wether drawn sprites overlap one another and draw overlapping parts again.
+				//Skip if frames are dropped.
+				if(env->time -env->lastTime < 3){
+					checkMappedSpriteCollision(env->objectList);
+				}
+				//Update drawState of every object.
+				for(i=0; i<MAXOBJECTS; i++){
+					if(env->objectList[i]->activeState == ACTIVE){
+						if(env->objectList[i]->drawState== NOTDRAWN){
+							env->objectList[i]->drawState = DRAWN;
+						}
+						if(env->objectList[i]->drawState == DRAWONCE){
+							env->objectList[i]->drawState = DESTROY;
+						}
+					}
+					else{
 						env->objectList[i]->drawState = DRAWN;
 					}
-					if(env->objectList[i]->drawState == DRAWONCE){
-						env->objectList[i]->drawState = DESTROY;
-					}
 				}
-				else{
-					env->objectList[i]->drawState = DRAWN;
+			}
+			//After the game loop clean the objectList, and flush loaded Sprites as to conserve memory.
+
+			flushObjectList(env);
+			flushAllSprites();
+			if(continueGame){
+				env->gameState->level++;
+				env->gameState->points += env->points;
+				env->points =0;
+
+				displayClear();
+
+				displayFinished(env);
+
+				if(env->level % 2 ==0){
+					shop_menu(env);
 				}
 			}
 		}
-		//After the game loop clean the objectList, and flush loaded Sprites as to conserve memory.
-
-		flushObjectList(env);
-		env->gameState->points += env->points;
-		env->points =0;
-		flushAllSprites();
-		displayClear();
-
-		displayFinished(env);
-
-		//ToDo: integrate shopScreen
-		/**
-		if(env->level % 2 ==0){
-			shopScreen();
-		}
-		**/
-
     }
 }
 

@@ -4,12 +4,12 @@
 #include <inttypes.h>
 #include <avr/eeprom.h>
 
-extern GameState EEMEM EEsave1;
+extern struct GameState_Struct EEMEM EEsave1;
 extern uint32_t EEMEM EEhighscore;
 
 
-void checkHighScore(uint32_t score);
-GameState loadSave();
+uint32_t loadHighScore();
+void loadSave(GameState safegame);
 void safeSave(GameState gamestate);
 
 

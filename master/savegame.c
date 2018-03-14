@@ -5,6 +5,7 @@
 #include "timer.h"
 #include "menu.h"
 #include "uart.h"
+#include "game.h"
 #include "savegame.h"
 #include "environment.h"
 #include "object.h"
@@ -13,34 +14,38 @@
 #include "savegame.h"
 #include "char.h"
 
-GameState EEMEM EEsave1;
+struct GameState_Struct EEsave1;
 uint32_t EEMEM EEhighscore;
-
+/**
 void prepEEPROM()
 {
 	uint32_t highscore = 0;
 	//set all savegames to basic values
 	eeprom_write_block(newGame(),  &EEsave1, sizeof(GameState));
 	eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
+
+}
+**/
+
+uint32_t loadHighScore(){
+	uint32_t highScore;
+	eeprom_read_block (&highScore,&EEhighscore, sizeof(uint32_t));
+	return highScore;
 }
 
-
-GameState loadSave()
+void loadSave(GameState safegame)
 {
-	GameState safegame = newGame();
-	eeprom_read_block(&safegame, &EEsave1, sizeof(EEsave1));
-	return safegame;
+	eeprom_read_block(safegame, &EEsave1, sizeof(EEsave1));
 }
 
 
 void safeSave(GameState gamestate)
 {
-	uint32_t highscore;
-	eeprom_read_block (&highscore,&EEhighscore, sizeof(uint32_t));
-	if(gamestate->points > highscore)
+	uint32_t highScore = loadHighScore();
+	if(gamestate->points > highScore)
 	{
-		eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
+		eeprom_write_block (&EEhighscore, &highScore,sizeof(uint32_t));
 	}
-	eeprom_write_block(&gamestate,  &EEsave1, sizeof(EEsave1));
+	eeprom_write_block(gamestate,  &EEsave1, sizeof(EEsave1));
 }
 

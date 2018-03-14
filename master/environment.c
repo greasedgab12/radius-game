@@ -16,8 +16,13 @@
 #include "defines.h"
 #include "object.h"
 
-
-
+Object objectList[MAXOBJECTS];
+struct Object_Struct objects[MAXOBJECTS];
+struct Entity_Struct  entityList[MAXOBJECTS];
+struct Weapon_Struct weaponA;
+struct Weapon_Struct weaponB;
+struct Environment_struct environment;
+struct GameState_Struct gameState;
 
 uint8_t inputBuffer =0;
 
@@ -36,24 +41,26 @@ SIGNAL (TIMER0_COMPA_vect){
 
 
 Environment newEnvironment(){
-	Environment self = (Environment)malloc(sizeof(struct Environment_struct));
+	Environment self = &environment;
 
 	self->buttons =0;
 	self->lastTime =0;
 	self->time = 0;
     self->gameState =0;
 
-    self->objectList = (Object*)malloc(sizeof(Object)*(MAXOBJECTS));
+    self->objectList = objectList;
     uint8_t i;
 
     for(i=0; i<MAXOBJECTS; i++){
-    	self->objectList[i]=(Object)malloc(sizeof(struct Object_Struct));
+    	self->objectList[i]=&objects[i];
     	initObject(self->objectList[i]);
-    	self->objectList[i]->entity =(Entity)malloc(sizeof(struct Entity_Struct));
+    	self->objectList[i]->entity = &entityList[i];
 
     }
-    self->weaponA = (Weapon)malloc(sizeof(struct Weapon_Struct));
-    self->weaponB = (Weapon)malloc(sizeof(struct Weapon_Struct));
+    self->weaponA = &weaponA;
+    self->weaponB = &weaponB;
+    self->gameState = &gameState;
+    newGame(self->gameState);
     self->player=self->objectList[0];
 
     self->level =1;
@@ -99,6 +106,10 @@ void flushObjectList(Environment env){
 			env->objectList[i]->drawState=NOTDRAWN;
 
 		}
+	}
+	for(i=0; i<4; i++){
+		env->spawnDelay[i]=0;
+		env->spawnList[i]=0;
 	}
 }
 

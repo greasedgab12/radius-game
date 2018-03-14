@@ -4,7 +4,7 @@
 #include"object.h"
 
 
-#define MENU_DELAY 10
+#define MENU_DELAY 5
 #define MAIN 0
 #define MAIN_UPPER_BOUNDARY 1
 #define MAIN_LOWER_BOUNDARY 4
@@ -77,7 +77,7 @@ extern uint8_t weapon;
 
 GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor);
 void printUpgrade(GameState gameState, uint8_t weapon);
-GameState shop_menu(Environment env);
+void  shop_menu(Environment env);
 uint8_t pause_menu(Environment env);
-GameState main_menu(Environment env);
+void main_menu(Environment env);
 #endif

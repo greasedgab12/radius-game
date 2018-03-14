@@ -13,7 +13,7 @@
 /** newGame: Create gameState with initial values.
  *  return GameState
  */
-GameState newGame();
+void newGame(GameState self);
 
 /** loadGame: Load GameState structure from EEPROM.
  *  return GameState:

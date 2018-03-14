@@ -53,7 +53,7 @@ void drawTitleScreen(){
 		uint8_t *title = (uint8_t*)malloc(sizeof(uint8_t)*9);
 		memcpy_P(title, radius2 +9*i, 18);
 		_delay_ms(20);
-		sendWindow(34+i,5,2,9,title);
+		sendWindow(34+i,5,1,9,title);
 		free(title);
 	}
 
