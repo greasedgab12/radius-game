@@ -31,40 +31,6 @@
 void init();
 
 
-
-
-void titleScreen(){
-
-	drawTitleScreen();
-	_delay_ms(1000);
-	displayClear();
-}
-
-void displayLevel(Environment env){
-	print("LEVEL ",63,10);
-	printN(env->level,99,10);
-	_delay_ms(2000);
-
-	displayClear();
-}
-void displayStart(Environment env){
-	print("READY",66,10);
-	_delay_ms(1000);
-	print("START",66,14);
-	_delay_ms(1000);
-	displayClear();
-}
-void displayFinished(Environment env){
-	print("LEVEL ",63,10);
-	printN(env->level,99,10);
-	print("CLEARED",60,12);
-	print("POINTS:",50,16);
-	printN(env->gameState->points,100,16);
-	_delay_ms(3000);
-	displayClear();
-}
-
-
 int freeRam () {
   extern int __heap_start, *__brkval;
   int v;
@@ -86,6 +52,7 @@ int main(void)
     //Environment is persistend throughout the entire runtime.
     Environment env = newEnvironment();
     sei();
+    uart_putc('y');
 
     while(1){
 		flushObjectList(env);

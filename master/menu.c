@@ -10,16 +10,90 @@
 #include "object.h"
 #include "entities/stats.h"
 #include <avr/eeprom.h>
+#include <util/delay.h>
 
 uint8_t set_options 	= 0b00000001;
 
-const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE","LASOR"};
+const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE","LASER"};
 const char *ships_text[] = {"PATROL","LIGHT","HEAVY","DESTROYER"};
 
-uint8_t price_weapons[] = { 61,62,63,64,65,66,67,68 };
-uint8_t price_ships[] =  { 51,52,53,54,55,56,57 };
-uint8_t price_upgrade[] = {2,3,4,5};
+uint8_t price_weapons[] = { 15,115,201,61,32,86,131,210,250 };
+uint8_t price_ships[] =  { 0,120,140,230,10,10,10 };
+uint8_t price_upgrade[] = {1,2,3,4};
 uint8_t weapon = 0;
+
+
+
+
+void titleScreen(){
+
+	drawTitleScreen();
+	_delay_ms(1000);
+	displayClear();
+}
+
+void displayLevel(Environment env){
+
+	if(env->level < 10)
+	{
+		print("LEVEL ",60,10);
+		printN(env->level,96,10);
+	}
+	else
+	{
+		print("LEVEL ",54,10);
+		printN(env->level,90,10);
+	}
+	_delay_ms(2000);
+
+	displayClear();
+}
+void displayStart(Environment env){
+	print("READY",60,10);
+	_delay_ms(1000);
+	print("START",60,14);
+	_delay_ms(1000);
+	displayClear();
+}
+void displayFinished(Environment env){
+	if(env->level < 10)
+	{
+		print("LEVEL ",60,10);
+		printN(env->level,96,10);
+		print("CLEARED",60,14);
+	}
+	else
+	{
+		print("LEVEL ",54,10);
+		printN(env->level,90,10);
+		print("CLEARED",56,14);
+	}
+
+	if(env->gameState->points <10)
+	{
+		print("POINTS:",54,18);
+		printN(env->gameState->points,100,18);
+	}
+	else if(env->gameState->points <100)
+	{
+		print("POINTS:",54,18);
+		printN(env->gameState->points,96,18);
+	}
+	else if(env->gameState->points <1000)
+	{
+		print("POINTS:",48,18);
+		printN(env->gameState->points,86,18);
+	}
+	else
+	{
+		print("POINTS:",46,18);
+		printN(env->gameState->points,86,18);
+	}
+
+	_delay_ms(3000);
+	displayClear();
+}
+
 
 GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 {
@@ -246,7 +320,7 @@ void shop_menu(Environment env)
 	displayClear();
 
 	uint8_t menu_state = MAIN;
-	uint8_t menu_cursor = 1;
+	uint8_t menu_cursor = 2;
 
 	uint8_t iter =0;
 	uint8_t zeile = 9;
@@ -266,19 +340,20 @@ void shop_menu(Environment env)
 	while(1){
 
 	updateEnvironment(env);
-	printN(time_old, 0 , 0);
-	printB(env->buttons, 64, 0);
+
+	printN(menu_cursor, 64, 0);
 
 	if( (env->buttons & M_U) && ( env->time >= time_old))//control upper menu boundary
 	{
+		uart_putc('k');
 		print(" ",13,1 + 4 * menu_cursor);
 		menu_cursor-=1;
 
 		if(menu_state == MAIN)//limit upper boundary
 		{
-			if(menu_cursor <= MAIN_UPPER_BOUNDARY)
+			if(menu_cursor <= 2)
 			{
-				menu_cursor = MAIN_UPPER_BOUNDARY;
+				menu_cursor = 2;
 			}
 		}
 		else if(menu_state == INVENTORY)//limt upper boundary
@@ -356,15 +431,15 @@ void shop_menu(Environment env)
 
 	if( (env->buttons & M_D) && ( env->time >= time_old))//control lower menu boundary
 	{
-
+		uart_putc('k');
 		print(" ",13,1 + 4 * menu_cursor);
 		menu_cursor+=1;
 
 		if(menu_state == MAIN)//keep menucursor from going off screen
 		{
-			if(menu_cursor >= MAIN_LOWER_BOUNDARY)
+			if(menu_cursor >= 5)
 			{
-				menu_cursor = MAIN_LOWER_BOUNDARY;
+				menu_cursor = 5;
 			}
 			print("/",13,1 + 4 * menu_cursor);
 		}
@@ -400,7 +475,8 @@ void shop_menu(Environment env)
 			{
 					menu_cursor = lower_boundary;
 			}
-			else if(menu_cursor <= 2)
+
+			if(menu_cursor <= 2)
 			{
 					menu_cursor = 2;
 			}
@@ -432,10 +508,12 @@ void shop_menu(Environment env)
 				{
 					lower_boundary = 5;
 				}
+
 				if(menu_cursor >= lower_boundary )
 				{
 					menu_cursor = lower_boundary;
 				}
+
 				if(menu_cursor <= 2)
 				{
 					menu_cursor = 2;
@@ -461,15 +539,16 @@ void shop_menu(Environment env)
 		}
 		else if(menu_state == SHOP_WEAPONS)//scrollable display with menu cursor
 		{
-			if(menu_cursor <=5)
+			if(menu_cursor <=4)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 6 && menu_cursor <=10)//highest possible menu_cursor value
+			else if(menu_cursor >= 5)//highest possible menu_cursor value
 			{
 				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
 			}
-			else
+
+			if(menu_cursor >=10)
 			{
 				menu_cursor = 10;
 				print("/",13,21);
@@ -506,28 +585,29 @@ void shop_menu(Environment env)
 
 	if( (env->buttons & M_A) && ( env->time >= time_old))
 	{
+		uart_putc('k');
 		displayClear();
 		if(menu_state == MAIN)
 		{
-			if(menu_cursor == 1)//con
+			if(menu_cursor == 2)//con
 			{
 				menu_state = CONTINUE3;
 				menu_cursor = 2;
 			}
-			else if(menu_cursor == 2)//inv
+			else if(menu_cursor == 3)//inv
 			{
 				menu_state = INVENTORY;
 				menu_cursor = 2;
 			}
-			else if(menu_cursor == 3)//shop
+			else if(menu_cursor == 4)//shop
 			{
 				menu_state = SHOP;
 				menu_cursor = 2;
 			}
-			else if(menu_cursor == 4)//save
+			else if(menu_cursor == 5)//save
 			{
 				menu_state = SAVE;
-				menu_cursor = 4;
+				menu_cursor = 5;
 			}
 		}
 		else if(menu_state == SHOP)
@@ -572,6 +652,7 @@ void shop_menu(Environment env)
 					{
 						env->gameState->points = env->gameState->points - price_weapons[menu_cursor-3];
 						env->gameState->boughtWeapon |= (1<<(menu_cursor-3));
+						env->gameState->selWeapon = menu_cursor -2;
 					}
 				}
 				else if((env->gameState->boughtWeapon & (1<<(menu_cursor-3))) != 0)
@@ -608,6 +689,7 @@ void shop_menu(Environment env)
 					{
 						env->gameState->points = env->gameState->points - price_ships[menu_cursor-2];
 						env->gameState->boughtShip |= (1<<(menu_cursor-2));
+						env->gameState->selShip = menu_cursor -1;
 					}
 				}
 			}
@@ -719,11 +801,12 @@ void shop_menu(Environment env)
 	}
 	if( (env->buttons & M_B) && ( env->time >= time_old))
 	{
+		uart_putc('k');
 		displayClear();
 		if(menu_state == INVENTORY)
 		{
 			menu_state = MAIN;
-			menu_cursor = INVENTORY + 1;
+			menu_cursor = INVENTORY + 2;
 		}
 		else if(menu_state == INVENTORY_WEAPONS)
 		{
@@ -738,7 +821,7 @@ void shop_menu(Environment env)
 		else if(menu_state == SHOP)
 		{
 			menu_state = MAIN;
-			menu_cursor = SHOP +1;
+			menu_cursor = SHOP +2;
 		}
 		else if(menu_state == SHOP_WEAPONS)
 		{
@@ -783,10 +866,11 @@ void shop_menu(Environment env)
 	switch(menu_state)
 	{
 		case MAIN:
-			print("CONTINUE",20,5);
-			print("INVENTORY",20,9);
-			print("SHOP",20,13);
-			print("SAVE",20,17);
+			print("SHOP",66,3);
+			print("CONTINUE",20,9);
+			print("INVENTORY",20,13);
+			print("SHOP",20,17);
+			print("SAVE",20,21);
 			break;
 
 		case CONTINUE3:
@@ -918,7 +1002,7 @@ void shop_menu(Environment env)
 			}
 			break;
 		case SHOP:
-			print("SHOP",20,5);
+			print("SHOP",60,3);
 			print("BUY WEAPONS",20,9);
 			print("BUY SHIPS",20,13);
 			break;
@@ -1056,8 +1140,9 @@ void shop_menu(Environment env)
 			break;
 		case SAVE:
 			safeSave(env->gameState);
+			print("SAVED",50,21);
 			menu_state = MAIN;
-			menu_cursor = 4;
+			menu_cursor = 5;
 			break;
 
 	}
@@ -1082,6 +1167,7 @@ uint8_t pause_menu(Environment env)
 
 		if( (env->buttons & M_U) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			print(" ",13,1 + 4 * menu_cursor);
 			menu_cursor-=1;
 
@@ -1111,6 +1197,7 @@ uint8_t pause_menu(Environment env)
 
 		if( (env->buttons & M_D) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			print(" ",13,1 + 4 * menu_cursor);
 			menu_cursor+=1;
 
@@ -1141,6 +1228,7 @@ uint8_t pause_menu(Environment env)
 
 		if( (env->buttons & M_A) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			if(menu_state == MAIN)
 			{
 				menu_state = menu_cursor -1;
@@ -1174,6 +1262,7 @@ uint8_t pause_menu(Environment env)
 
 		if( (env->buttons & M_B) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			if(menu_state == OPTIONS)
 			{
 				menu_state = MAIN;
@@ -1194,7 +1283,8 @@ uint8_t pause_menu(Environment env)
 		switch(menu_state)
 		{
 			case MAIN:
-				print("PAUSE",20,5);
+				print("PAUSE",65,3);
+
 				print("Continue",20,9);
 				print("SAVE GAME",20,13);
 				print("OPTIONS",20,17);
@@ -1207,20 +1297,23 @@ uint8_t pause_menu(Environment env)
 
 			case SAVE2:
 				safeSave(env->gameState);
+				print("SAVED",80,13);
 				menu_state = MAIN;
 				menu_cursor = 3;
 				break;
 
 			case OPTIONS:
 				print("OPTIONS",20,5);
-				print("Music",20,9);
+				print("Tone",20,9);
 				if( set_options & (1<<0))
 				{
 					print("ON",50,9);
+					uart_putc('y');
 				}
 				else
 				{
 					print("OFF",50,9);
+					uart_putc('z');
 				}
 
 				print("Invert Colours",20,13);
@@ -1290,6 +1383,7 @@ void main_menu(Environment env)
 
 		if((env->buttons & M_U) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			print(" ",13,1 + 4 * menu_cursor);
 			menu_cursor-=1;
 
@@ -1316,6 +1410,7 @@ void main_menu(Environment env)
 
 		if((env->buttons & M_D) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			print(" ",13,1 + 4 * menu_cursor);
 			menu_cursor+=1;
 
@@ -1344,6 +1439,7 @@ void main_menu(Environment env)
 
 		if( (env->buttons & M_A) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			if(menu_state == MAIN)
 			{
 				if(menu_cursor == 2)
@@ -1406,6 +1502,7 @@ void main_menu(Environment env)
 
 		if( (env->buttons & M_B) && ( env->time >= time_old))
 		{
+			uart_putc('k');
 			if(menu_state == OPTIONS2)
 			{
 				menu_state = MAIN;
@@ -1454,15 +1551,17 @@ void main_menu(Environment env)
 
 
 			case OPTIONS2:
-				print("OPTIONS",20,5);
-				print("Music",20,9);
+				print("OPTIONS",60,3);
+				print("Tone",20,9);
 				if( set_options & (1<<0))
 				{
 					print("ON",50,9);
+					uart_putc('y');
 				}
 				else
 				{
 					print("OFF",50,9);
+					uart_putc('z');
 				}
 
 				print("Invert Colours",20,13);
