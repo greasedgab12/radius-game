@@ -329,7 +329,6 @@ void newShotGun(Weapon self,uint8_t weaponState){
 	self->fire = &fireShot;
 
 }
-//ToDo: Implement shotgun with new projectile type
 void fireShot(Weapon self, Object source, Environment mainEnv){
 	if(!(source->entity->energy >= self->cost)){
 		return;
@@ -509,7 +508,7 @@ void fireDisc(Weapon self, Object source, Environment mainEnv){
 			slot->entity->v_x = -self->projSpeed;
 			slot->entity->a_x = -self->projSpeed/5;
 		}
-
+		slot->entity->v_max = 10 + self->projSpeed*5;
 		slot->entity->v_y = source->entity->v_y%slot->entity->v_max;
 
 		slot->entity->armor = self->damage;
@@ -589,6 +588,79 @@ void fireBounce(Weapon self, Object source, Environment mainEnv){
 		slot->entity->armor = self->damage;
 		slot->entity->health = 2 + ((self->weaponState&0b11000000)>>6);
 		slot->activeState = ACTIVE;
+		if(source->entity->energy > self->cost){
+			source->entity->energy -= self->cost;
+		}
+		else{
+			source->entity->energy =0;
+		}
+	}
+}
+void newLaser(Weapon self,uint8_t weaponState){
+
+	self->weaponType = LASER;
+	self->weaponState = weaponState;
+
+	self->projCount = 1;
+
+	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
+	damagelvl = weaponState& 0b00000011;
+	speedlvl = (weaponState& 0b00001100)>>2;
+	roflvl = (weaponState& 0b00110000)>>4;
+	uniquelvl = (weaponState& 0b11000000)>>6;
+
+	self->damage = 10 + 3*damagelvl;
+
+
+	self->cost = 30;
+
+	self->projSpeed =5 + 2*speedlvl;
+
+	self->rof = 30 - 5*roflvl;
+
+	self->fire = &fireLaser;
+
+
+}
+
+void fireLaser(Weapon self, Object source, Environment mainEnv){
+	if(!(source->entity->energy >= self->cost)){
+		return;
+	}
+	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
+		self->rofTime= mainEnv->time;
+		Object slot = getProjectileSlot(mainEnv);
+		if(!slot){
+			return;
+		}
+		uart_putc('a');
+		switch((self->weaponState& 0b11000000)>>6)
+		{
+			case 1:
+				newProjectile(slot, LASER1);
+				break;
+			case 2:
+				newProjectile(slot, LASER2);
+				break;
+			case 3:
+				newProjectile(slot, LASER3);
+				break;
+			default:
+				newProjectile(slot, LASER0);
+				break;
+
+
+		}
+
+		slot->entity->health = self->projSpeed;
+
+		slot->type= PLAYER_PROJECTILE;
+		slot->setXY(slot,source->x+source->lx, source->y + source->ly/2 - slot->ly/2);
+		slot->entity->v_x = self->projSpeed;
+		slot->entity->a_x = self->projSpeed/5;
+
+		slot->lx = MAXX - slot->x;
+		slot->entity->armor = self->damage;
 		if(source->entity->energy > self->cost){
 			source->entity->energy -= self->cost;
 		}

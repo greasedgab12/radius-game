@@ -75,10 +75,6 @@ void enemyThink(Object self, Environment mainEnv){
 		return;
 	}
 
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
-
 	//Apply accelertation to velocity.
 	//x-direction
 	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
@@ -127,8 +123,11 @@ void enemyThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocity to position.
-	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
-
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 
 
 }
@@ -156,9 +155,7 @@ void enemyGliderThink(Object self, Environment mainEnv){
 		self->entity->a_y =-1 -FRICTION;
 	}
 
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
+
 
 	//Apply accelertation to velocity.
 	//x-direction
@@ -208,7 +205,11 @@ void enemyGliderThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 		//Apply velocity to position.
-	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 }
 
 void enemyTrackerThink(Object self, Environment mainEnv){
@@ -233,9 +234,7 @@ void enemyTrackerThink(Object self, Environment mainEnv){
 			self->entity->a_y =0;
 		}
 	}
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
+
 
 	//Apply acceleration to velocity.
 	//y-direction
@@ -285,8 +284,11 @@ void enemyTrackerThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
-
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 
 }
 
@@ -320,9 +322,6 @@ void enemyShooterThink(Object self, Environment mainEnv){
 
 
 	}
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
 
 	/**Apply acceleration to velocity
 	 * Velocity in each direction cannot exceed maximum velocity.
@@ -362,9 +361,11 @@ void enemyShooterThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
-
-
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 }
 
 
@@ -453,8 +454,8 @@ void getEnemyByType(Object enemy, uint8_t type, uint8_t* sprite,uint8_t health,u
 	enemy->entity->health = health;
 	enemy->entity->maxHealth = health;
 	enemy->entity->armor = armor;
-	enemy->entity->a_x = -speed;
-	enemy->entity->v_x = -speed;
+	enemy->entity->a_x = -speed - FRICTION;
+	enemy->entity->v_x = -speed - FRICTION;
 	enemy->entity->v_max = speed;
 
 

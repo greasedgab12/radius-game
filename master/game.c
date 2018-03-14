@@ -27,16 +27,17 @@ void newGame(GameState self){
 	self->noppyUpg=0;
 	self->launcherUpg=0;
 	self->bounceUpg=0;
-	self->laserUpg= 0;
+	self->laserUpg= 255;
 
-	self->selWeapon =0;
-	self->boughtWeapon =0b0;
+	self->selWeapon = LASER-1;
+	self->boughtWeapon =255;
 
 	self->selShip =1;
 	self->boughtShip =1;
 
 	self->level =1;
 	self->points =1000;
+
 
 }
 
@@ -45,7 +46,7 @@ void newGame(GameState self){
 void getPlayerFromGameState(Environment env){
 	GameState state = env->gameState;
 	Object player = env->player;
-
+	player->killedBy =0;
 	switch(state->selShip){
 		case 1:
 			newPlayer(player,0,0,player_0);
@@ -54,7 +55,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->maxEnergy=100;
 			player->entity->armor =2;
 			player->entity->param1=1;
-			player->entity->v_max = 15;
+			player->entity->v_max = 20;
 
 			break;
 		case 2:
@@ -64,7 +65,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->maxEnergy=120;
 			player->entity->armor =2;
 			player->entity->param1=2;
-			player->entity->v_max = 20;
+			player->entity->v_max = 25;
 			break;
 		case 3:
 			newPlayer(player,0,0,player_2);
@@ -73,7 +74,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->maxEnergy=150;
 			player->entity->armor =3;
 			player->entity->param1=2;
-			player->entity->v_max = 20;
+			player->entity->v_max = 30;
 			break;
 		case 4:
 			newPlayer(player,0,0,player_3);
@@ -82,7 +83,7 @@ void getPlayerFromGameState(Environment env){
 			player->entity->maxEnergy=200;
 			player->entity->armor =4;
 			player->entity->param1=3;
-			player->entity->v_max = 30;
+			player->entity->v_max = 35;
 			break;
 		default:
 			newPlayer(player,0,0,player_0);
@@ -116,6 +117,9 @@ void getPlayerFromGameState(Environment env){
 			break;
 		case ((BOUNCE-1)):
 			newBounce(env->weaponB,state->bounceUpg);
+			break;
+		case ((LASER-1)):
+			newLaser(env->weaponB,state->laserUpg);
 			break;
 		default:
 			newGun(env->weaponB,state->gunUpg);

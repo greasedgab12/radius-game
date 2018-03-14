@@ -66,6 +66,7 @@
 #define NOPPY 6
 #define LAUNCHER 7
 #define BOUNCE 8
+#define LASER 9
 
 //Bullet Types
 #define BULLET 1
@@ -78,6 +79,10 @@
 #define EXPLOSION 8
 #define BULLETHEAVY 9
 #define BULLETENEMY 10
+#define LASER0 11
+#define LASER1 12
+#define LASER2 13
+#define LASER3 14
 
 //Enemy Types
 #define FLOATER 0

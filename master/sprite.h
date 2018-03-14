@@ -3,7 +3,7 @@
 #include <avr/pgmspace.h>
 #include <inttypes.h>
 
-#define MAX_SPRITE_COUNT 32
+#define MAX_SPRITE_COUNT 35
 
 //array of pointers to sprite data
 extern uint8_t* sprite_in_ram[MAX_SPRITE_COUNT];

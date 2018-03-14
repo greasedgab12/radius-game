@@ -64,6 +64,17 @@ void displayFinished(Environment env){
 	displayClear();
 }
 
+void displayGameOver(Environment env){
+	print("Game Over", 57, 5);
+	_delay_ms(300);
+	if(saveHighScore(env->gameState->points)){
+		print("NEW HIGHSCORE:",9,9);
+		_delay_ms(300);
+		printN(env->gameState->points,18,13);
+	}
+	_delay_ms(2000);
+}
+
 
 int freeRam () {
   extern int __heap_start, *__brkval;
@@ -76,7 +87,7 @@ int main(void)
 {
 	init();
 
-	titleScreen();
+	//titleScreen();
 
 	uint8_t i,j=0;
 
@@ -104,8 +115,8 @@ int main(void)
 
 			env->level = env->gameState->level;
 
-			env->enemyRemaining = 1; // 4 + 2*env->level;
-			env->enemyMax =1; //1 + (env->level/2<5?env->level/2:5);
+			env->enemyRemaining =  4 + 2*env->level;
+			env->enemyMax =1 + (env->level/2<5?env->level/2:5);
 
 			displayClear();
 			displayLevel(env);
@@ -133,6 +144,16 @@ int main(void)
 						}
 					}
 				}
+				if(env->player->killedBy != 0){
+					env->gameState->points += env->points;
+					displayGameOver(env);
+					continueGame = 0;
+					if(!continueGame){
+						break;
+					}
+
+				}
+
 
 
 				printN(freeRam(),0,2);
@@ -188,7 +209,7 @@ int main(void)
 									env->enemyRemaining++;
 								}
 							}
-							sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,env->objectList[i]->slx+1,env->objectList[i]->msly,0);
+							sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,env->objectList[i]->lx,env->objectList[i]->msly,0);
 							env->objectList[i]->activeState =EMPTY;
 						}
 					}

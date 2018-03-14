@@ -7,7 +7,7 @@
 #include <entities/projectile.h>
 #include "entity.h"
 #include "sprites.h"
-
+#include <util/delay.h>
 #include <stdlib.h>
 
 
@@ -16,30 +16,36 @@
 
 void discThink(Object self, Environment mainEnv){
 
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
-
-	if(self->entity->v_y > 1){
+	self->entity->param1++;
+	if(self->entity->param1>=2){
+		self->entity->param1 =0;
+		if(self->entity->v_y > 1){
 		self->entity->v_y -=1;
-	}
-	else if( self->entity->v_y < -1){
-		self->entity->v_y +=1;
-	}
-	else{
-		self->entity->v_y = 0;
+		}
+		else if( self->entity->v_y < -1){
+			self->entity->v_y +=1;
+		}
+		else{
+			self->entity->v_y = 0;
+		}
 	}
 
-	moveObject(self, mainEnv, (self->entity->v_x + s_x)/10, (self->entity->v_y+s_y)/10);
+
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 
 
 }
 
 void bulletThink(Object self, Environment mainEnv){
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
-	moveObject(self, mainEnv, (self->entity->v_x+s_x)/10, (self->entity->v_y+s_y)/10);
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 
 }
 
@@ -60,9 +66,6 @@ void missileThink(Object self, Environment mainEnv){
 			}
 		}
 	}
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
 
 	if(target){
 		if(self->y < target->y){
@@ -80,8 +83,11 @@ void missileThink(Object self, Environment mainEnv){
 	if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
 		self->entity->v_y += self->entity->a_y;
 	}
-	moveObject(self, mainEnv, (self->entity->v_x+s_x)/10, (self->entity->v_y+s_y)/10);
-
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
 }
 
 uint8_t ballCollide(Object self, Object other,uint8_t cType,uint8_t iter){
@@ -220,6 +226,70 @@ uint8_t bulletCollide(Object self, Object other,uint8_t cType,uint8_t iter){
 	}
 }
 
+uint8_t laserCollide(Object self, Object other,uint8_t cType,uint8_t iter){
+	if(other){
+		if(other->type == PLAYER){
+			if(self->type==PLAYER_PROJECTILE){
+				return 0;
+			}
+			else{
+				if(self->entity->health >0){
+						self->entity->health--;
+					}
+					else{
+						self->entity->health =0;
+						self->killedBy = PLAYER;
+					}
+				if(iter){
+
+					return 1;
+				}
+				else{
+
+					return other->collide(other, self, cType, iter);
+				}
+			}
+		}
+		else if(other->type == ENEMY){
+			if(self->type==ENEMY_PROJECTILE){
+				return 0;
+			}
+			else{
+				drag(other,5);
+				if(self->entity->health >0){
+						self->entity->health--;
+					}
+					else{
+						self->entity->health =0;
+						self->killedBy = ENEMY;
+					}
+				if(iter){
+
+					return 1;
+				}
+				else{
+
+					return other->collide(other, self, cType, iter);
+				}
+			}
+		}
+		else if(other->type == PLAYER_PROJECTILE){
+			return 0;
+		}
+		else if(other->type == ENEMY_PROJECTILE){
+			return 0;
+		}
+		else{
+			self->killedBy =OBSTACLE;
+			return 1;
+		}
+	}
+	else{
+		self->killedBy =BORDER;
+		return 1;
+	}
+}
+
 void shotThink(Object self, Environment mainEnv){
 
 	if(self->entity->health>0){
@@ -248,6 +318,7 @@ void newProjectile(Object self, uint8_t projectileType){
 	else if(projectileType == DISC){
 		newObject(self,0,0,6,6,disc_sprite);
 		newEntity(self->entity);
+		self->entity->param1 =0;
 		self->think =&discThink;
 		self->collide = &bulletCollide;
 
@@ -264,14 +335,6 @@ void newProjectile(Object self, uint8_t projectileType){
 		newEntity(self->entity);
 		self->think =&shotThink;
 		self->collide = &bulletCollide;
-
-	}
-	else if(projectileType == SHOTLOWER){
-		newObject(self,0,0,4,4,shotlower_sprite);
-		newEntity(self->entity);
-		self->think =&shotThink;
-		self->collide = &bulletCollide;
-
 	}
 	else if(projectileType == SHOTMIDDLE){
 		newObject(self,0,0,4,4,shotmiddle_sprite);
@@ -287,11 +350,44 @@ void newProjectile(Object self, uint8_t projectileType){
 		self->collide = &ballCollide;
 
 	}
-	else{
+	else if(projectileType == BULLETENEMY){
 		newObject(self,0,0,4,4,bulletEnemy_sprite);
 		newEntity(self->entity);
 		self->think =&bulletThink;
 		self->collide = &bulletCollide;
 
 	}
+	else if(projectileType == LASER0){
+		newObject(self,0,0,1,1,laser0_sprite);
+		newEntity(self->entity);
+		self->think =&shotThink;
+		self->collide = &laserCollide;
+
+	}
+	else if(projectileType == LASER1){
+		newObject(self,0,0,1,2,laser1_sprite);
+		newEntity(self->entity);
+		self->think =&shotThink;
+		self->collide = &laserCollide;
+
+	}
+	else if(projectileType == LASER2){
+		newObject(self,0,0,1,3,laser2_sprite);
+		newEntity(self->entity);
+		self->think =&shotThink;
+		self->collide = &laserCollide;
+
+	}
+	else if(projectileType == LASER3){
+		newObject(self,0,0,1,4,laser3_sprite);
+		newEntity(self->entity);
+		self->think =&shotThink;
+		self->collide = &laserCollide;
+
+	}
+
+
+
+
+	self->activeState = ACTIVE;
 }

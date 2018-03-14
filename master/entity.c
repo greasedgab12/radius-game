@@ -26,6 +26,9 @@ void newEntity(Entity self){
     self->v_x = 0;
     self->v_y = 0;
 
+    self->s_x = 0;
+    self->s_y = 0;
+
     self->state =0;
     self->param1 =0;
 }

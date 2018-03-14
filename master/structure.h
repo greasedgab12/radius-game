@@ -82,9 +82,13 @@ struct Entity_Struct{
 	int8_t a_x;
     int8_t a_y;
 
+
     uint8_t v_max;
     int8_t v_x;
 	int8_t v_y;
+
+	int8_t s_x;
+    int8_t s_y;
 
 	//Variables governing entity behavior.
 	uint8_t state;

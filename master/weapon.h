@@ -35,6 +35,7 @@ void fireDisc(Weapon self, Object source, Environment mainEnv);
 void newBounce(Weapon self,uint8_t weaponState);
 void fireBounce(Weapon self, Object source, Environment mainEnv);
 
-
+void newLaser(Weapon self,uint8_t weaponState);
+void fireLaser(Weapon self, Object source, Environment mainEnv);
 
 #endif /* MASTER_WEAPON_H_ */

@@ -101,11 +101,6 @@ void playerThink(Object self, Environment mainEnv){
 		self->entity->energy = self->entity->maxEnergy;
 	}
 
-	int8_t s_x, s_y;
-	s_x = self->entity->v_x%10;
-	s_y = self->entity->v_y%10;
-
-
 	if( abs(self->entity->v_x + a_x) < self->entity->v_max){
 			self->entity->v_x += a_x;
 		}
@@ -137,8 +132,14 @@ void playerThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
+	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	self->entity->s_x += self->entity->v_x%10;
+	self->entity->s_y += self->entity->v_y%10;
+	self->entity->s_x = self->entity->s_x%10;
+	self->entity->s_y = self->entity->s_y%10;
+
 	//Add the remainder to the next step:
+
 
 }
 

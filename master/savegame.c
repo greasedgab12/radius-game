@@ -33,6 +33,17 @@ uint32_t loadHighScore(){
 	return highScore;
 }
 
+uint8_t saveHighScore(uint32_t highScore){
+	uint32_t oldScore;
+	oldScore = eeprom_read_dword(&EEhighscore);
+	if(oldScore < highScore)
+	{
+		eeprom_write_dword (&EEhighscore, highScore);
+		return 1;
+	}
+	return 0;
+}
+
 void loadSave(GameState safegame)
 {
 	eeprom_read_block(safegame, &EEsave1, sizeof(EEsave1));

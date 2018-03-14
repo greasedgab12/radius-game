@@ -62,8 +62,13 @@ void setObjectData(Object self, const uint8_t* sprite){
 
 void drawObject(Object instance){
 	uint8_t *mdata;
+	uint8_t i;
 	mdata = mapData(instance->data, instance->y);
-	sendWindow(instance->x, instance->y/4,mdata[0], mdata[1]/mdata[0], mdata);
+	for(i=0; i<instance->lx/mdata[0]; i++){
+		if(instance->x +i + mdata[0] < MAXX){
+			sendWindow(instance->x + i, instance->y/4,mdata[0], mdata[1]/mdata[0], mdata);
+		}
+	}
 	free(mdata);
 }
 uint8_t* mapData(const uint8_t* data, uint8_t ty){
