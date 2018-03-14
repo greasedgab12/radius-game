@@ -145,6 +145,7 @@ struct GameState_Struct{
 	uint8_t noppyUpg;
 	uint8_t launcherUpg;
 	uint8_t bounceUpg;
+	uint8_t laserUpg;
 
 	//Currently selected weapon.
 	uint8_t selWeapon;

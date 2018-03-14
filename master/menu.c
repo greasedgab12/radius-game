@@ -13,10 +13,10 @@
 
 uint8_t set_options 	= 0b00000001;
 
-const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE"};
+const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE","LASOR"};
 const char *ships_text[] = {"PATROL","LIGHT","HEAVY","DESTROYER"};
 
-uint8_t price_weapons[] = { 61,62,63,64,65,66,67 };
+uint8_t price_weapons[] = { 61,62,63,64,65,66,67,68 };
 uint8_t price_ships[] =  { 51,52,53,54,55,56,57 };
 uint8_t price_upgrade[] = {2,3,4,5};
 uint8_t weapon = 0;
@@ -72,9 +72,13 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 	{
 		upgrade = gameState->launcherUpg;
 	}
-	else if(weapon == 6)//bounceUpg
+	else if(weapon == 7)//bounceUpg
 	{
 		upgrade = gameState->bounceUpg;
+	}
+	else if(weapon == 8)//lasorUpg
+	{
+		upgrade = gameState->laserUpg;
 	}
 
 
@@ -138,6 +142,10 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 	{
 		gameState->bounceUpg = upgrade;
 	}
+	else if(weapon == 8)//bounceUpg
+	{
+		gameState->laserUpg = upgrade;
+	}
 
 	return gameState;
 }
@@ -181,42 +189,55 @@ void printUpgrade(GameState gameState, uint8_t weapon)
 	{
 		upgrade = gameState->bounceUpg;
 	}
+	if(weapon == 8)//laserUpg
+	{
+		upgrade = gameState->laserUpg;
+	}
+	print("UPGRADE",20,2);
+	print(weapons_text[weapon],24,5);
+	print32(gameState->points,110,5);
+	print("$",100,5);
 
 	print("DMG",20,9);
 	print("SPEED",20,13);
 	print("ROF",20,17);
 	print("LVL",20,21);
 
+	print("      ",90,25);
 	while(offset<=6)
 	{
 		if((upgrade & (0b11<<offset)) == (0b00<<offset))
 		{
-			print("%",70,nextZeile);
+			print("%",60,nextZeile);
 			printN(price_upgrade[0]* price_weapons[weapon],110,nextZeile);
 			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b01<<offset))
 		{
-			print("%%",70,nextZeile);
+			print("%%",60,nextZeile);
 			printN(price_upgrade[1]* price_weapons[weapon],110,nextZeile);
 			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b10<<offset))
 		{
-			print("%%%",70,nextZeile);
+			print("%%%",60,nextZeile);
 			printN(price_upgrade[2]* price_weapons[weapon],110,nextZeile);
 			print("$",100,nextZeile);
 		}
 		else if ((upgrade & (0b11<<offset)) == (0b11<<offset))
 		{
-			print("%%%%",70,nextZeile);
+			print("%%%%",60,nextZeile);
 			print("-",110,nextZeile);
 			print("$",100,nextZeile);
 		}
 		offset += 2;
 		nextZeile += 4;
+		print("      ",90,25);
 	}
+
+
 }
+
 
 
 //choose weapons/ships from inventory or upgrade
@@ -232,12 +253,14 @@ GameState shop_menu(Environment env)
 	uint8_t scroll_start=0;
 	uint8_t counter = 0;
 	uint8_t lower_boundary = 0;
-	uint8_t upgrade_selector = 0;
+	env->gameState->points = 10000;
+
 
 	uint32_t time_old = env->time + MENU_DELAY;
 
 	//print cursor on startpos neeed?
 	print("/",13,1 + 4 * menu_cursor);
+
 
 	while(1){
 
@@ -365,9 +388,9 @@ GameState shop_menu(Environment env)
 			}
 			lower_boundary--;
 
-			if(lower_boundary >= 8)
+			if(lower_boundary >= 9)
 			{
-				lower_boundary = 8;
+				lower_boundary = 9;
 			}
 
 			if(menu_cursor >= lower_boundary )
@@ -439,13 +462,13 @@ GameState shop_menu(Environment env)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 6 && menu_cursor <=9)//highest possible menu_cursor value
+			else if(menu_cursor >= 6 && menu_cursor <=10)//highest possible menu_cursor value
 			{
 				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
 			}
 			else
 			{
-				menu_cursor = 9;
+				menu_cursor = 10;
 				print("/",13,21);
 			}
 		}
@@ -655,7 +678,27 @@ GameState shop_menu(Environment env)
 			//upgrade selected weapon
 			//with info from current cursor
 			env->gameState = weaponUpgrade(env->gameState,weapon,menu_cursor);
+//			if(menu_cursor >=5)
+//			{
+//				print("/",13,1 + 4 * menu_cursor);
+//			}
+//			else
+//			{
+//				print("/",13,21);
+//				print("  ",13,6);
+//			}
+			menu_state = SHOP_UPGRADE_WEAPON;
 
+			if(menu_cursor >=5)
+			{
+				print("/",13,21);
+				print(" ",13,9);
+			}
+			else
+			{
+				print("/",13,1+4*menu_cursor);
+
+			}
 
 		}
 
@@ -664,10 +707,11 @@ GameState shop_menu(Environment env)
 			print(" ",13,5);
 		}
 
-		if(menu_state != INVENTORY_SHIPS && menu_state != SHOP_WEAPONS )
+		if(menu_state != INVENTORY_SHIPS && menu_state != SHOP_WEAPONS && menu_state != SHOP_UPGRADE_WEAPON )
 		{
 			print("/",13,1 + 4 * menu_cursor);
 		}
+		print(" ",13,6);
 		time_old = env->time + MENU_DELAY;
 	}
 	if( (env->buttons & M_B) && ( env->time >= time_old))
@@ -712,6 +756,7 @@ GameState shop_menu(Environment env)
 			{
 
 				print("/",13,21);
+				print(" ",13,9);
 				print(" ",13,2);
 			}
 			else
@@ -720,14 +765,17 @@ GameState shop_menu(Environment env)
 			}
 
 		}
-		if(menu_state != SHOP_UPGRADE_WEAPON)
+
+		if(menu_state != SHOP_UPGRADE_WEAPON && menu_state !=SHOP_WEAPONS )
 		{
 			print("/",13,1 + 4 * menu_cursor);
 		}
 		time_old = env->time + MENU_DELAY;
 	}
 
-print("  ",13,1);
+
+
+	print("  ",13,1);
 
 	switch(menu_state)
 	{
@@ -873,7 +921,7 @@ print("  ",13,1);
 			break;
 		case SHOP_WEAPONS:
 			print("WEAPONS",20,5);
-			printN(env->gameState->points,100,5);
+			print32(env->gameState->points,100,5);
 			print("$",90,5);
 
 			next_col =0;
@@ -892,11 +940,13 @@ print("  ",13,1);
 						{
 							print("       ",100,zeile);
 							print("UPGRADE",100,zeile);
+							print(" ",90,zeile);
 						}
 						else if((env->gameState->boughtWeapon & (1<<(scroll_start-1))))
 						{
 							print("       ",100,zeile);
 							print("UPGRADE",100,zeile);
+							print(" ",90,zeile);
 						}
 						else
 						{
@@ -913,14 +963,7 @@ print("  ",13,1);
 			//scroll when the cursor would run off the screen
 			else if(menu_cursor >= 6)
 			{
-				if(menu_cursor == 8)
-				{
-					scroll_start = 3;
-				}
-				else
-				{
-					scroll_start = menu_cursor - 5;
-				}
+				scroll_start = menu_cursor - 5;
 
 				// display all bought ships until screen is full starting at scroll_starts
 				while(zeile <= 21 && menu_cursor >= scroll_start)
@@ -932,12 +975,14 @@ print("  ",13,1);
 					{
 						print("       ",100,zeile);
 						print("UPGRADE",100,zeile);
+						print(" ",90,zeile);
 					}
 					else
 					{
 						print("       ",100,zeile);
 						//printN(scroll_start,100,zeile);
 						printN(price_weapons[scroll_start-1],100,zeile);
+						print("$",90,zeile);
 					}
 					zeile +=4;
 					scroll_start++;
@@ -953,7 +998,7 @@ print("  ",13,1);
 			break;
 		case SHOP_SHIPS:
 			print("SHIPS",20,5);
-			printN(env->gameState->points,100,5);
+			print32(env->gameState->points,100,5);
 			print("$",90,5);
 
 			next_col =0;
@@ -990,12 +1035,19 @@ print("  ",13,1);
 
 			break;
 		case SHOP_UPGRADE_WEAPON:
-			print("UPGRADE",20,2);
-			print(weapons_text[weapon],24,5);
-			printN(env->gameState->points,110,5);
-			print("$",100,zeile);
-
 			printUpgrade(env->gameState,weapon);
+
+
+			if(menu_cursor >=5)
+			{
+				print("/",13,21);
+				print(" ",13,9);
+			}
+			else
+			{
+				print("/",13,1+4*menu_cursor);
+
+			}
 
 
 			break;

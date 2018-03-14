@@ -26,6 +26,7 @@ GameState newGame(){
 	self->noppyUpg=0;
 	self->launcherUpg=0;
 	self->bounceUpg=0;
+	self->laserUpg= 0;
 
 	self->selWeapon =0;
 	self->boughtWeapon =0b0;
