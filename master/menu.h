@@ -4,11 +4,12 @@
 #include"object.h"
 
 
-#define MENU_DELAY 150
+#define MENU_DELAY 10
 #define MAIN 0
 #define MAIN_UPPER_BOUNDARY 1
-#define MAIN_LOWER_BOUNDARY 5
+#define MAIN_LOWER_BOUNDARY 4
 
+#define CONTINUE3 6
 #define INVENTORY 1
 #define INVENTORY_OFFSET 10
 #define INVENTORY_WEAPONS 11
@@ -59,6 +60,24 @@
 #define OPTIONS_UPPER_BOUNDARY 2
 #define OPTIONS_LOWER_BOUNDARY 4
 
-void shop_menu(void);
 
+extern uint8_t set_options;
+
+//extern const char *menu_text[] = {};
+//extern const char *pause_text[] = {};
+//extern const char *shop_text[] = {};
+
+extern const char *weapons_text[9];
+extern const char *ships_text[4];
+
+extern uint8_t price_weapons[8];
+extern uint8_t price_ships[7];
+extern uint8_t price_upgrade[4];
+extern uint8_t weapon;
+
+GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor);
+void printUpgrade(GameState gameState, uint8_t weapon);
+GameState shop_menu(Environment env);
+uint8_t pause_menu(Environment env);
+GameState main_menu(Environment env);
 #endif

@@ -1,31 +1,46 @@
-#include "savegame.h"
+#include "buttons.h"
+#include "char.h"
 #include <inttypes.h>
+#include "display.h"
+#include "timer.h"
+#include "menu.h"
+#include "uart.h"
+#include "savegame.h"
+#include "environment.h"
+#include "object.h"
+#include "entities/stats.h"
 #include <avr/eeprom.h>
+#include "savegame.h"
+#include "char.h"
 
+GameState EEMEM EEsave1;
+uint32_t EEMEM EEhighscore;
 
-void deleteSavegame(uint8_t saveNumber)//not finished
+void prepEEPROM()
 {
-	//write 0 to savegame saveNumber location in eeprom
-	//eeprom_write_byte ((uint8_t*) location of savenumber, 0);
-	return;
+	uint32_t highscore = 0;
+	//set all savegames to basic values
+	eeprom_write_block(newGame(),  &EEsave1, sizeof(GameState));
+	eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
 }
 
-void loadSavegame(uint8_t saveNumber)//not finished
+
+GameState loadSave()
 {
-	//read data in location of saveNumber
-	//data = eeprom_read_byte((uint8_t*)23);
-	return;
+	GameState safegame = newGame();
+	eeprom_read_block(&safegame, &EEsave1, sizeof(EEsave1));
+	return safegame;
 }
 
-void saveGame(uint8_t saveNumber)//not finished
+
+void safeSave(GameState gamestate)
 {
-	//write all data to eeprom location saveNumber
-	//eeprom_write_byte ((uint8_t*) CURRENT_SAVEGAME, saveNumber);
-	eeprom_write_byte ((uint8_t*) CURRENT_SAVEGAME, saveNumber);
+	uint32_t highscore;
+	eeprom_read_block (&highscore,&EEhighscore, sizeof(uint32_t));
+	if(gamestate->points > highscore)
+	{
+		eeprom_write_block (&EEhighscore, &highscore,sizeof(uint32_t));
+	}
+	eeprom_write_block(&gamestate,  &EEsave1, sizeof(EEsave1));
 }
 
-uint8_t getCurrentSave()//not finished
-{
-	//return last play saveNumber
-	return eeprom_read_byte((uint8_t*)CURRENT_SAVEGAME); // read the byte in location 23
-}
