@@ -4,6 +4,7 @@
 #include "structure.h"
 
 
+void initObject(Object self);
 
 /* newObject: allocate memory for a object with initial data.
  * uint8_t x: x-coordinate of Object.
@@ -11,7 +12,7 @@
  * uint8_t *data: pointer to data array in memory.
  * return Object: returns pointer to newly allocated Object.
  */
-Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly, const uint8_t* sprite);
+void newObject(Object self,uint8_t x, uint8_t y, uint8_t lx, uint8_t ly, const uint8_t* sprite);
 
 /** releaseObject: free memory of given object instance.
  * Object instance: Object to be freed.
@@ -37,7 +38,7 @@ void drawObject(Object instance);
 void removeSpace(Object instance, uint8_t x, uint8_t y);
 
 
-void checkMappedSpriteCollision(Object* objectList, uint8_t length);
+void checkMappedSpriteCollision(Object* objectList);
 
 void drawOverlap(Object a, Object b);
 

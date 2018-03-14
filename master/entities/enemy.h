@@ -14,14 +14,14 @@
  * uint8_t x,y: coordinates of the new enemy type object.
  * return Object: enemy type object.
  */
-Object newEnemy(uint8_t * sprite,uint8_t x, uint8_t y);
+void newEnemy(Object self ,uint8_t * sprite,uint8_t x, uint8_t y);
 
 /**newEnemyFloater: Create an enemy which flies from right to left in a straight line.
  * uint8_t* sprite: pointer to sprite in program memory
  * uint8_t y: y-coordinates of the new floater enemy.
  * return Object: floater enemy.
  */
-Object newEnemyFloater(uint8_t * sprite, uint8_t y);
+void newEnemyFloater(Object self ,uint8_t * sprite, uint8_t y);
 
 /**Create an oscillating enemy.
  * uint8_t *sprite: pointer to sprite in programm memory.
@@ -29,14 +29,14 @@ Object newEnemyFloater(uint8_t * sprite, uint8_t y);
  * uint8_t f: phase length of the oscillation.
  * return Object: glider enemy.
  */
-Object newEnemyGlider(uint8_t * sprite, uint8_t y, uint8_t phaseLength);
+void newEnemyGlider(Object self ,uint8_t * sprite, uint8_t y, uint8_t phaseLength);
 
 /**Create an enemy which directly flies to the players position.
  * uint8_t *sprite: pointer to sprite in programm memory.
  * uint8_t y: y-coordinates of the new floater enemy.
  * return Object: tracker enemy.
  */
-Object newEnemyTracker(uint8_t * sprite, uint8_t y);
+void newEnemyTracker(Object self ,uint8_t * sprite, uint8_t y);
 
 /**Create essentially an enemy floater with a gun weapon type.
  * uint8_t *sprite: pointer to sprite in programm memory.
@@ -44,7 +44,7 @@ Object newEnemyTracker(uint8_t * sprite, uint8_t y);
  * uint8_t invProbability: Parameter inversely proportional to the shot probability.
  * return Object: shooter enemy.
  */
-Object newEnemyShooter(uint8_t * sprite, uint8_t y, uint8_t invProbability);
+void newEnemyShooter(Object self ,uint8_t * sprite, uint8_t y, uint8_t invProbability);
 
 //Base enemy think method. Enemy will only fly from right to left.
 void enemyThink(Object self, Environment mainEnv);
@@ -68,5 +68,5 @@ uint8_t enemyCollide(Object self, Object other, uint8_t cType, uint8_t iter);
  *  				if type is either FLOATER or SHOOTER.
  */
 
-Object getEnemyByType( uint8_t type, uint8_t* sprite,uint8_t health,uint8_t armor,int8_t speed, uint8_t y, uint8_t param);
+void getEnemyByType(Object enemy, uint8_t type, uint8_t* sprite,uint8_t health,uint8_t armor,int8_t speed, uint8_t y, uint8_t param);
 #endif /* MASTER_ENTITIES_ENEMY_H_ */

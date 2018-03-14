@@ -43,12 +43,13 @@ GameState newGame(){
 
 
 
-Object getPlayerFromGameState(Environment env){
+void getPlayerFromGameState(Environment env){
 	GameState state = env->gameState;
-	Object player;
+	Object player = env->player;
+
 	switch(state->selShip){
 		case 0b00000001:
-			player = newPlayer(0,0,player_0);
+			newPlayer(player,0,0,player_0);
 			player->entity->health = 15;
 			player->entity->maxHealth = 15;
 			player->entity->maxEnergy=100;
@@ -58,7 +59,7 @@ Object getPlayerFromGameState(Environment env){
 
 			break;
 		case 0b00000010:
-			player = newPlayer(0,0,player_1);
+			newPlayer(player,0,0,player_1);
 			player->entity->health = 20;
 			player->entity->maxHealth = 20;
 			player->entity->maxEnergy=120;
@@ -67,7 +68,7 @@ Object getPlayerFromGameState(Environment env){
 			player->entity->v_max = 20;
 			break;
 		case 0b00000100:
-			player = newPlayer(0,0,player_2);
+			newPlayer(player,0,0,player_2);
 			player->entity->health = 40;
 			player->entity->maxHealth = 40;
 			player->entity->maxEnergy=150;
@@ -76,7 +77,7 @@ Object getPlayerFromGameState(Environment env){
 			player->entity->v_max = 20;
 			break;
 		case 0b00001000:
-			player = newPlayer(0,0,player_3);
+			newPlayer(player,0,0,player_3);
 			player->entity->health = 100;
 			player->entity->maxHealth = 100;
 			player->entity->maxEnergy=200;
@@ -85,7 +86,7 @@ Object getPlayerFromGameState(Environment env){
 			player->entity->v_max = 30;
 			break;
 		default:
-			player = newPlayer(0,0,player_0);
+			newPlayer(player,0,0,player_0);
 			player->entity->health = 10;
 			player->entity->maxHealth = 10;
 			player->entity->maxEnergy=100;
@@ -94,36 +95,36 @@ Object getPlayerFromGameState(Environment env){
 			player->entity->v_max = 15;
 			break;
 	}
-
-
-	player->entity->weaponA = newGun(state->gunUpg);
-
+	newGun(env->weaponA,state->gunUpg);
 	switch(state->selWeapon){
 		case (1<<(MACHINEGUN-2)):
-			player->entity->weaponB = newMachineGun(state->machineGunUpg);
+
+			newMachineGun(env->weaponB,state->machineGunUpg);
 			break;
 		case (1<<(MULTISHOT-2)):
-			player->entity->weaponB = newMulti(state->multiUpg);
+			newMulti(env->weaponB,state->multiUpg);
 			break;
 		case (1<<(HEAVY-2)):
-			player->entity->weaponB = newHeavy(state->heavyUpg);
+			newHeavy(env->weaponB,state->heavyUpg);
 			break;
 		case (1<<(SHOTGUN-2)):
-			player->entity->weaponB = newShotGun(state->shotGunUpg);
+			newShotGun(env->weaponB,state->shotGunUpg);
 			break;
 		case (1<<(NOPPY-2)):
-			player->entity->weaponB = newNoppy(state->noppyUpg);
+			newNoppy(env->weaponB,state->noppyUpg);
 			break;
 		case (1<<(LAUNCHER-2)):
-			player->entity->weaponB = newLauncher(state->launcherUpg);
+			newLauncher(env->weaponB,state->launcherUpg);
 			break;
 		case (1<<(BOUNCE-2)):
-			player->entity->weaponB = newBounce(state->bounceUpg);
+			newBounce(env->weaponB,state->bounceUpg);
 			break;
 		default:
-			player->entity->weaponB =0;
+			newGun(env->weaponB,state->gunUpg);
+			env->weaponB->cost =255;
+			break;
 	}
-	return player;
+
 }
 //Only execute setSpawn when SpawnList is empty;
 void setSpawnList(Environment env){
@@ -170,7 +171,6 @@ void setSpawnList(Environment env){
 	shipType = (level>4?1:0) + (level>6?1:0) + (level >8?1:0);
 	shipType = (uint8_t)(random())%(shipType+1);
 
-
 	uint8_t param2 =0;
 	if(shipType == GLIDER){
 		param2 = (uint8_t)(random())%(50)+50;
@@ -187,44 +187,73 @@ void setSpawnList(Environment env){
 	if(spawnType == SINGLE){
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY;
-		env->spawnList[0] = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		env->spawnDelay[0] = env->time + delay;
+		Object slot;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[0] = slot;
+			env->spawnDelay[0] = env->time + delay;
+		}
 	}
 
 	else if(spawnType == DOUBLE){
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY - 32) + MINY + 10;
+		Object slot;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[0] = slot;
+			env->spawnDelay[0] = env->time + delay;
+		}
 
-		Object enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y -16);
-		env->spawnList[0] = enemy;
-		env->spawnDelay[0] = env->time + delay;
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y +16);
-		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[1] = slot;
+			env->spawnDelay[1] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y +16);
+		}
+
 
 
 	}
 	else if(spawnType == TRIPLE){
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY - 32) + MINY + 32;
+		Object slot;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[0] = slot;
+			env->spawnDelay[0] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y -32);
 
-		Object enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y -32);
-		env->spawnList[0] = enemy;
-		env->spawnDelay[0] = env->time + delay;
+		}
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[1] = slot;
+			env->spawnDelay[1] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y -16);
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y -16);
-		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay;
+		}
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[2] = enemy;
-		env->spawnDelay[2] = env->time + delay;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[2] = slot;
+			env->spawnDelay[2] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y);
+
+		}
 
 
 
@@ -232,47 +261,83 @@ void setSpawnList(Environment env){
 	else if(spawnType == TRIPLECHAIN){
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY ;
+		Object slot;
 
-		Object enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y);
-		env->spawnList[0] = enemy;
-		env->spawnDelay[0] = env->time + delay;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[0] = slot;
+			env->spawnDelay[0] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y);
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay + 10;
+		}
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[2] = enemy;
-		env->spawnDelay[2] = env->time + delay + 20;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[1] = slot;
+			env->spawnDelay[1] = env->time + delay +10;
+			slot->setXY(slot,slot->x, slot->y);
+
+		}
+
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[2] = slot;
+			env->spawnDelay[2] = env->time + delay +20;
+			slot->setXY(slot,slot->x, slot->y);
+
+		}
 
 	}
 	else if(spawnType == QUADCHAIN){
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY ;
 
-		Object enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y);
-		env->spawnList[0] = enemy;
-		env->spawnDelay[0] = env->time + delay;
+		Object slot;
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[1] = enemy;
-		env->spawnDelay[1] = env->time + delay + 10;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[0] = slot;
+			env->spawnDelay[0] = env->time + delay;
+			slot->setXY(slot,slot->x, slot->y);
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[2] = enemy;
-		env->spawnDelay[2] = env->time + delay + 20;
+		}
 
-		enemy = getEnemyByType(shipType, shipSprite, health, armor, speed,yPosition,param2);
-		enemy->setXY(enemy,enemy->x, enemy->y );
-		env->spawnList[3] = enemy;
-		env->spawnDelay[3] = env->time + delay + 30;
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[1] = slot;
+			env->spawnDelay[1] = env->time + delay +10;
+			slot->setXY(slot,slot->x, slot->y);
 
+		}
+
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[2] = slot;
+			env->spawnDelay[2] = env->time + delay +20;
+			slot->setXY(slot,slot->x, slot->y);
+
+		}
+		slot = getEnemySlot(env);
+		if(slot){
+			getEnemyByType(slot,shipType, shipSprite, health, armor, speed,yPosition,param2);
+			slot->activeState=INACTIVE;
+			env->spawnList[2] = slot;
+			env->spawnDelay[2] = env->time + delay +30;
+			slot->setXY(slot,slot->x, slot->y);
+
+		}
 	}
 }
 
@@ -293,7 +358,7 @@ void getNextEnemy(Environment env){
 
 			if(env->spawnList[i]){
 				if(env->time > env->spawnDelay[i]){
-					addObject(env, env->spawnList[i]);
+					env->spawnList[i]->activeState = ACTIVE;
 					env->enemyCount++;
 					env->enemyRemaining--;
 					env->spawnList[i]  =0;
@@ -327,8 +392,8 @@ void drawHud(uint8_t health,uint8_t maxHealth, uint8_t energy,uint8_t maxEnergy,
 		value = (value*40)/100;
 		sendWindow(0,0,42,2,bar1);
 		sendWindow(0,0,1 + value, 2, bar0);
-		flush_sprite(healthbar_0);
-		flush_sprite(healthbar_1);
+		flush_sprite(bar0);
+		flush_sprite(bar1);
 		lastHP = health;
 	}
 
@@ -341,8 +406,8 @@ void drawHud(uint8_t health,uint8_t maxHealth, uint8_t energy,uint8_t maxEnergy,
 
 		sendWindow(46,0,42,2,bar1);
 		sendWindow(46,0,1 + value%41, 2, bar0);
-		flush_sprite(energybar_0);
-		flush_sprite(energybar_1);
+		flush_sprite(bar0);
+		flush_sprite(bar1);
 		lastE = energy;
 	}
 

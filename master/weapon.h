@@ -11,28 +11,28 @@
 
 
 
-Weapon newGun(uint8_t weaponState);
+void newGun(Weapon self,uint8_t weaponState);
 void fireGun(Weapon self, Object source, Environment mainEnv);
 
-Weapon newMulti(uint8_t weaponState);
+void newMulti(Weapon self,uint8_t weaponState);
 void fireMulti(Weapon self, Object source, Environment mainEnv);
 
-Weapon newLauncher(uint8_t weaponState);
+void newLauncher(Weapon self,uint8_t weaponState);
 void fireMissile(Weapon self, Object source, Environment mainEnv);
 
-Weapon newHeavy(uint8_t weaponState);
+void newHeavy(Weapon self,uint8_t weaponState);
 void fireHeavy(Weapon self, Object source, Environment mainEnv);
 
-Weapon newShotGun(uint8_t weaponState);
+void newShotGun(Weapon self,uint8_t weaponState);
 void fireShot(Weapon self, Object source, Environment mainEnv);
 
-Weapon newMachineGun(uint8_t weaponState);
+void newMachineGun(Weapon self,uint8_t weaponState);
 void fireMachineGun(Weapon self, Object source, Environment mainEnv);
 
-Weapon newNoppy(uint8_t weaponState);
+void newNoppy(Weapon self,uint8_t weaponState);
 void fireDisc(Weapon self, Object source, Environment mainEnv);
 
-Weapon newBounce(uint8_t weaponState);
+void newBounce(Weapon self,uint8_t weaponState);
 void fireBounce(Weapon self, Object source, Environment mainEnv);
 
 

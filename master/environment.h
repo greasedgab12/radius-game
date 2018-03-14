@@ -16,11 +16,12 @@ Environment newEnvironment();
 
 void updateEnvironment(Environment env);
 
-void addObject(Environment env,Object instance);
-
 void removeObject(Environment env, Object instance);
 
 void flushObjectList(Environment env);
 
+Object getEnemySlot(Environment env);
+
+Object getProjectileSlot(Environment env);
 
 #endif /* MASTER_ENVIRONMENT_H_ */

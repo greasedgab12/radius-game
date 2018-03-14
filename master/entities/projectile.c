@@ -16,26 +16,30 @@
 
 void discThink(Object self, Environment mainEnv){
 
-	moveObject(self, mainEnv, (self->entity->v_x)/10, (self->entity->v_y)/10);
+	int8_t s_x, s_y;
+	s_x = self->entity->v_x%10;
+	s_y = self->entity->v_y%10;
 
-	self->entity->param1 = self->entity->param1<3?self->entity->param1+1:0;
-	//y-direction
-	if(self->entity->param1 ==0){
-		if(self->entity->v_y > 1){
-			self->entity->v_y -=1;
-		}
-		else if( self->entity->v_y < -1){
-			self->entity->v_y +=1;
-		}
-		else{
-			self->entity->v_y = 0;
-		}
+	if(self->entity->v_y > 1){
+		self->entity->v_y -=1;
 	}
+	else if( self->entity->v_y < -1){
+		self->entity->v_y +=1;
+	}
+	else{
+		self->entity->v_y = 0;
+	}
+
+	moveObject(self, mainEnv, (self->entity->v_x + s_x)/10, (self->entity->v_y+s_y)/10);
+
+
 }
 
 void bulletThink(Object self, Environment mainEnv){
-
-		moveObject(self, mainEnv, self->entity->v_x/10, self->entity->v_y/10);
+	int8_t s_x, s_y;
+	s_x = self->entity->v_x%10;
+	s_y = self->entity->v_y%10;
+	moveObject(self, mainEnv, (self->entity->v_x+s_x)/10, (self->entity->v_y+s_y)/10);
 
 }
 
@@ -44,16 +48,22 @@ void missileThink(Object self, Environment mainEnv){
 	uint8_t i;
 	Object target=0;
 
-	for(i=1; i<mainEnv->oPos; i++){
-		if(self->type == PLAYER_PROJECTILE && mainEnv->objectList[i]->type == ENEMY){
-			target = mainEnv->objectList[i];
-			break;
-		}
-		else if(self->type == ENEMY_PROJECTILE && mainEnv->objectList[i]->type == PLAYER){
-			target = mainEnv->objectList[i];
-			break;
+	for(i=0; i<1+MAXENEMIES; i++){
+		if(mainEnv->objectList[i]->activeState == ACTIVE){
+			if(self->type == PLAYER_PROJECTILE && mainEnv->objectList[i]->type == ENEMY){
+				target = mainEnv->objectList[i];
+				break;
+			}
+			else if(self->type == ENEMY_PROJECTILE && mainEnv->objectList[i]->type == PLAYER){
+				target = mainEnv->objectList[i];
+				break;
+			}
 		}
 	}
+	int8_t s_x, s_y;
+	s_x = self->entity->v_x%10;
+	s_y = self->entity->v_y%10;
+
 	if(target){
 		if(self->y < target->y){
 			self->entity->a_y = (self->entity->v_max/5 +FRICTION);
@@ -70,7 +80,7 @@ void missileThink(Object self, Environment mainEnv){
 	if( abs(self->entity->v_y + self->entity->a_y) < self->entity->v_max){
 		self->entity->v_y += self->entity->a_y;
 	}
-	moveObject(self, mainEnv, self->entity->v_x, self->entity->v_y);
+	moveObject(self, mainEnv, (self->entity->v_x+s_x)/10, (self->entity->v_y+s_y)/10);
 
 }
 
@@ -221,69 +231,67 @@ void shotThink(Object self, Environment mainEnv){
 }
 
 
-Object newProjectile(uint8_t projectileType){
+void newProjectile(Object self, uint8_t projectileType){
 	if(projectileType == BULLET){
-		Object self = newObject(0,0,5,2,bullet_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,5,2,bullet_sprite);
+		newEntity(self->entity);
 		self->think =&bulletThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == MISSILE){
-		Object self = newObject(0,0,8,4,missile_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,8,4,missile_sprite);
+		newEntity(self->entity);
 		self->think =&missileThink;
 		self->collide = &bulletCollide;
-		return self;
 	}
 	else if(projectileType == DISC){
-		Object self = newObject(0,0,6,6,disc_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,6,6,disc_sprite);
+		newEntity(self->entity);
 		self->think =&discThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == BULLETHEAVY){
-		Object self = newObject(0,0,8,5,bulletHeavy_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,8,5,bulletHeavy_sprite);
+		newEntity(self->entity);
 		self->think =&bulletThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == SHOTUPPER){
-		Object self = newObject(0,0,4,4,shotupper_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,4,4,shotupper_sprite);
+		newEntity(self->entity);
 		self->think =&shotThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == SHOTLOWER){
-		Object self = newObject(0,0,4,4,shotlower_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,4,4,shotlower_sprite);
+		newEntity(self->entity);
 		self->think =&shotThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == SHOTMIDDLE){
-		Object self = newObject(0,0,4,4,shotmiddle_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,4,4,shotmiddle_sprite);
+		newEntity(self->entity);
 		self->think =&shotThink;
 		self->collide = &bulletCollide;
-		return self;
 
 	}
 	else if(projectileType == BALL){
-		Object self = newObject(0,0,8,8,ball_sprite);
-		self->entity = newEntity();
+		newObject(self,0,0,8,8,ball_sprite);
+		newEntity(self->entity);
 		self->think =&bulletThink;
 		self->collide = &ballCollide;
-		return self;
 
 	}
-	return 0;
+	else{
+		newObject(self,0,0,4,4,bulletEnemy_sprite);
+		newEntity(self->entity);
+		self->think =&bulletThink;
+		self->collide = &bulletCollide;
+
+	}
 }

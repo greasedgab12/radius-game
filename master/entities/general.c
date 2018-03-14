@@ -122,9 +122,9 @@ void drag(Object self, uint8_t cff){
 				self->entity->v_y += self->entity->v_y<0? cff: -cff;
 			}
 		else{
-				BulletEnv env = (BulletEnv) self->entity;
-				env->v_x += env->v_x<0? cff: -cff;
-				env->v_y += env->v_y<0? cff: -cff;
+
+				self->entity->v_x += self->entity->v_x<0? cff: -cff;
+				self->entity->v_y += self->entity->v_y<0? cff: -cff;
 		}
 	}
 }

@@ -18,6 +18,8 @@ typedef struct GameState_Struct* GameState;
 
 
 struct Object_Struct{
+
+	uint8_t activeState;
 	//Position and object size measured in pixels.
 	uint8_t x,y,lx,ly;
 	const uint8_t *data;
@@ -56,9 +58,10 @@ struct Environment_struct{
 	uint32_t time;
 	GameState gameState;
 	Object* objectList;
-	uint8_t oPos;
 
 	Object player;
+	Weapon weaponA;
+	Weapon weaponB;
 	uint8_t level;
 	uint8_t enemyRemaining;
 	uint8_t enemyCount;
@@ -68,7 +71,7 @@ struct Environment_struct{
 	uint16_t spawnDelay[4];
 
 
-	uint32_t points;
+	uint16_t points;
 };
 
 
@@ -93,9 +96,6 @@ struct Entity_Struct{
 	uint8_t armor;
 
 	uint8_t param1;
-
-	Weapon weaponA;
-	Weapon weaponB;
 };
 
 struct Weapon_Struct{

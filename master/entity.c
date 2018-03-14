@@ -10,9 +10,8 @@
 #include "entity.h"
 #include "structure.h"
 
-Entity newEntity(){
+void newEntity(Entity self){
 
-    Entity self = (Entity)malloc(sizeof(struct Entity_Struct));
     self->health = 5;
     self->maxHealth =5;
     self->energy = 0;
@@ -29,21 +28,4 @@ Entity newEntity(){
 
     self->state =0;
     self->param1 =0;
-
-    self->weaponA =0;
-    self->weaponB =0;
-
-
-
-    return self;
-}
-
-void releaseEntity(Entity instance){
-	if(instance->weaponA){
-		free(instance->weaponA);
-	}
-	if(instance->weaponB){
-		free(instance->weaponB);
-	}
-	free(instance);
 }

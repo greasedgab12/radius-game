@@ -9,13 +9,20 @@
 #define MASTER_DEFINES_H_
 
 //Definitions for overall Project.
-#define MAXOBJECTS 32
-#define MAXBLOCKS 32
+#define MAXENEMIES 6
+#define MAXPROJECTILES 8
+#define MAXOBJECTS 1+MAXENEMIES+MAXPROJECTILES
 #define MAXOVERLAPS 16
 #define MINX 0
 #define MINY 16
 #define MAXX 160
 #define MAXY 104
+
+
+//Definitions for activity state of Objects
+#define EMPTY 0
+#define INACTIVE 1
+#define ACTIVE 2
 
 //UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
 //Button Masks:
@@ -70,6 +77,7 @@
 #define BALL 7
 #define EXPLOSION 8
 #define BULLETHEAVY 9
+#define BULLETENEMY 10
 
 //Enemy Types
 #define FLOATER 0

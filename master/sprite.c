@@ -5,6 +5,8 @@
 #include "sprites.h"
 #include "display.h"
 
+#include <util/delay.h>
+
 uint8_t* sprite_in_ram[MAX_SPRITE_COUNT];
 
 void spriteInit(){
@@ -29,26 +31,32 @@ uint8_t* load_sprite(const uint8_t *sprite)
 	return sprite_in_ram[sprite_nr];
 }
 
-void flush_sprite(const uint8_t *sprite)
+void flush_sprite( const uint8_t *sprite)
 {
 	if(sprite == 0){
 		return;
 	}
-	uint8_t sprite_nr = getSpriteIndex(sprite);
-
-	if(sprite_in_ram[sprite_nr] != 0)
-	{
-		free(sprite_in_ram[sprite_nr]);
-		sprite_in_ram[sprite_nr] = 0;
+	uint8_t i;
+	for(i=0; i<MAX_SPRITE_COUNT; i++){
+		if(sprite_in_ram[i] == sprite){
+			free(sprite);
+			sprite_in_ram[i] = 0;
+		}
 	}
+
 }
 
 
 void drawTitleScreen(){
-	uint8_t *title = (uint8_t*)malloc(sizeof(uint8_t)*96*9+2);
-	memcpy_P(title, radius2, 96*9+2);
-	sendWindow(34,5,96,9,title);
-	free(title);
+	uint8_t i;
+	for(i=0; i<95; i++){
+		uint8_t *title = (uint8_t*)malloc(sizeof(uint8_t)*9);
+		memcpy_P(title, radius2 +9*i, 18);
+		_delay_ms(20);
+		sendWindow(34+i,5,2,9,title);
+		free(title);
+	}
+
 
 }
 

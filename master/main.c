@@ -31,30 +31,11 @@ void init();
 
 
 
-void titleScreen(Environment env){
+void titleScreen(){
 
 	drawTitleScreen();
-	uint16_t time = env->time;
-	uint8_t state =0;
-
-	while(!(env->buttons == M_S)){
-		updateEnvironment(env);
-		if(time + 60 < env->time){
-			time = env->time;
-			if(state){
-				print("Press START",46,18);
-				state=0;
-			}
-			else{
-				print("           ",46,18);
-				state=1;
-			}
-		}
-	}
-
+	_delay_ms(1000);
 	displayClear();
-
-
 }
 
 void displayLevel(Environment env){
@@ -81,6 +62,7 @@ void displayFinished(Environment env){
 	displayClear();
 }
 
+
 int freeRam () {
   extern int __heap_start, *__brkval;
   int v;
@@ -88,24 +70,24 @@ int freeRam () {
 }
 
 
-
 int main(void)
 {
 	init();
 
-
+	//titleScreen();
 
 	uint8_t i,j=0;
+
+
 	//Environment Initialization
     //Environment is persistend throughout the entire runtime.
     Environment env = newEnvironment();
     env->gameState = newGame();
-	sei();
-	/**
-    titleScreen(env);
-	_delay_ms(200);
+	//sei();
+
+
+	//_delay_ms(200);
     //display_mainmenu();
-	**/
 	//ToDo: Couple gameState with selection in MainMenu.
 
 
@@ -113,16 +95,16 @@ int main(void)
     while(1){
     	//Reloading the player object.
     	env->gameState->selShip = 0b00001000;
-		env->gameState->selWeapon = 0b00000001;
-		env->gameState->machineGunUpg = 255;
+		env->gameState->selWeapon = 0b01000000;
+		env->gameState->bounceUpg = 255;
 		env->gameState->gunUpg = 255;
+    	getPlayerFromGameState(env);
 
-    	env->player = getPlayerFromGameState(env);
-		env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
+    	env->player->setXY(env->player,0, (MAXY - MINY)/2 -env->player->ly/2);
+    	_delay_ms(1000);
 
-		env->gameState->level = 20;
+    	env->gameState->level = 1;
 		env->level = env->gameState->level;
-		addObject(env, env->player);
 
 		env->enemyRemaining = 4 + 2*env->level;
 		env->enemyMax =1 + (env->level/2<5?env->level/2:5);
@@ -138,12 +120,12 @@ int main(void)
 
 		updateEnvironment(env);
 		//Force redraw of HUD
-		drawHud(0,1,0,1,0);
+		drawHud(1,2,1,2,0);
 		while(env->enemyRemaining || env->enemyCount){
-			printN(freeRam(),0,2);
-			printN(env->player->entity->weaponB,0,4);
 			//Update Environment variables.
 			updateEnvironment(env);
+			printN(freeRam(),0,2);
+			printN(env->time,0,4);
 			drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
 
 
@@ -160,67 +142,70 @@ int main(void)
 			//For each passed frame execute think of each object.
 
 			for(i=0; i<env->time-(env->lastTime); i++){
-				for(j=0; j<env->oPos; j++){
-					env->objectList[j]->think(env->objectList[j], env);
+				for(j=0; j<MAXOBJECTS; j++){
+					if(env->objectList[j]->activeState == ACTIVE){
+						env->objectList[j]->think(env->objectList[j], env);
+					}
 				}
 			}
 
 			//printN(env->time, 64,0);
 			//Clean up dead objects and draw alive ones if they haven't been drawn already.
-			for(i=0; i<env->oPos; i++){
+			for(i=0; i<MAXOBJECTS; i++){
 				if(env->objectList[i]->killedBy==0){
-					if(env->objectList[i]->drawState == NOTDRAWN){
+					if((env->objectList[i]->activeState == ACTIVE) &&(env->objectList[i]->drawState == NOTDRAWN)){
 						drawObject(env->objectList[i]);
 					}
-				}
-				else{
-					sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,
-							env->objectList[i]->slx, env->objectList[i]->msly,0);
 				}
 			}
 
 			//Remove dead objects from list.
-			for(i=0; i<env->oPos; i++){
+			for(i=0; i<MAXOBJECTS; i++){
 				if(env->objectList[i]->killedBy!=0){
-					if(env->objectList[i]->type == ENEMY){
-						//If dead Object is of type ENEMY decrease enemyCount, to allow more enemies to spawned.
-						env->enemyCount--;
-						/**Should the kill owner be the PlAYER increase Points,
-						 * else increase enemyRemaining so that the level only ends
-						 * on all enemies destroyed by the player.
-						 */
-						if(env->objectList[i]->killedBy == PLAYER){
-							env->points+=getPoints(env,env->objectList[i]);
+					if(env->objectList[i]->activeState==ACTIVE){
+						if(env->objectList[i]->type == ENEMY){
+							//If dead Object is of type ENEMY decrease enemyCount, to allow more enemies to spawned.
+							env->enemyCount--;
+							/**Should the kill owner be the PlAYER increase Points,
+							 * else increase enemyRemaining so that the level only ends
+							 * on all enemies destroyed by the player.
+							 */
+							if(env->objectList[i]->killedBy == PLAYER){
+								env->points+=getPoints(env,env->objectList[i]);
+							}
+							else{
+								env->enemyRemaining++;
+							}
 						}
-						else{
-							env->enemyRemaining++;
-						}
+						sendWindow(env->objectList[i]->x,env->objectList[i]->y/4,env->objectList[i]->slx+1,env->objectList[i]->msly,0);
+						env->objectList[i]->activeState =EMPTY;
 					}
-					removeObject(env, env->objectList[i]);
-
 				}
 			}
 
 			//Check, wether drawn sprites overlap one another and draw overlapping parts again.
 			//Skip if frames are dropped.
 			if(env->time -env->lastTime < 3){
-				checkMappedSpriteCollision(env->objectList,env->oPos);
+				checkMappedSpriteCollision(env->objectList);
 			}
 			//Update drawState of every object.
-			for(i=0; i<env->oPos; i++){
-				if(env->objectList[i]->drawState== NOTDRAWN){
+			for(i=0; i<MAXOBJECTS; i++){
+				if(env->objectList[i]->activeState == ACTIVE){
+					if(env->objectList[i]->drawState== NOTDRAWN){
+						env->objectList[i]->drawState = DRAWN;
+					}
+					if(env->objectList[i]->drawState == DRAWONCE){
+						env->objectList[i]->drawState = DESTROY;
+					}
+				}
+				else{
 					env->objectList[i]->drawState = DRAWN;
 				}
-				if(env->objectList[i]->drawState == DRAWONCE){
-					env->objectList[i]->drawState = DESTROY;
-				}
 			}
-			flushAllSprites();
 		}
 		//After the game loop clean the objectList, and flush loaded Sprites as to conserve memory.
 
 		flushObjectList(env);
-		env->player =0;
 		env->gameState->points += env->points;
 		env->points =0;
 		flushAllSprites();

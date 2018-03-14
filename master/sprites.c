@@ -31,6 +31,10 @@ const uint8_t energybar_0[]  PROGMEM = {42,84, 	 //energybar_0.bmp
 0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xff
 };
 
+const uint8_t bulletEnemy_sprite[]  PROGMEM = {4,4, 	 //bulletEnemy_sprite.bmp
+0x3c,0xc3,0xc3,0x3c
+};
+
 const uint8_t shotmiddle_sprite[]  PROGMEM = {4,8, 	 //shotmiddle_sprite.bmp
 0xaa,0xaa,0xaa,0xaa,
 0xaa,0xaa,0xaa,0xaa
@@ -163,26 +167,27 @@ if (sprite == disc_sprite){ return 2;}
 if (sprite == enemy_2){ return 3;}
 if (sprite == ball_sprite){ return 4;}
 if (sprite == energybar_0){ return 5;}
-if (sprite == shotmiddle_sprite){ return 6;}
-if (sprite == shade){ return 7;}
-if (sprite == shotupper_sprite){ return 8;}
-if (sprite == enemy_4){ return 9;}
-if (sprite == shotlower_sprite){ return 10;}
-if (sprite == dino){ return 11;}
-if (sprite == enemy_3){ return 12;}
-if (sprite == missile_sprite){ return 13;}
-if (sprite == radius){ return 14;}
-if (sprite == player_3){ return 15;}
-if (sprite == enemy_1){ return 16;}
-if (sprite == energybar_1){ return 17;}
-if (sprite == player_1){ return 18;}
-if (sprite == enemy_0){ return 19;}
-if (sprite == bulletHeavy_sprite){ return 20;}
-if (sprite == healthbar_1){ return 21;}
-if (sprite == radius2){ return 22;}
-if (sprite == player_2){ return 23;}
-if (sprite == bullet_sprite){ return 24;}
-if (sprite == vessel_0){ return 25;}
-if (sprite == healthbar_0){ return 26;}
+if (sprite == bulletEnemy_sprite){ return 6;}
+if (sprite == shotmiddle_sprite){ return 7;}
+if (sprite == shade){ return 8;}
+if (sprite == shotupper_sprite){ return 9;}
+if (sprite == enemy_4){ return 10;}
+if (sprite == shotlower_sprite){ return 11;}
+if (sprite == dino){ return 12;}
+if (sprite == enemy_3){ return 13;}
+if (sprite == missile_sprite){ return 14;}
+if (sprite == radius){ return 15;}
+if (sprite == player_3){ return 16;}
+if (sprite == enemy_1){ return 17;}
+if (sprite == energybar_1){ return 18;}
+if (sprite == player_1){ return 19;}
+if (sprite == enemy_0){ return 20;}
+if (sprite == bulletHeavy_sprite){ return 21;}
+if (sprite == healthbar_1){ return 22;}
+if (sprite == radius2){ return 23;}
+if (sprite == player_2){ return 24;}
+if (sprite == bullet_sprite){ return 25;}
+if (sprite == vessel_0){ return 26;}
+if (sprite == healthbar_0){ return 27;}
 return 0;
 }

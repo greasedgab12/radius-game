@@ -12,7 +12,7 @@
 #include "inttypes.h"
 
 
-Entity newEntity();
+void newEntity(Entity self);
 
 void releaseEntity(Entity instance);
 

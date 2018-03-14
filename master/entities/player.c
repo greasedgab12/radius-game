@@ -22,12 +22,12 @@
 #include "entities/player.h"
 #include "entity.h"
 
-Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
-	Object self = newObject(x,y,0,0,sprite);
+void newPlayer(Object self, uint8_t x, uint8_t y, const uint8_t* sprite){
+	self->setData(self,sprite);
 	self->lx = self->slx;
 	self->ly = self->sly*4;
 	self->type = PLAYER;
-	self->entity = newEntity();
+	newEntity(self->entity);
 	self->entity->health = 30;
 	self->entity->maxHealth = 30;
 	self->entity->maxEnergy=100;
@@ -43,11 +43,9 @@ Object newPlayer(uint8_t x, uint8_t y, const uint8_t* sprite){
     self->entity->v_y = 0;
 
 
-
 	self->think = &playerThink;
 	self->collide =&playerCollide;
-
-	return self;
+	self->activeState = ACTIVE;
 
 
 }
@@ -76,14 +74,15 @@ void playerThink(Object self, Environment mainEnv){
 	/**
 	 * A and B buttons.
 	 */
+
 	if(mainEnv->buttons & M_A){
-		if(self->entity->weaponA){
-			self->entity->weaponA->fire(self->entity->weaponA, self, mainEnv);
+		if(mainEnv->weaponA){
+			mainEnv->weaponA->fire(mainEnv->weaponA, self, mainEnv);
 		}
 	}
 	else if(mainEnv->buttons & M_B){
-		if(self->entity->weaponB){
-			self->entity->weaponB->fire(self->entity->weaponB, self, mainEnv);
+		if(mainEnv->weaponB){
+			mainEnv->weaponB->fire(mainEnv->weaponB, self, mainEnv);
 		}
 	}
 
@@ -101,6 +100,12 @@ void playerThink(Object self, Environment mainEnv){
 	else{
 		self->entity->energy = self->entity->maxEnergy;
 	}
+
+	int8_t s_x, s_y;
+	s_x = self->entity->v_x%10;
+	s_y = self->entity->v_y%10;
+
+
 	if( abs(self->entity->v_x + a_x) < self->entity->v_max){
 			self->entity->v_x += a_x;
 		}
@@ -132,7 +137,7 @@ void playerThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x)/10,(self->entity->v_y)/10);
+	moveObject(self, mainEnv,(self->entity->v_x+s_x)/10,(self->entity->v_y+s_y)/10);
 	//Add the remainder to the next step:
 
 }

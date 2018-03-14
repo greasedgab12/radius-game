@@ -8,35 +8,32 @@
 
 
 
-Object newObject(uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sprite){
+void initObject(Object self){
+	self->x = 0;
+    self->y = 0;
+    self->killedBy = 0;
+    self->lx =0;
+    self->ly =0;
+    self->msly = 0;
+    self->drawState = NOTDRAWN;
+    self->activeState = EMPTY;
+    self->setXY = &setObjectXY;
+    self->setData = &setObjectData;
 
-    Object self = (Object)malloc(sizeof(struct Object_Struct));
+}
+
+void newObject(Object self, uint8_t x, uint8_t y, uint8_t lx, uint8_t ly,const  uint8_t* sprite){
 
     self->x = x;
     self->y = y;
     self->killedBy = 0;
     self->lx =lx;
     self->ly =ly;
-
-    self->setData = &setObjectData;
     self->setData(self, sprite);
-    self->msly = self->sly;
-    self->msly += y%4?1:0;
     self->drawState = NOTDRAWN;
 
-    self->setXY = &setObjectXY;
-
-    return self;
 }
 
-
-void releaseObject(Object instance){
-
-	free(instance->entity->weaponA);
-	free(instance->entity->weaponB);
-	free(instance->entity);
-	free(instance);
-}
 
 
 void setObjectXY(Object self, uint8_t x, uint8_t y){
@@ -59,8 +56,6 @@ void setObjectData(Object self, const uint8_t* sprite){
     self->data = load_sprite(sprite);
 	self->slx = self->data[0];
 	self->sly = self->data[1] / self->data[0];
-
-	
     self->msly = self->sly;
     self->msly+=(self->y%4?1:0);
 }
@@ -143,9 +138,9 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 	}
 
 	//Check if the Object collides with other objects in the main Environment.
-	for(i=0; i< mainEnv->oPos; i++){
+	for(i=0; i< MAXOBJECTS; i++){
 		//Objects cannot collide with themselves.
-		if(mainEnv->objectList[i]!= self){
+		if(mainEnv->objectList[i]!= self && (mainEnv->objectList[i]->activeState == ACTIVE)){
 			//ToDoRemove variable other in final build.
 			Object other = mainEnv->objectList[i];
 			uint8_t collisionType;
@@ -195,7 +190,7 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 	/**Search for collisions with blocks at the current position and set their state to NOTDRAWN to force redraw.
 	 * This won't leave a 'hole' in overlapped blocks when the block moves.
 	 */
-	for(i=0; i<mainEnv->oPos; i++){
+	for(i=0; i<MAXOBJECTS; i++){
 		Object other = mainEnv->objectList[i];
 		if(self != other){
 			if(isMappedColliding(self, other ,0,0)){
@@ -286,6 +281,9 @@ void removeSpace(Object instance, uint8_t x, uint8_t y){
 uint8_t isColliding(Object self, Object other, int8_t rx, int8_t ry){
 	int8_t dx, dy;
 	uint8_t checkVal=0;
+	if(self->activeState != ACTIVE || other->activeState !=ACTIVE){
+		return NOC;
+	}
 	dx = other->x-self->x-rx;
 	dy = other->y-self->y-ry;
 	if(dx > 0){
@@ -342,6 +340,9 @@ uint8_t isColliding(Object self, Object other, int8_t rx, int8_t ry){
 uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy){
 	int8_t dx, dy;
 	uint8_t checkVal=0;
+	if(self->activeState != ACTIVE || other->activeState !=ACTIVE){
+		return NOC;
+	}
 	dx = other->x-self->x-rx;
 	dy = other->y/4-self->y/4-rpy;
 	if(dx > 0){
@@ -377,18 +378,22 @@ uint8_t isMappedColliding(Object self, Object other, int8_t rx, int8_t rpy){
 	}
 }
 
-void checkMappedSpriteCollision(Object* objectList, uint8_t length){
+void checkMappedSpriteCollision(Object* objectList){
 	uint8_t i,j;
 	Object a,b;
 
 
-	for(i=0; i<length; i++){
+	for(i=0; i<MAXOBJECTS; i++){
 		a = objectList[i];
-		for(j=i+1; j<length; j++){
-			b = objectList[j];
-			if((a->drawState == NOTDRAWN || b->drawState == NOTDRAWN)
-					&& isMappedColliding(a,b,0,0)){
-				drawOverlap(a,b);
+		if(a->activeState == ACTIVE){
+			for(j=i+1; j<MAXOBJECTS; j++){
+				b = objectList[j];
+				if(b->activeState == ACTIVE){
+					if((a->drawState == NOTDRAWN || b->drawState == NOTDRAWN)
+							&& isMappedColliding(a,b,0,0)){
+						drawOverlap(a,b);
+					}
+				}
 			}
 		}
 	}

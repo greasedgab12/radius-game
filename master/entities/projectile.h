@@ -17,25 +17,11 @@
 #include "environment.h"
 #include "sprite.h"
 
-typedef struct BulletEnv_Struct* BulletEnv;
-
-struct BulletEnv_Struct{
-	uint8_t damage;
-	//Velocity variables
-	int8_t v_x;
-	int8_t v_y;
-	int8_t s_x;
-	int8_t s_y;
-
-	uint16_t v_time;
-	uint8_t v_delay;
-};
 
 
-Object newProjectile(uint8_t projectileType);
 
+void newProjectile(Object self, uint8_t projectileType);
 
-BulletEnv newBulletEnv(int8_t v_x, int8_t v_y, uint8_t damage);
 
 
 Object newBullet(uint8_t x, uint8_t y, int8_t v_x, int8_t v_y, uint8_t damage);
