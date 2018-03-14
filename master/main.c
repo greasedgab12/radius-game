@@ -65,14 +65,15 @@ void displayFinished(Environment env){
 }
 
 void displayGameOver(Environment env){
+	sendWindow(20,5,90,16,0);
 	print("Game Over", 57, 5);
 	_delay_ms(300);
 	if(saveHighScore(env->gameState->points)){
-		print("NEW HIGHSCORE:",9,9);
+		print("NEW HIGHSCORE:",19,9);
 		_delay_ms(300);
-		printN(env->gameState->points,18,13);
+		printN(env->gameState->points,50,13);
 	}
-	_delay_ms(2000);
+	_delay_ms(3000);
 }
 
 

@@ -163,10 +163,15 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 					}
 					else if(collisionType ==UPPERC){
 						y = other->y -self->ly;
+
 					}
 					else if(collisionType ==LOWERC){
 						y = other->y +other->ly;
 					}
+					x = x<MAXX?x:MAXX-self->lx;
+					x = x>MINX?x:MINX;
+					y = y<MAXY?y:MAXY-self->ly;
+					y = y>MINY?y:MINY;
 
 					/**
 					//Move only to the positon closest to the current position.

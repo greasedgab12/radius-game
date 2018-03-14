@@ -124,10 +124,8 @@ void enemyThink(Object self, Environment mainEnv){
 	}
 	//Apply velocity to position.
 	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
-	self->entity->s_x += self->entity->v_x%10;
-	self->entity->s_y += self->entity->v_y%10;
-	self->entity->s_x = self->entity->s_x%10;
-	self->entity->s_y = self->entity->s_y%10;
+	self->entity->s_x = self->entity->v_x%10;
+	self->entity->s_y = self->entity->v_y%10;
 
 
 }
@@ -206,10 +204,9 @@ void enemyGliderThink(Object self, Environment mainEnv){
 	}
 		//Apply velocity to position.
 	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
-	self->entity->s_x += self->entity->v_x%10;
-	self->entity->s_y += self->entity->v_y%10;
-	self->entity->s_x = self->entity->s_x%10;
-	self->entity->s_y = self->entity->s_y%10;
+	self->entity->s_x = self->entity->v_x%10;
+	self->entity->s_y = self->entity->v_y%10;
+
 }
 
 void enemyTrackerThink(Object self, Environment mainEnv){
@@ -285,10 +282,9 @@ void enemyTrackerThink(Object self, Environment mainEnv){
 	}
 	//Apply velocitiy to position.
 	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
-	self->entity->s_x += self->entity->v_x%10;
-	self->entity->s_y += self->entity->v_y%10;
-	self->entity->s_x = self->entity->s_x%10;
-	self->entity->s_y = self->entity->s_y%10;
+	self->entity->s_x = self->entity->v_x%10;
+	self->entity->s_y = self->entity->v_y%10;
+
 
 }
 
@@ -362,10 +358,9 @@ void enemyShooterThink(Object self, Environment mainEnv){
 	}
 	//Apply velocitiy to position.
 	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
-	self->entity->s_x += self->entity->v_x%10;
-	self->entity->s_y += self->entity->v_y%10;
-	self->entity->s_x = self->entity->s_x%10;
-	self->entity->s_y = self->entity->s_y%10;
+	self->entity->s_x = self->entity->v_x%10;
+	self->entity->s_y = self->entity->v_y%10;
+
 }
 
 
