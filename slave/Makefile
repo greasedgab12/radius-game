@@ -6,9 +6,9 @@
 PROJECT = basis
 
 # Sourcefiles
-SOURCE =main.c
+SOURCE = main.c music.c fx.c
 # Files from basis
-SOURCE += adc.c timer.c pwm.c uart.c servo.c
+SOURCE += uart.c
 # Libraries
 LIBS = -lm 
 
@@ -17,7 +17,7 @@ LIBS = -lm
 # O1 and 02 - optimize for speed
 # O3 - faster but not always correct
 # Os - optimize for programmsize (default)
-OPT=Os
+OPT=O2
 
 #keep the next line
 all:
@@ -69,6 +69,7 @@ COMMON = -mmcu=$(MCU) -DF_CPU=$(F_OSC)
 CFLAGS = $(COMMON) $(INC)
 CFLAGS += -Wall -$(OPT) -fsigned-char
 CFLAGS += -MD -MP -MT $@ -MF dep/$(@F).d 
+CFLAGS += --std=gnu99
 
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
@@ -149,7 +150,7 @@ prog-diamexusb: all #usb programmer
 fuse:
 ifeq ($(MCU),atmega168)
 #	avrdude -p $(MCU) -c stk500v2 -P $(DIAMEXPORT) -U lfuse:w:0xff:m -U hfuse:w:0xd7:m
-	avrdude -p $(MCU) -c avrispmkII -P usb -U lfuse:w:0xff:m -U hfuse:w:0xd7:m
+	avrdude -p $(MCU) -c avrispmkII -P usb -U lfuse:w:0xff:m -U hfuse:w:0xd7:m 
 else
 	@echo Controller $(MCU) for make fuse not supported, only atmega168
 endif

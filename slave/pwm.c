@@ -1,21 +1,17 @@
-/* 
- *	Basis
- *	2009 Benjamin Reh
- */
-
 #include <avr/io.h>
 
-//Pulsweite initialisieren
-void PWMInit()
-{
-	DDRD |=  (1 << 6); //Pin 6 an PORTD auf Ausgang stellen
-	TCCR0A = (1<<WGM00)|(1<<COM0A1); //  Timer/Counter als nicht invertierenden 8-Bit PWM
-	TCCR0B = (1<<CS01) | (1<<CS00); //  Takt von CK / 64 generieren
+
+void pwm_init(void) {
+	// non-inverted fast PWM, no prescaling, 8bit PWM resolution
+	TCCR1A = (1 << WGM10) | (1 << COM1A1);
+	TCCR1B = (1 << WGM12) | (1 << CS10);
+
+	TCNT1 = 0;	  // start counter at 0
+	OCR1A = 0x80; // set 50% PW
+
+	DDRB |= (1 << PB1); // set pin B1 (OC1A) as output
 }
 
-//Pulsweite setzen
-void setPWM(uint8_t pwmWert)
-{
-	//Wert in das Register schreiben
-	OCR0A = pwmWert;
+void pwm_set_pulsewidth(uint8_t width) {
+	OCR1A = width;
 }

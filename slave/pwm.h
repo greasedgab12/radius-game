@@ -1,16 +1,10 @@
-/* 
- *	Basis
- *	2009 Benjamin Reh
- */
-
 #ifndef PWM_H
 #define PWM_H
-#include <inttypes.h>
 
-//Pulsweite initialisieren
-void PWMInit();
+#include <stdint.h>
 
-//Pulsweite setzen
-void setPWM(uint8_t pwmWert);
+void pwm_init(void);
+
+void pwm_set_pulsewidth(uint8_t width);
 
 #endif
