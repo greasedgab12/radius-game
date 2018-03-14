@@ -28,9 +28,7 @@ void prepEEPROM()
 **/
 
 uint32_t loadHighScore(){
-	uint32_t highScore;
-	eeprom_read_block (&highScore,&EEhighscore, sizeof(uint32_t));
-	return highScore;
+	return eeprom_read_dword(&EEhighscore);
 }
 
 uint8_t saveHighScore(uint32_t highScore){
@@ -55,7 +53,7 @@ void safeSave(GameState gamestate)
 	uint32_t highScore = loadHighScore();
 	if(gamestate->points > highScore)
 	{
-		eeprom_write_block (&EEhighscore, &highScore,sizeof(uint32_t));
+		eeprom_write_dword(&EEhighscore, gamestate->points);
 	}
 	eeprom_write_block(gamestate,  &EEsave1, sizeof(EEsave1));
 }

@@ -98,7 +98,7 @@ void printB(const uint16_t *number,uint8_t x,uint8_t y)
 	print(num, x, y);
 }
 
-void print32(const uint32_t *number,uint8_t x,uint8_t y)
+void print32(const uint32_t number,uint8_t x,uint8_t y)
 {
 	char num[32];
 	itoa(number, num, 10);
