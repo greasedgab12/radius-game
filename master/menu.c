@@ -1,4 +1,3 @@
-#include "buttons.h"
 #include "char.h"
 #include <inttypes.h>
 #include "display.h"
@@ -11,20 +10,30 @@
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include "adc.h"
-
+#include "sprites.h"
 #include "sprite.h"
 
-uint8_t set_options 	= 0b00000001;
-
-const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE","LASER"};
-const char *ships_text[] = {"PATROL","LIGHT","HEAVY","DESTROYER"};
-
-uint8_t price_weapons[] = { 15,115,201,61,32,86,131,210,250 };
-uint8_t price_ships[] =  { 0,120,140,230,10,10,10 };
-uint8_t price_upgrade[] = {1,2,3,4};
-uint8_t weapon = 0;
+uint8_t set_options 	= 0b00000001;// keep track of selected options (currently only 2 bits in use room for 6 more
 
 
+const char *weapons_text[] = {"GUN","MACHINEGUN","MULTISHOT","HEAVY","SHOTGUN","NOPPY","LAUNCHER","BOUNCE","LASER"};   //names of the different weapons to make it easier to list them all on the display
+const char *ships_text[] = {"PATROL","LIGHT","HEAVY","DESTROYER"};	//names of the different ships to make it easier to list them all on the display
+
+uint8_t price_weapons[] = { 15,115,201,61,32,86,131,210,250 };//weapon price
+uint8_t price_ships[] =  { 0,120,140,230,10,10,10 };	//ship price
+uint8_t price_upgrade[] = {1,2,3,4};	//price modifier when ugrading a weapon
+uint8_t weapon = 0;			//
+
+uint32_t time_old = 0;		//previous Time a button was pressed + DELAY to keep the cursor from crolling to fast
+uint8_t menu_state = MAIN;	//keeps track of the menu state to select the correct entries
+uint8_t menu_cursor = 2;	//keeps track of the cursor so it can select the correct entries
+
+uint8_t upgrade =0;
+uint8_t offset =0;		//offset to select the to be upgraded weapon attribute
+uint8_t nextZeile = 9;	//keeps track of the display rows (5->21)
+
+
+//display gameover screen
 void displayGameOver(Environment env){
 	sendWindow(20,5,90,16,0);
 	print("Game Over", 57, 5);
@@ -37,6 +46,7 @@ void displayGameOver(Environment env){
 	_delay_ms(3000);
 }
 
+//display title screen that was missing in our presentation
 void titleScreen(){
 
 	drawTitleScreen();
@@ -44,6 +54,7 @@ void titleScreen(){
 	displayClear();
 }
 
+//display level at start
 void displayLevel(Environment env){
 
 	if(env->level < 10)
@@ -60,6 +71,7 @@ void displayLevel(Environment env){
 
 	displayClear();
 }
+//display start screen
 void displayStart(Environment env){
 	print("READY",60,10);
 	_delay_ms(1000);
@@ -67,6 +79,8 @@ void displayStart(Environment env){
 	_delay_ms(1000);
 	displayClear();
 }
+
+//display end screen
 void displayFinished(Environment env){
 	if(env->level < 10)
 	{
@@ -106,11 +120,11 @@ void displayFinished(Environment env){
 	displayClear();
 }
 
-
+//upgrade the selected weapon
 GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 {
-	uint8_t upgrade =0;
-	uint8_t offset =0;
+	upgrade =0;
+	offset =0;
 
 	//select offset per cursor
 	if(menu_cursor == 2 )
@@ -168,6 +182,7 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 	}
 
 
+	//upgrade the weapon: 2bit = 1 attribute (1-4 level) that can be upgraded
 	if((upgrade & (0b11<<offset)) == (0b00<<offset))
 	{
 		if(price_upgrade[0]* price_weapons[weapon] <= gameState->points)
@@ -236,12 +251,12 @@ GameState weaponUpgrade(GameState gameState,uint8_t weapon,uint8_t menu_cursor)
 	return gameState;
 }
 
-
+//display the upgrade screen with the current stats
 void printUpgrade(GameState gameState, uint8_t weapon)
 {
-	uint8_t offset = 0;
-	uint8_t upgrade=0;
-	uint8_t nextZeile = 9;
+	offset = 0;
+	upgrade=0;
+	nextZeile = 9;
 
 	if(weapon == 0)//gun
 	{
@@ -320,19 +335,12 @@ void printUpgrade(GameState gameState, uint8_t weapon)
 		nextZeile += 4;
 		print("      ",90,25);
 	}
-
-
 }
 
-
-
-//choose weapons/ships from inventory or upgrade
+//choose/buy weapons/ships from inventory or upgrade them
 void shop_menu(Environment env)
 {
 	displayClear();
-
-	uint8_t menu_state = MAIN;
-	uint8_t menu_cursor = 2;
 
 	uint8_t iter =0;
 	uint8_t zeile = 9;
@@ -341,32 +349,29 @@ void shop_menu(Environment env)
 	uint8_t counter = 0;
 	uint8_t lower_boundary = 0;
 
-
 	uint32_t time_old = env->time + MENU_DELAY;
 
-	//print cursor on startpos neeed?
 	print("/",13,1 + 4 * menu_cursor);
-
 
 	while(1){
 
 	updateEnvironment(env);
 
 
-	if( (env->buttons & M_U) && ( env->time >= time_old))//control upper menu boundary
+	if( (env->buttons & M_U) && ( env->time >= time_old))//keep cursor from scrolling to far up
 	{
 		uart_putc('k');
 		print(" ",13,1 + 4 * menu_cursor);
 		menu_cursor-=1;
 
-		if(menu_state == MAIN)//limit upper boundary
+		if(menu_state == MAIN)
 		{
 			if(menu_cursor <= 2)
 			{
 				menu_cursor = 2;
 			}
 		}
-		else if(menu_state == INVENTORY)//limt upper boundary
+		else if(menu_state == INVENTORY)
 		{
 			if(menu_cursor <= IVENTORY_UPPER_BONDARY)
 			{
@@ -415,7 +420,7 @@ void shop_menu(Environment env)
 				menu_cursor = SHOP_UPGRADE_WEAPON_UPPER_BOUNDARY;
 			}
 		}
-		else if(menu_state == SHOP_UPGRADE_WEAPON)//scrollable display with menu cursor
+		else if(menu_state == SHOP_UPGRADE_WEAPON)
 		{
 			if(menu_cursor <= 2)
 			{
@@ -427,7 +432,7 @@ void shop_menu(Environment env)
 			menu_cursor = 1;
 		}
 
-		if(menu_cursor >= 5)//if menu cursor >= 5 , always on lower screen
+		if(menu_cursor >= 5)
 		{
 			print("/",13,21);
 		}
@@ -439,13 +444,13 @@ void shop_menu(Environment env)
 		time_old = env->time + MENU_DELAY;
 	}
 
-	if( (env->buttons & M_D) && ( env->time >= time_old))//control lower menu boundary
+	if( (env->buttons & M_D) && ( env->time >= time_old))//keep cursor from scrolling to far down
 	{
 		uart_putc('k');
 		print(" ",13,1 + 4 * menu_cursor);
 		menu_cursor+=1;
 
-		if(menu_state == MAIN)//keep menucursor from going off screen
+		if(menu_state == MAIN)
 		{
 			if(menu_cursor >= 5)
 			{
@@ -453,7 +458,7 @@ void shop_menu(Environment env)
 			}
 			print("/",13,1 + 4 * menu_cursor);
 		}
-		else if(menu_state == INVENTORY)//keep menucursor from going off screen
+		else if(menu_state == INVENTORY)
 		{
 			if(menu_cursor >= INVENTORY_LOWER_BOUNDARY)
 			{
@@ -461,7 +466,7 @@ void shop_menu(Environment env)
 			}
 			print("/",13,1 + 4 * menu_cursor);
 		}
-		else if(menu_state == INVENTORY_WEAPONS)//scrollable display with menu cursor
+		else if(menu_state == INVENTORY_WEAPONS)//lower boundary not clear in inventory -> count bought items to display them correctly
 		{
 			counter = 0;
 			lower_boundary = 2;
@@ -495,12 +500,12 @@ void shop_menu(Environment env)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 6 )//highest possible menu_cursor value
+			else if(menu_cursor >= 6 )
 			{
-				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
+				print("/",13,21);
 			}
 		}
-		else if(menu_state == INVENTORY_SHIPS)
+		else if(menu_state == INVENTORY_SHIPS)//lower boundary not clear in inventory -> count bought items to display them correctly
 		{
 			if(menu_cursor <=5)
 			{
@@ -530,16 +535,15 @@ void shop_menu(Environment env)
 				}
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 5 )//highest possible menu_cursor value
+			else if(menu_cursor >= 5 )
 			{
 				menu_cursor = 5;
-				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
+				print("/",13,21);
 			}
 			print("/",13,1 + 4 * menu_cursor);
 		}
 		else if(menu_state == SHOP)
 		{
-
 			if(menu_cursor >= SHOP_LOWER_BOUNDARY)
 			{
 				menu_cursor = SHOP_LOWER_BOUNDARY;
@@ -547,15 +551,15 @@ void shop_menu(Environment env)
 
 			print("/",13,1 + 4 * menu_cursor);
 		}
-		else if(menu_state == SHOP_WEAPONS)//scrollable display with menu cursor
+		else if(menu_state == SHOP_WEAPONS)
 		{
 			if(menu_cursor <=4)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 5)//highest possible menu_cursor value
+			else if(menu_cursor >= 5)
 			{
-				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
+				print("/",13,21);
 			}
 
 			if(menu_cursor >=10)
@@ -564,19 +568,19 @@ void shop_menu(Environment env)
 				print("/",13,21);
 			}
 		}
-		else if(menu_state == SHOP_SHIPS)//scrollable display with menu cursor
+		else if(menu_state == SHOP_SHIPS)
 		{
 			if(menu_cursor <=5)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-			else if(menu_cursor >= 6 )//highest possible menu_cursor value
+			else if(menu_cursor >= 6 )
 			{
 				menu_cursor = 6;
-				print("/",13,21);//when the menu is scrolling the cursor allways sits on the lowest position
+				print("/",13,21);
 			}
 		}
-		else if(menu_state == SHOP_UPGRADE_WEAPON)//scrollable display with menu cursor
+		else if(menu_state == SHOP_UPGRADE_WEAPON)
 		{
 			if(menu_cursor >= 5)
 			{
@@ -587,13 +591,12 @@ void shop_menu(Environment env)
 			{
 				print("/",13,1 + 4 * menu_cursor);
 			}
-
 		}
 
 		time_old = env->time + MENU_DELAY;
 	}
 
-	if( (env->buttons & M_A) && ( env->time >= time_old))
+	if( (env->buttons & M_A) && ( env->time >= time_old))	//define action when button a is pressed
 	{
 		uart_putc('k');
 		displayClear();
@@ -655,7 +658,7 @@ void shop_menu(Environment env)
 		else if(menu_state == SHOP_WEAPONS)
 		{
 
-			if(menu_cursor >= 3){	//menu_cursor = 2 -> GUN UPGRADE
+			if(menu_cursor >= 3){
 				if((env->gameState->boughtWeapon & (1<<(menu_cursor-3))) == 0)
 				{
 					if(price_weapons[menu_cursor -3]<= env->gameState->points)
@@ -703,13 +706,12 @@ void shop_menu(Environment env)
 					}
 				}
 			}
-
 			if(menu_cursor >=5)
 			{
 				print("/",13,21);
 			}
 		}
-		//select ships
+
 		else if(menu_state == INVENTORY_SHIPS)
 		{
 			iter = 0;
@@ -727,7 +729,6 @@ void shop_menu(Environment env)
 				}
 				iter++;
 			}
-
 			if(menu_cursor >=5 )
 			{
 				print("/",13,21);
@@ -737,7 +738,7 @@ void shop_menu(Environment env)
 				print("/",13,1 + 4 * menu_cursor);
 			}
 		}
-		//select weapons
+
 		else if(menu_state == INVENTORY_WEAPONS)
 		{
 			iter = 0;
@@ -767,21 +768,11 @@ void shop_menu(Environment env)
 			}
 			print(" ",20,1);
 		}
-		//upgrade selected weapon
+
 		else if(menu_state == SHOP_UPGRADE_WEAPON)
 		{
-			//upgrade selected weapon
-			//with info from current cursor
 			env->gameState = weaponUpgrade(env->gameState,weapon,menu_cursor);
-//			if(menu_cursor >=5)
-//			{
-//				print("/",13,1 + 4 * menu_cursor);
-//			}
-//			else
-//			{
-//				print("/",13,21);
-//				print("  ",13,6);
-//			}
+
 			menu_state = SHOP_UPGRADE_WEAPON;
 
 			if(menu_cursor >=5)
@@ -792,9 +783,7 @@ void shop_menu(Environment env)
 			else
 			{
 				print("/",13,1+4*menu_cursor);
-
 			}
-
 		}
 
 		if(menu_state == SHOP_WEAPONS && menu_cursor >=5)
@@ -809,7 +798,8 @@ void shop_menu(Environment env)
 		print(" ",13,6);
 		time_old = env->time + MENU_DELAY;
 	}
-	if( (env->buttons & M_B) && ( env->time >= time_old))
+
+	if( (env->buttons & M_B) && ( env->time >= time_old))//define actions for when button b is pressed
 	{
 		uart_putc('k');
 		displayClear();
@@ -850,7 +840,6 @@ void shop_menu(Environment env)
 
 			if(menu_cursor >= 5)
 			{
-
 				print("/",13,21);
 				print(" ",13,9);
 				print(" ",13,2);
@@ -869,11 +858,9 @@ void shop_menu(Environment env)
 		time_old = env->time + MENU_DELAY;
 	}
 
-
-
 	print("  ",13,1);
 
-	switch(menu_state)
+	switch(menu_state)//display menu text
 	{
 		case MAIN:
 			print("SHOP",66,3);
@@ -892,22 +879,21 @@ void shop_menu(Environment env)
 			print("WEAPONS",20,9);
 			print("SHIPS",20,13);
 			break;
-		case INVENTORY_WEAPONS://show all bought weapons
+		case INVENTORY_WEAPONS:
 			print("SECUNDARY:",20,4);
+
 			if(env->gameState->selWeapon == 0)
 			{
 				print("NONE",90,4);
 			}
 			else
 			{
-
 				print(weapons_text[env->gameState->selWeapon],90,4);
 			}
 
 			iter =0;
 			zeile = 9;
 
-			//normal display without scrolling
 			if(menu_cursor <= 5)
 			{
 				while(iter<=7)
@@ -916,7 +902,7 @@ void shop_menu(Environment env)
 					{
 						print("          ",20,zeile);
 						print(weapons_text[1+iter],20,zeile);
-						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)//selWeapon == 0 -> no B weapon slected
+						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)
 						{
 							print("current",100,zeile);
 						}
@@ -929,19 +915,16 @@ void shop_menu(Environment env)
 					iter++;
 				}
 			}
-			//scroll when the cursor would run off the screen
 			else if(menu_cursor >= 6)
 			{
 				scroll_start = menu_cursor -5;
-				//go through weapons_bought
 				while(iter<=7 )
 				{
-					// display all bought weapons until screen is full starting at scroll_starts
 					if(zeile <= 21 && (env->gameState->boughtWeapon & (1<<iter)) && iter >= scroll_start)
 					{
 						print("          ",20,zeile);
 						print(weapons_text[1+iter],20,zeile);
-						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)//selWeapon == 0 -> no B weapon slected
+						if(env->gameState->selWeapon >=1 && env->gameState->selWeapon == iter+1)
 						{
 							print("current",100,zeile);
 						}
@@ -955,7 +938,7 @@ void shop_menu(Environment env)
 					iter++;
 				}
 			}
-			//noting bought when zeile didnt increase
+
 			if(zeile == 9)
 			{
 				print("empty",20,9);
@@ -977,7 +960,6 @@ void shop_menu(Environment env)
 			iter =0;
 			zeile = 9;
 
-			//normal display without scrolling
 			if(menu_cursor <= 5)
 			{
 				while(iter<=7)
@@ -986,7 +968,7 @@ void shop_menu(Environment env)
 					{
 						print("          ",20,zeile);
 						print(ships_text[iter],20,zeile);
-						if(env->gameState->selShip >=1 && env->gameState->selShip == iter+1)//selWeapon == 0 -> no B weapon slected
+						if(env->gameState->selShip >=1 && env->gameState->selShip == iter+1)
 						{
 							print("current",100,zeile);
 						}
@@ -999,7 +981,7 @@ void shop_menu(Environment env)
 					iter++;
 				}
 			}
-			//scroll when the cursor would run off the screen
+
 			else if(menu_cursor >= 6)
 			{
 				menu_cursor = 6;
@@ -1011,11 +993,13 @@ void shop_menu(Environment env)
 				print(" ",13,9);
 			}
 			break;
+
 		case SHOP:
 			print("SHOP",60,3);
 			print("BUY WEAPONS",20,9);
 			print("BUY SHIPS",20,13);
 			break;
+
 		case SHOP_WEAPONS:
 			print("WEAPONS",20,5);
 			print32(env->gameState->points,100,5);
@@ -1025,7 +1009,7 @@ void shop_menu(Environment env)
 			zeile = 9;
 			scroll_start = 0;
 
-			//normal display without scrolling
+
 			if(menu_cursor <= 5)
 			{
 					while(zeile <= 21 )
@@ -1048,7 +1032,6 @@ void shop_menu(Environment env)
 						else
 						{
 							print("       ",100,zeile);
-							//printN(scroll_start,100,zeile);
 							printN(price_weapons[scroll_start-1],100,zeile);
 							print("$",90,zeile);
 						}
@@ -1057,12 +1040,10 @@ void shop_menu(Environment env)
 						scroll_start++;
 					}
 			}
-			//scroll when the cursor would run off the screen
 			else if(menu_cursor >= 6)
 			{
 				scroll_start = menu_cursor - 5;
 
-				// display all bought ships until screen is full starting at scroll_starts
 				while(zeile <= 21 && menu_cursor >= scroll_start)
 				{
 					print("          ",20,zeile);
@@ -1077,7 +1058,6 @@ void shop_menu(Environment env)
 					else
 					{
 						print("       ",100,zeile);
-						//printN(scroll_start,100,zeile);
 						printN(price_weapons[scroll_start-1],100,zeile);
 						print("$",90,zeile);
 					}
@@ -1086,7 +1066,6 @@ void shop_menu(Environment env)
 				}
 			}
 
-			//nothing bought when zeile didnt increase
 			if(zeile == 9)
 			{
 				print("empty",20,9);
@@ -1101,7 +1080,6 @@ void shop_menu(Environment env)
 			next_col =0;
 			zeile = 9;
 
-			//normal display without scrolling
 			if(menu_cursor <= 5)
 			{
 					while(zeile <= 21 )
@@ -1124,7 +1102,6 @@ void shop_menu(Environment env)
 						next_col ++;
 					}
 			}
-			//scroll when the cursor would run off the screen
 			else if(menu_cursor >= 5)
 			{
 				menu_cursor = 5;
@@ -1146,7 +1123,6 @@ void shop_menu(Environment env)
 
 			}
 
-
 			break;
 		case SAVE:
 			safeSave(env->gameState);
@@ -1154,25 +1130,18 @@ void shop_menu(Environment env)
 			menu_state = MAIN;
 			menu_cursor = 5;
 			break;
-
+		}
 	}
 }
 
-}
-
-
-
-
-//returns 0 when back to main menu else 1
+//display the pause menu
 uint8_t pause_menu(Environment env)
 {
-	uint32_t time_old = env->time + MENU_DELAY;
-	uint8_t menu_state = MAIN;
-	uint8_t menu_cursor = 2;
+	time_old = env->time + MENU_DELAY;
+	menu_state = MAIN;
+	menu_cursor = 2;
 	displayClear();
 	print("/",13,1 + 4 * menu_cursor);
-
-
 
 	while(1)
 	{
@@ -1252,12 +1221,12 @@ uint8_t pause_menu(Environment env)
 			}
 			else if(menu_state == OPTIONS)
 			{
-				if(menu_cursor == 2) // music
+				if(menu_cursor == 2)
 				{
 					menu_cursor = 2;
 					menu_state = OPTIONS_1;
 				}
-				if(menu_cursor == 3) // invert
+				if(menu_cursor == 3)
 				{
 					menu_state = OPTIONS_2;
 					menu_cursor = 3;
@@ -1297,7 +1266,6 @@ uint8_t pause_menu(Environment env)
 		{
 			case MAIN:
 				print("PAUSE",65,3);
-
 				print("Continue",20,9);
 				print("SAVE GAME",20,13);
 				print("OPTIONS",20,17);
@@ -1349,8 +1317,7 @@ uint8_t pause_menu(Environment env)
 				{
 					set_options |= (1<<0);
 				}
-				//disable music
-				//so sth
+
 				menu_state = OPTIONS;
 				menu_cursor = 2;
 
@@ -1373,7 +1340,6 @@ uint8_t pause_menu(Environment env)
 			case QUIT:
 				displayClear();
 				return 0;
-
 		}
 	}
 }
@@ -1381,18 +1347,16 @@ uint8_t pause_menu(Environment env)
 
 void main_menu(Environment env)
 {
-
-	uint8_t menu_state = MAIN;
-	uint8_t menu_cursor = 2;
+	menu_state = MAIN;
+	menu_cursor = 2;
 	displayClear();
 	print("/",13,1 + 4 * menu_cursor);
 
-	uint32_t time_old = env->time + MENU_DELAY;
+	time_old = env->time + MENU_DELAY;
 
 	while(1)
 	{
 		updateEnvironment(env);
-
 
 		if((env->buttons & M_U) && ( env->time >= time_old))
 		{
@@ -1558,7 +1522,7 @@ void main_menu(Environment env)
 				return;
 
 			case HIGHSCORES:
-				print("CURRENT HIGHSCORE:",20,5);
+				print("C//define actions for when button b is pressedURRENT HIGHSCORE:",20,5);
 				print32(loadHighScore(),20,11);
 				break;
 
@@ -1597,8 +1561,6 @@ void main_menu(Environment env)
 				{
 					set_options |= (1<<0);
 				}
-				//disable music
-				//so sth
 				menu_state = OPTIONS2;
 				menu_cursor = 2;
 
