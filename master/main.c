@@ -2,33 +2,29 @@
 #include <avr/io.h>
 
 #include <avr/eeprom.h>
-#include "savegame.h"
+
 #include <avr/interrupt.h>
-#include <entities/general.h>
-#include <entities/projectile.h>
-#include <entity.h>
 #include <inttypes.h>
 #include <util/delay.h>
+
+
 #include "uart.h"
 #include "timer.h"
-#include "buttons.h"
+
+#include "defines.h"
+#include "structure.h"
+#include "environment.h"
 
 #include "char.h"
 #include "display.h"
-#include "object.h"
-#include "defines.h"
-#include "environment.h"
-#include "entities/player.h"
-#include "entities/general.h"
-#include "entities/enemy.h"
-#include "weapon.h"
+
+#include "savegame.h"
 #include "game.h"
-#include "sprites.h"
+
+
 #include "menu.h"
-
-
-
 #include "sprite.h"
+
 
 
 
@@ -48,16 +44,16 @@ int main(void)
 
 	//Environment Initialization
     //Environment is persistend throughout the entire runtime.
-    Environment env = newEnvironment();
+    Environment env;
     sei();
 
     while(1){
+    	env = newEnvironment();
 		flushObjectList(env);
 		flushAllSprites();
     	_delay_ms(200);
 		main_menu(env);
 		uint8_t continueGame = 1;
-		//ToDo: Couple gameState with selection in MainMenu.
 
 
 		//Game loop
@@ -68,16 +64,14 @@ int main(void)
 
 			env->level = env->gameState->level;
 
-			env->enemyRemaining =  4 + env->level;
+			env->enemyRemaining =  4 ;//env->level;
 			env->enemyMax =1 + (env->level/2<5?env->level/2:5);
 
 			displayClear();
 			displayLevel(env);
 			displayStart(env);
+
 			//Prevent the games entities from thinking too much.
-
-
-
 			updateEnvironment(env);
 			//Force redraw of HUD
 			drawHud(1,2,1,2,1);
@@ -111,18 +105,19 @@ int main(void)
 				drawHud(env->player->entity->health,env->player->entity->maxHealth,env->player->entity->energy,env->player->entity->maxEnergy, env->points);
 
 
-
+				//Enemy spawn check.
 				if(env->enemyCount < env->enemyMax && env->enemyRemaining){
 					if(isSpawnListEmpty(env)){
+						//Only set the spawn list if it is empty.
 						setSpawnList(env);
 					}
 					else{
+						//If there are entries left, check wether they are to be activated.
 						getNextEnemy(env);
 					}
 				}
 
-				//For each passed frame execute think of each object.
-
+				//For each passed frame since last call, execute think of each object.
 				for(i=0; i<env->time-(env->lastTime); i++){
 					for(j=0; j<MAXOBJECTS; j++){
 						if(env->objectList[j]->activeState == ACTIVE){
@@ -131,7 +126,6 @@ int main(void)
 					}
 				}
 
-				//printN(env->time, 64,0);
 				//Clean up dead objects and draw alive ones if they haven't been drawn already.
 				for(i=0; i<MAXOBJECTS; i++){
 					if(env->objectList[i]->killedBy==0){
@@ -166,7 +160,6 @@ int main(void)
 				}
 
 				//Check, wether drawn sprites overlap one another and draw overlapping parts again.
-				//Skip if frames are dropped.
 				if(env->time -env->lastTime < 3){
 					checkMappedSpriteCollision(env->objectList);
 				}
@@ -175,9 +168,6 @@ int main(void)
 					if(env->objectList[i]->activeState == ACTIVE){
 						if(env->objectList[i]->drawState== NOTDRAWN){
 							env->objectList[i]->drawState = DRAWN;
-						}
-						if(env->objectList[i]->drawState == DRAWONCE){
-							env->objectList[i]->drawState = DESTROY;
 						}
 					}
 					else{
@@ -191,6 +181,7 @@ int main(void)
 			flushAllSprites();
 			if(continueGame){
 				env->gameState->level++;
+				//Apply points to the GameState.
 				env->gameState->points += env->points;
 				env->points =0;
 
@@ -213,16 +204,20 @@ void init()
 {
 	uartInit();   // serielle Ausgabe an PC
 	timerInit();  // "Systemzeit" initialisieren
-	buttonsInit();
 	displayInit();
 	spriteInit();
-
 
 	//Timer0 Initialization
     TCCR0A |= (1<<WGM01);
     TCCR0B |= (1<<CS00)|(1<<CS02);
     TIMSK0 |= (1<<OCIE0A);
     OCR0A = 255;
+    //Button Initialization
+    DDRD &=~( (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7));
+	PORTD |=( (1<<2) | (1<<3) | (1<<4) | (1<<5) | (1<<6) | (1<<7));
+
+	DDRC &= ~( (1<<4) | (1<<5));
+	PORTC |= ( (1<<4) | (1<<5));
 
 }
 

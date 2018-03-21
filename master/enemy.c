@@ -13,25 +13,27 @@
  *      Author: root
  */
 
-#include <entities/general.h>
-#include <entities/projectile.h>
-#include <entity.h>
-#include <entity.h>
-#include <stdlib.h>
 #include "structure.h"
 #include "defines.h"
+#include "environment.h"
+
 #include "object.h"
+
+#include "entity.h"
+#include "general.h"
+#include "projectile.h"
+#include "enemy.h"
+
+#include "weapon.h"
+
+
 #include "display.h"
 #include "char.h"
-#include "environment.h"
 #include "sprites.h"
-#include "weapon.h"
 #include "uart.h"
-#include "entity.h"
-#include "entities/enemy.h"
 
 
-#include <util/delay.h>
+
 
 void newEnemy(Object self ,uint8_t * sprite,uint8_t x, uint8_t y){
 	newObject(self,x,y,9,9,sprite);
@@ -69,13 +71,13 @@ void newEnemyShooter(Object self,uint8_t * sprite,uint8_t y, uint8_t invProbabil
 	self->setXY(self,MAXX -self->lx, y);
 }
 
-void enemyThink(Object self, Environment mainEnv){
+void enemyThink(Object self, Environment env){
 	//Killed objects don't think.
 	if(self->killedBy!=0){
 		return;
 	}
 
-	//Apply accelertation to velocity.
+	//Apply acceleration to velocity.
 	//x-direction
 	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
 		self->entity->v_x += self->entity->a_x;
@@ -123,7 +125,8 @@ void enemyThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocity to position.
-	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	moveObject(self, env,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	//Save the remainder for the next movement.
 	self->entity->s_x = self->entity->v_x%10;
 	self->entity->s_y = self->entity->v_y%10;
 
@@ -131,7 +134,7 @@ void enemyThink(Object self, Environment mainEnv){
 }
 
 
-void enemyGliderThink(Object self, Environment mainEnv){
+void enemyGliderThink(Object self, Environment env){
 	//Killed objects don't think.
 	if(self->killedBy!=0){
 		return;
@@ -155,7 +158,7 @@ void enemyGliderThink(Object self, Environment mainEnv){
 
 
 
-	//Apply accelertation to velocity.
+	//Apply acceleration to velocity.
 	//x-direction
 	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
 		self->entity->v_x += self->entity->a_x;
@@ -203,23 +206,26 @@ void enemyGliderThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 		//Apply velocity to position.
-	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	moveObject(self, env,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	//Save the remainder for the next movement.
 	self->entity->s_x = self->entity->v_x%10;
 	self->entity->s_y = self->entity->v_y%10;
 
 }
 
-void enemyTrackerThink(Object self, Environment mainEnv){
+void enemyTrackerThink(Object self, Environment env){
 	//Killed objects don't think.
 	if(self->killedBy!=0){
 		return;
 	}
-	Object target=mainEnv->player;
-	//Search for a valid target.
+
+	//Set the player as the acceleration target.
+	Object target=env->player;
 
 
 	//Calculate acceleration based on target position.
 	//The tracker enemy can only accelerate in the y-axis.
+	//x-axis movement is possible but rather unfair.
 	if(target){
 		if(self->y < target->y){
 			self->entity->a_y = 10 + FRICTION;
@@ -281,28 +287,26 @@ void enemyTrackerThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	moveObject(self, env,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+		//Save the remainder for the next movement.
 	self->entity->s_x = self->entity->v_x%10;
 	self->entity->s_y = self->entity->v_y%10;
 
 
 }
 
-void enemyShooterThink(Object self, Environment mainEnv){
+void enemyShooterThink(Object self, Environment env){
 	//Killed objects don't think.
 	if(self->killedBy!=0){
 		return;
 	}
-//Since the shooter enemy can fire a weapon, the energy attribute must be usable.
-
 	//Shoot at a random time. The probability is inversly proportional to param1.
 	if(!(random()%(self->entity->param1+1))){
-		Object slot = getProjectileSlot(mainEnv);
-		if(!slot){
-			return;
-		}
-		uart_putc('a');
+		//Get a projectile slot from the environment.
+		Object slot = getProjectileSlot(env);
+		if(slot){
 
+		uart_putc('a');
 		newProjectile(slot,BULLETENEMY);
 
 		slot->type = ENEMY_PROJECTILE;
@@ -315,14 +319,14 @@ void enemyShooterThink(Object self, Environment mainEnv){
 		slot->entity->health = 1;
 		slot->activeState = ACTIVE;
 		slot->drawState = NOTDRAWN;
-
+		}
 
 	}
 
 	/**Apply acceleration to velocity
 	 * Velocity in each direction cannot exceed maximum velocity.
 	 */
-	//x-direction
+	//Only accelerate in the x-direction
 	if( abs(self->entity->v_x + self->entity->a_x) < self->entity->v_max){
 		self->entity->v_x += self->entity->a_x;
 	}
@@ -357,7 +361,8 @@ void enemyShooterThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	moveObject(self, env,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+		//Save the remainder for the next movement.
 	self->entity->s_x = self->entity->v_x%10;
 	self->entity->s_y = self->entity->v_y%10;
 
@@ -382,6 +387,7 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 				return 1;
 			}
 			else{
+				//Call the collision method the the player.
 				return other->collide(other, self, cType, 0);
 			}
 		}
@@ -402,6 +408,7 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 				return 1;
 			}
 			else{
+				//Call the collision method of the projectile.
 				return other->collide(other, self, cType, 1);
 			}
 		}
@@ -431,20 +438,22 @@ uint8_t enemyCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 }
 
 void getEnemyByType(Object enemy, uint8_t type, uint8_t* sprite,uint8_t health,uint8_t armor,int8_t speed, uint8_t y, uint8_t param){
+
 	if(type == FLOATER){
 		newEnemyFloater(enemy,sprite, y);
-
 	}
 	else if(type == GLIDER){
+		//param acts as phaselength variable.
 		newEnemyGlider(enemy,sprite,y, param);
 	}
 	else if(type == TRACKER){
 		newEnemyTracker(enemy,sprite,y);
 	}
 	else if(type == SHOOTER){
+		//param controls shot frequency
 		newEnemyShooter(enemy,sprite,y, param);
 	}
-
+	//Set position to the rightmost.
 	enemy->setXY(enemy, MAXX, enemy->y);
 	enemy->entity->health = health;
 	enemy->entity->maxHealth = health;

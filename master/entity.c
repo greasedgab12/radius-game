@@ -5,13 +5,12 @@
  *      Author: root
  */
 
-#include <stdlib.h>
 #include "defines.h"
 #include "entity.h"
-#include "structure.h"
+
 
 void newEntity(Entity self){
-
+	//Fill attributes with dummy values.
     self->health = 5;
     self->maxHealth =5;
     self->energy = 0;

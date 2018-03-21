@@ -1,4 +1,4 @@
-#include "buttons.h"
+
 #include "char.h"
 #include <inttypes.h>
 #include "display.h"
@@ -9,7 +9,6 @@
 #include "savegame.h"
 #include "environment.h"
 #include "object.h"
-#include "entities/stats.h"
 #include <avr/eeprom.h>
 #include "savegame.h"
 #include "char.h"

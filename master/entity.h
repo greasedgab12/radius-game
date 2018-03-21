@@ -11,9 +11,7 @@
 #include "structure.h"
 #include "inttypes.h"
 
-
+//newEntity: Initialize entity memory slot.
 void newEntity(Entity self);
-
-void releaseEntity(Entity instance);
 
 #endif /* MASTER_ENTITY_H_ */

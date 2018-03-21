@@ -6,17 +6,23 @@
  */
 
 #include <stdlib.h>
-#include "defines.h"
 #include "structure.h"
-#include "entities/player.h"
-#include "entities/enemy.h"
-#include "weapon.h"
-#include "display.h"
-#include "sprite.h"
-#include "sprites.h"
+#include "defines.h"
 #include "environment.h"
+
+#include "object.h"
+
+#include "entity.h"
+#include "enemy.h"
+#include "player.h"
+
+#include "weapon.h"
+
+#include "display.h"
+
 #include "char.h"
-#include "buttons.h"
+#include "sprites.h"
+#include "sprite.h"
 
 void newGame(GameState self){
 	self->gunUpg =0;
@@ -136,7 +142,7 @@ void setSpawnList(Environment env){
 	uint8_t value;
 
 	uint8_t health,armor,speed;
-
+	//Distribute strength onto enemy attributes.
 	value = (uint8_t)(random())%(strength+1);
 	strength -= value;
 	health =  1 + value;
@@ -149,10 +155,8 @@ void setSpawnList(Environment env){
 	strength -= value;
 	speed = 10+ FRICTION + value;
 	
-	uint8_t* shipSprite = enemy_0;
-	uint8_t shipType = 0;
-	uint8_t spawnType = 0;
-
+	//Determine sprite of the ship.
+	uint8_t* shipSprite;
 	value = (uint8_t)(random())%5;
 	if(value ==0){
 		shipSprite = enemy_0;
@@ -170,6 +174,8 @@ void setSpawnList(Environment env){
 		shipSprite = enemy_4;
 	}
 
+	//Determine ship behavior/enemy type.
+	uint8_t shipType = 0;
 	shipType = (level>4?1:0) + (level>6?1:0) + (level >8?1:0);
 	shipType = (uint8_t)(random())%(shipType+1);
 
@@ -181,12 +187,15 @@ void setSpawnList(Environment env){
 		param2 = 250 - random()%(50);
 	}
 
+	//Determine way of spawning.
+	uint8_t spawnType = 0;
 	spawnType = (level>3?1:0) + (level>6?1:0) + (level>9?1:0) + (level>12?1:0) + (level>15?1:0);
 	spawnType = (uint8_t)(random())%(spawnType+1) ;
 
 
 
 	if(spawnType == SINGLE){
+		//Spawn singular enemy.
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY;
 		Object slot;
@@ -200,6 +209,7 @@ void setSpawnList(Environment env){
 	}
 
 	else if(spawnType == DOUBLE){
+		//Spawn two enemies of the same type simultanous.
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY - 32) + MINY + 10;
 		Object slot;
@@ -225,6 +235,7 @@ void setSpawnList(Environment env){
 
 	}
 	else if(spawnType == TRIPLE){
+		//Spawn three enemies of the same type simultanous.
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY - 32) + MINY + 32;
 		Object slot;
@@ -261,6 +272,7 @@ void setSpawnList(Environment env){
 
 	}
 	else if(spawnType == TRIPLECHAIN){
+		//Spawn three enemies of the same type with a delay inbetween.
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY ;
 		Object slot;
@@ -297,6 +309,7 @@ void setSpawnList(Environment env){
 
 	}
 	else if(spawnType == QUADCHAIN){
+		//Spawn four enemies of the same type with a delay inbetween.
 		uint8_t yPosition=0;
 		yPosition = random()%(MAXY - MINY) + MINY ;
 
@@ -369,18 +382,11 @@ void getNextEnemy(Environment env){
 			}
 		}
 	}
-
-
 }
 
 
-
-
-
-
-uint16_t getPoints(Environment mainEnv, Object enemy){
-
-	return mainEnv->gameState->level*(enemy->entity->health*enemy->entity->armor) +enemy->entity->v_max/2;
+uint16_t getPoints(Environment env, Object enemy){
+	return env->gameState->level*(enemy->entity->health*enemy->entity->armor) +enemy->entity->v_max/2;
 
 }
 

@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include <char.h>
+#include "char.h"
 #include <stdlib.h>
 
 void sendChar(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t Bstabe)

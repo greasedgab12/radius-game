@@ -6,28 +6,26 @@
  *      Author: root
  */
 
-#include <entities/general.h>
-#include <entities/projectile.h>
-#include <entity.h>
-#include <stdlib.h>
 #include "structure.h"
 #include "defines.h"
-#include "object.h"
-#include "display.h"
-#include "char.h"
 #include "environment.h"
-#include "sprites.h"
 
-
-#include "entities/player.h"
 #include "entity.h"
+#include "player.h"
+#include "general.h"
+
+
 
 void newPlayer(Object self, uint8_t x, uint8_t y, const uint8_t* sprite){
+	//Set sprite to player object.
 	self->setData(self,sprite);
+	//Set physical collision to the sprite size.
 	self->lx = self->slx;
 	self->ly = self->sly*4;
 	self->type = PLAYER;
+	//Initialize entity variable.
 	newEntity(self->entity);
+	//Dummy values.
 	self->entity->health = 30;
 	self->entity->maxHealth = 30;
 	self->entity->maxEnergy=100;
@@ -42,7 +40,7 @@ void newPlayer(Object self, uint8_t x, uint8_t y, const uint8_t* sprite){
     self->entity->v_x = 0;
     self->entity->v_y = 0;
 
-
+    //Set the function pointers of the structure.
 	self->think = &playerThink;
 	self->collide =&playerCollide;
 	self->activeState = ACTIVE;
@@ -50,7 +48,7 @@ void newPlayer(Object self, uint8_t x, uint8_t y, const uint8_t* sprite){
 
 }
 
-void playerThink(Object self, Environment mainEnv){
+void playerThink(Object self, Environment env){
 	//Movement
 	int8_t a_x = 0, a_y = 0;
 	//Button reactions
@@ -58,33 +56,41 @@ void playerThink(Object self, Environment mainEnv){
 	 * Only non opposing directions can be applied to the acceleration.
 	**/
 
-	if(mainEnv->buttons & M_U){
+	if(env->buttons & M_U){
 		a_y = -(self->entity->v_max/5+FRICTION);
 	}
-	else if(mainEnv->buttons & M_D){
+	else if(env->buttons & M_D){
 		a_y = (self->entity->v_max/5+FRICTION);
 	}
 
-	if(mainEnv->buttons & M_L){
+	if(env->buttons & M_L){
 		a_x = -(self->entity->v_max/5+FRICTION);
 	}
-	else if(mainEnv->buttons & M_R){
+	else if(env->buttons & M_R){
 		a_x = (self->entity->v_max/5+FRICTION);
 	}
 	/**
 	 * A and B buttons.
 	 */
 
-	if(mainEnv->buttons & M_A){
-		if(mainEnv->weaponA){
-			mainEnv->weaponA->fire(mainEnv->weaponA, self, mainEnv);
+	if(env->buttons & M_A){
+		if(env->weaponA){
+			env->weaponA->fire(env->weaponA, self, env);
 		}
 	}
-	else if(mainEnv->buttons & M_B){
-		if(mainEnv->weaponB){
-			mainEnv->weaponB->fire(mainEnv->weaponB, self, mainEnv);
+	else if(env->buttons & M_B){
+		if(env->weaponB){
+			env->weaponB->fire(env->weaponB, self, env);
 		}
 	}
+	//Energy regeneration.
+	if(self->entity->energy <self->entity->maxEnergy){
+		self->entity->energy+= self->entity->param1;
+	}
+	else{
+		self->entity->energy = self->entity->maxEnergy;
+	}
+
 
 	/**
 	 * Calculate movement of the player.
@@ -94,12 +100,6 @@ void playerThink(Object self, Environment mainEnv){
 	 * Velocity in each direction cannot exceed maximum velocity.
 	 */
 	//x-direction
-	if(self->entity->energy <self->entity->maxEnergy){
-		self->entity->energy+= self->entity->param1;
-	}
-	else{
-		self->entity->energy = self->entity->maxEnergy;
-	}
 
 	if( abs(self->entity->v_x + a_x) < self->entity->v_max){
 			self->entity->v_x += a_x;
@@ -132,21 +132,22 @@ void playerThink(Object self, Environment mainEnv){
 		self->entity->v_y = 0;
 	}
 	//Apply velocitiy to position.
-	moveObject(self, mainEnv,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	moveObject(self, env,(self->entity->v_x+self->entity->s_x)/10,(self->entity->v_y+self->entity->s_y)/10);
+	//Add the remainder to the next step:
 	self->entity->s_x += self->entity->v_x%10;
 	self->entity->s_y += self->entity->v_y%10;
 	self->entity->s_x = self->entity->s_x%10;
 	self->entity->s_y = self->entity->s_y%10;
 
-	//Add the remainder to the next step:
+
 
 
 }
 
 uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
-
 	if(other){
 		if(other->type == ENEMY || other->type == ENEMY_PROJECTILE){
+			//Is the other object of type enemy or enemy projectile, cause damage to the player.
 			if(other->type == ENEMY){
 				rebound(self,other, cType);
 			}
@@ -169,6 +170,7 @@ uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 			}
 		}
 		else{
+			//Other objects have to know for themselves, what to do in the collision case.
 			if(iter){
 				return 0;
 			}
@@ -178,6 +180,7 @@ uint8_t playerCollide(Object self, Object other,uint8_t cType, uint8_t iter){
 		}
 	}
 	else{
+		//Collision with border.
 		return 1;
 	}
 

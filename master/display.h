@@ -41,12 +41,30 @@
 #define DISPLAY_INVERSE			0b10100110		//inverse display colors, doesnt change ram
 //------------------------------------------------------------------------------------
 
+//Initialize ports used for serial connection with the display.
 void displayInitPorts(void);
+
+//Initialize display itself.
 void displayInit(void);
+
+/**sendByte: Send singular byte to the display.
+ *uint8_t byte: Byte to send via serial interface.
+ *uint8_t cd: 0: sent byte is a command, 1: sent byte is data.
+ */
 void sendbyte(uint8_t byte,uint8_t cd);
-void sendWindow(uint8_t x1,uint8_t y1,uint8_t x2, uint8_t y2, const uint8_t *data);
+/**sendWindow: Send an entire block of data to the display.
+ * uint8_t x,y: Coordinates of the left upper corner of the block.
+ * uint8_t lx,ly: Size of the block.
+ * unit8_t *data: Pointer to the data in memory.
+ */
+void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t *data);
+
+//Clear the display.
 void displayClear(void);
 
+/**Invert display "color".
+ * uint8_t option: 1: invert "color", 0: no inversion.
+ */
 void displayInverse(uint8_t option);
 
 

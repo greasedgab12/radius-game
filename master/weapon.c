@@ -11,7 +11,7 @@
 #include "uart.h"
 
 
-#include "entities/projectile.h"
+#include "projectile.h"
 #include "weapon.h"
 
 void newGun(Weapon self, uint8_t weaponState){
@@ -36,15 +36,15 @@ void newGun(Weapon self, uint8_t weaponState){
 	self->fire = &fireGun;
 
 }
-void fireGun(Weapon self, Object source, Environment mainEnv){
+void fireGun(Weapon self, Object source, Environment env){
 
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
 
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -108,17 +108,17 @@ void newMulti(Weapon self,uint8_t weaponState){
 	self->fire = &fireMulti;
 
 }
-void fireMulti(Weapon self, Object source, Environment mainEnv){
+void fireMulti(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
 
 		uint8_t i;
 		for(i=0; i<self->projCount;i++){
 
-			Object slot = getProjectileSlot(mainEnv);
+			Object slot = getProjectileSlot(env);
 			if(!slot){
 				return;
 			}
@@ -171,11 +171,11 @@ void newLauncher(Weapon self,uint8_t weaponState){
 
 	self->projCount = 1;
 
-	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
+	uint8_t damagelvl, speedlvl, roflvl;
 	damagelvl = weaponState& 0b00000011;
 	speedlvl = (weaponState& 0b00001100)>>2;
 	roflvl = (weaponState& 0b00110000)>>4;
-	uniquelvl = (weaponState& 0b11000000)>>6;
+
 
 	self->damage = 5 + 5*damagelvl;
 
@@ -190,13 +190,13 @@ void newLauncher(Weapon self,uint8_t weaponState){
 
 
 }
-void fireMissile(Weapon self, Object source, Environment mainEnv){
+void fireMissile(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -261,13 +261,13 @@ void newHeavy(Weapon self,uint8_t weaponState){
 
 
 }
-void fireHeavy(Weapon self, Object source, Environment mainEnv){
+void fireHeavy(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -312,11 +312,10 @@ void newShotGun(Weapon self,uint8_t weaponState){
 
 	self->projCount = 5;
 
-	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
+	uint8_t damagelvl, speedlvl, roflvl;
 	damagelvl = weaponState& 0b00000011;
 	speedlvl = (weaponState& 0b00001100)>>2;
 	roflvl = (weaponState& 0b00110000)>>4;
-	uniquelvl = (weaponState& 0b11000000)>>6;
 
 	self->damage = 10 + 10*damagelvl;
 
@@ -330,13 +329,13 @@ void newShotGun(Weapon self,uint8_t weaponState){
 	self->fire = &fireShot;
 
 }
-void fireShot(Weapon self, Object source, Environment mainEnv){
+void fireShot(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -362,7 +361,7 @@ void fireShot(Weapon self, Object source, Environment mainEnv){
 		int8_t i;
 
 		for(i=1; i<((self->weaponState& 0b11000000)>>6) + 2; i++){
-			Object slot = getProjectileSlot(mainEnv);
+			Object slot = getProjectileSlot(env);
 			if(!slot){
 				return;
 			}
@@ -407,14 +406,14 @@ void newMachineGun(Weapon self,uint8_t weaponState){
 
 
 }
-void fireMachineGun(Weapon self, Object source, Environment mainEnv){
+void fireMachineGun(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
 
-		Object slot = getProjectileSlot(mainEnv);
+		Object slot = getProjectileSlot(env);
 
 		if(!slot){
 			return;
@@ -481,14 +480,14 @@ void newNoppy(Weapon self,uint8_t weaponState){
 
 
 }
-void fireDisc(Weapon self, Object source, Environment mainEnv){
+void fireDisc(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
 		uart_putc('b');
-		Object slot = getProjectileSlot(mainEnv);
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -534,11 +533,10 @@ void newBounce(Weapon self,uint8_t weaponState){
 
 	self->projCount = 1;
 
-	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
+	uint8_t damagelvl, speedlvl, roflvl;
 	damagelvl = weaponState& 0b00000011;
 	speedlvl = (weaponState& 0b00001100)>>2;
 	roflvl = (weaponState& 0b00110000)>>4;
-	uniquelvl = (weaponState& 0b11000000)>>6;
 
 	self->damage = 3 + 2*damagelvl;
 
@@ -556,13 +554,13 @@ void newBounce(Weapon self,uint8_t weaponState){
 
 
 
-void fireBounce(Weapon self, Object source, Environment mainEnv){
+void fireBounce(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}
@@ -604,11 +602,10 @@ void newLaser(Weapon self,uint8_t weaponState){
 
 	self->projCount = 1;
 
-	uint8_t damagelvl, speedlvl, roflvl, uniquelvl;
+	uint8_t damagelvl, speedlvl, roflvl;
 	damagelvl = weaponState& 0b00000011;
 	speedlvl = (weaponState& 0b00001100)>>2;
 	roflvl = (weaponState& 0b00110000)>>4;
-	uniquelvl = (weaponState& 0b11000000)>>6;
 
 	self->damage = 10 + 3*damagelvl;
 
@@ -624,13 +621,13 @@ void newLaser(Weapon self,uint8_t weaponState){
 
 }
 
-void fireLaser(Weapon self, Object source, Environment mainEnv){
+void fireLaser(Weapon self, Object source, Environment env){
 	if(!(source->entity->energy >= self->cost)){
 		return;
 	}
-	if(((uint16_t) mainEnv->time) >= self->rofTime + self->rof){
-		self->rofTime= mainEnv->time;
-		Object slot = getProjectileSlot(mainEnv);
+	if(((uint16_t) env->time) >= self->rofTime + self->rof){
+		self->rofTime= env->time;
+		Object slot = getProjectileSlot(env);
 		if(!slot){
 			return;
 		}

@@ -8,10 +8,11 @@
 #include "savegame.h"
 #include "environment.h"
 #include "object.h"
-#include "entities/stats.h"
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include "adc.h"
+
+#include "sprite.h"
 
 uint8_t set_options 	= 0b00000001;
 
@@ -351,7 +352,6 @@ void shop_menu(Environment env)
 
 	updateEnvironment(env);
 
-	printN(menu_cursor, 64, 0);
 
 	if( (env->buttons & M_U) && ( env->time >= time_old))//control upper menu boundary
 	{

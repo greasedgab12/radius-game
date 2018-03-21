@@ -8,7 +8,8 @@ PROJECT = basis
 # Sourcefiles
 SOURCE =main.c
 # Files from basis
-SOURCE += adc.c timer.c uart.c display.c object.c
+SOURCE += adc.c timer.c uart.c display.c object.c entity.c environment.c game.c menu.c savegame.c sprite.c sprites.c weapon.c char.c 
+SOURCE += player.c general.c enemy.c projectile.c
 # Libraries
 LIBS = -lm 
 

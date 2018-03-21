@@ -3,7 +3,7 @@
 #include <inttypes.h>
 #include "display.h"
 #include <avr/interrupt.h>
-#include <char.h>
+#include "char.h"
 #include <inttypes.h>
 
 void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[])
@@ -30,18 +30,12 @@ void sendWindow(uint8_t x,uint8_t y,uint8_t lx, uint8_t ly, const uint8_t data[]
 		}
 	}
 	else{
+		//Without data write white pages into the window.
 		for(counter =0; counter < lx*ly ; counter++){
 			sendbyte(0,1);
-			//  85 gray
 		}
 	}
 	sendbyte(WINDOW_DISABLE,0);
-}
-
-void displayForceOn(uint8_t option)
-{
-	if(option >= 1)option = 1;
-	sendbyte( DISPLAY_FORCE_ON | (0b00000001 & option)  ,0);
 }
 
 void displayInverse(uint8_t option)

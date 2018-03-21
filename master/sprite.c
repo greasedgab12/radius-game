@@ -1,7 +1,10 @@
-#include "sprite.h"
-#include "inttypes.h"
 #include <stdlib.h>
+#include "inttypes.h"
+
+#include "sprite.h"
+
 #include "char.h"
+
 #include "sprites.h"
 #include "display.h"
 
@@ -31,7 +34,7 @@ uint8_t* load_sprite(const uint8_t *sprite)
 	return sprite_in_ram[sprite_nr];
 }
 
-void flush_sprite( const uint8_t *sprite)
+void flush_sprite( uint8_t *sprite)
 {
 	if(sprite == 0){
 		return;

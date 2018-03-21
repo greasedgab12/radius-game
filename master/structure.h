@@ -19,18 +19,22 @@ typedef struct GameState_Struct* GameState;
 
 struct Object_Struct{
 
-	uint8_t activeState;
-	//Position and object size measured in pixels.
+	//Position and physical object size measured in pixels.
 	uint8_t x,y,lx,ly;
 	const uint8_t *data;
-	/**py: Page position at x-coordinate.
-	 * sly: Sprite length in y-direction. Length measured in pages.
+	/**sly: Sprite length in y-direction. Length measured in pages.
 	 * slx: Sprite length in x-direction.
 	 * msly: Mapped Sprite length in y-direction. Length measured in pages.
 	 */
 	uint8_t slx,sly,msly;
 	//State of the Sprite i.e. NOTDRAWN or DRAWN.
 	uint8_t drawState;
+	/**State of the Object:
+	 * EMPTY: Object memory can be reused.
+	 * INACTIVE: Object is waiting for use.
+	 * ACTIVE: Object is active (thinking, colliding)
+	 */
+	uint8_t activeState;
 
 	//Pointer to Object data aside from Position and Graphics i.e. HP of player.
 	Entity entity;
@@ -47,30 +51,44 @@ struct Object_Struct{
      * will only care for the elapsed time. Similarly, collide will trigger diffrent actions
      * depending on the involved objects.
     */
-    void (*think)(Object self, Environment mainEnv);
+    void (*think)(Object self, Environment env);
     uint8_t (*collide)(Object self, Object other , uint8_t cType, uint8_t iter);
 };
 
 
 struct Environment_struct{
+	//Buttons pressed at the time of updateEnvironment.
 	uint8_t buttons;
+	//Time before the last call of updateEnvironment.
 	uint32_t lastTime;
+	//Time at the last call of updateEnvironment.
 	uint32_t time;
+	//Pointer to current GameState.
 	GameState gameState;
+	//List of all objects involved in the game.
 	Object* objectList;
-
+	//Pointer to the current active player object.
 	Object player;
+	//Weapons of the player.
 	Weapon weaponA;
 	Weapon weaponB;
+	//Current level.
 	uint8_t level;
+	//Enemies left to destroy in the current level.
 	uint8_t enemyRemaining;
+	//Enemies currently on the screen.
 	uint8_t enemyCount;
+	//Maximum of enemies on screen.
 	uint8_t enemyMax;
 
+	//List of inactive enemies/enemies left to spawn.
 	Object spawnList[4];
-	uint16_t spawnDelay[4];
+	//List containing the spawn time for the enemies
+	uint32_t spawnDelay[4];
 
-
+	/**Points gained in the current level.
+	 * Value will be added to the points of the gameState after the level.
+	 */
 	uint16_t points;
 };
 
@@ -78,19 +96,20 @@ struct Environment_struct{
 
 struct Entity_Struct{
 
-	//Velocity variables
+	//Acceleration
 	int8_t a_x;
     int8_t a_y;
 
-
+    //Maximum velocity
     uint8_t v_max;
+    //Velocity
     int8_t v_x;
 	int8_t v_y;
-
+	//Movement remainder. Needed to allow speeds below 1 pixel per frame.
 	int8_t s_x;
     int8_t s_y;
 
-	//Variables governing entity behavior.
+	//Variable governing entity behavior, namely the GLIDER type enemy.
 	uint8_t state;
 
 	uint8_t health;
@@ -98,26 +117,35 @@ struct Entity_Struct{
 	uint8_t energy;
 	uint8_t maxEnergy;
 	uint8_t armor;
-
+	//Additional value used differently depending on the object type.
 	uint8_t param1;
 };
 
 struct Weapon_Struct{
 
+	//Weapon damage.
 	uint8_t damage;
+	//Weapon energy used when firing.
 	uint8_t cost;
+	//Amount of projectiles fired.
 	uint8_t projCount;
-
+	//Speed value used in calculation of the actual projectile speed.
+	//Might be used differently based on weapon type.
 	uint8_t projSpeed;
-
-	uint16_t rofTime;
+	/**Rate of Fire variables:
+	 * rofTime: Time of the last shot.
+	 * rof: delay between shots. Misnomer.
+	 */
+	uint32_t rofTime;
 	uint8_t rof;
 
+	//Type of the Weapon. See defines.h.
 	uint8_t weaponType;
+	//Upgrade state of the weapon.
 	uint8_t weaponState;
 
 
-	void (*fire)(Weapon self, Object source, Environment mainEnv);
+	void (*fire)(Weapon self, Object source, Environment env);
 
 };
 

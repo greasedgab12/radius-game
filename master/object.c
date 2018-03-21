@@ -1,10 +1,10 @@
 #include <stdlib.h>
+#include "defines.h"
+#include "structure.h"
+
 #include "object.h"
 #include "display.h"
-#include "defines.h"
-#include "timer.h"
 #include "sprite.h"
-#include "entity.h"
 
 
 
@@ -110,7 +110,7 @@ uint8_t* mapData(const uint8_t* data, uint8_t ty){
 	return ndata;
 
 }
-void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
+void moveObject(Object self, Environment env, int8_t rx, int8_t ry){
 	uint8_t i;
 
 
@@ -145,9 +145,9 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 	//Check if the Object collides with other objects in the main Environment.
 	for(i=0; i< MAXOBJECTS; i++){
 		//Objects cannot collide with themselves.
-		if(mainEnv->objectList[i]!= self && (mainEnv->objectList[i]->activeState == ACTIVE)){
+		if(env->objectList[i]!= self && (env->objectList[i]->activeState == ACTIVE)){
 			//ToDoRemove variable other in final build.
-			Object other = mainEnv->objectList[i];
+			Object other = env->objectList[i];
 			uint8_t collisionType;
 			collisionType = isColliding(self, other,rx, ry);
 			//Is self colliding with an object at the new position?
@@ -201,10 +201,10 @@ void moveObject(Object self, Environment mainEnv, int8_t rx, int8_t ry){
 	 * This won't leave a 'hole' in overlapped blocks when the block moves.
 	 */
 	for(i=0; i<MAXOBJECTS; i++){
-		Object other = mainEnv->objectList[i];
+		Object other = env->objectList[i];
 		if(self != other){
 			if(isMappedColliding(self, other ,0,0)){
-				mainEnv->objectList[i]->drawState = NOTDRAWN;
+				env->objectList[i]->drawState = NOTDRAWN;
 			}
 		}
 	}

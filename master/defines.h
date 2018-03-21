@@ -13,7 +13,6 @@
 #define MAXPROJECTILES 8
 #define MAXEFFECTS 3
 #define MAXOBJECTS 1+MAXENEMIES+MAXPROJECTILES+MAXEFFECTS
-#define MAXOVERLAPS 16
 #define MINX 0
 #define MINY 9
 #define MAXX 160
@@ -24,6 +23,17 @@
 #define EMPTY 0
 #define INACTIVE 1
 #define ACTIVE 2
+
+//Buttons:
+#define B_UP (!(PIND & (1<<2)))
+#define B_DOWN (!(PIND & (1<<3)))
+#define B_LEFT (!(PIND & (1<<4)))
+#define B_RIGHT (!(PIND & (1<<5)))
+#define B_B (!(PIND & (1<<6)))
+#define B_A (!(PIND & (1<<7)))
+
+#define B_PAUSE (!(PINC & (1<<4)))
+#define B_SELECT (!(PINC & (1<<5)))
 
 //UP, DOWN, LEFT, RIGHT, A, B, PAUSE, SELECT
 //Button Masks:
@@ -36,7 +46,7 @@
 #define M_P 2
 #define M_S 1
 
-//Definitions for Block.
+//Definitions for drawing of Objects.
 #define DESTROY 4
 #define DRAWONCE 2
 #define DRAWN 1
@@ -77,12 +87,12 @@
 #define SHOTLOWER 5
 #define SHOTMIDDLE 6
 #define BALL 7
-#define BULLETHEAVY 9
-#define BULLETENEMY 10
-#define LASER0 11
-#define LASER1 12
-#define LASER2 13
-#define LASER3 14
+#define BULLETHEAVY 8
+#define BULLETENEMY 9
+#define LASER0 10
+#define LASER1 11
+#define LASER2 12
+#define LASER3 13
 
 //Enemy Types
 #define FLOATER 0
@@ -97,9 +107,5 @@
 #define TRIPLECHAIN 3
 #define QUADCHAIN 4
 
-//Effect Types
-#define EXPLOSION 0
-#define COLLISION 1
-#define IMPACT 2
 
 #endif /* MASTER_DEFINES_H_ */

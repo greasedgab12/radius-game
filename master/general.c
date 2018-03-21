@@ -4,37 +4,28 @@
  *  Created on: Feb 28, 2018
  *      Author: root
  */
-#include <entities/general.h>
-#include <entities/projectile.h>
-#include <entity.h>
-#include <stdlib.h>
+
+
 #include "structure.h"
 #include "defines.h"
-#include "object.h"
-#include "display.h"
-#include "char.h"
-#include "environment.h"
 
-
-#include "entities/player.h"
+#include "general.h"
 
 
 
+void moveOnButton(Object self, Environment env){
 
-
-void moveOnButton(Object self, Environment mainEnv){
-
-	if(mainEnv->buttons & M_U){
-		moveObject(self,mainEnv, 0, -1);
+	if(env->buttons & M_U){
+		moveObject(self,env, 0, -1);
 	}
-	else if(mainEnv->buttons & M_D){
-		moveObject(self,mainEnv, 0, 1);
+	else if(env->buttons & M_D){
+		moveObject(self,env, 0, 1);
 	}
-	else if(mainEnv->buttons & M_L){
-		moveObject(self,mainEnv, -1, 0);
+	else if(env->buttons & M_L){
+		moveObject(self,env, -1, 0);
 	}
-	else if(mainEnv->buttons & M_R){
-		moveObject(self, mainEnv, 1, 0);
+	else if(env->buttons & M_R){
+		moveObject(self, env, 1, 0);
 	}
 
 }
@@ -54,12 +45,13 @@ void rebound(Object self,Object other, uint8_t cType){
 	int8_t ux,uy;
 
 	if(self->type == PLAYER && other->type == ENEMY){
+		//Get the average velocity of the two objects.
 		ux = abs(self->entity->v_x + other->entity->v_x)/2;
 		uy = abs(self->entity->v_y + other->entity->v_y)/2;
-
+		//Add 20 to the averages if not zero.
 		ux = ux?ux+20:0;
 		uy = uy?uy+20:0;
-
+		//Apply the averages to the velocity of the objects. The Player will only recieve half of it.
 		if(self->x < other->x){
 			self->entity->v_x = -ux/2;
 			other->entity->v_x = ux;
@@ -78,6 +70,7 @@ void rebound(Object self,Object other, uint8_t cType){
 		}
 	}
 	else if(other ==0){
+		//Border collision will simply invert object velocity corresponding to the collision type.
 		if(cType == LEFTC || cType ==RIGHTC){
 			self->entity->v_x = -(self->entity->v_x);
 		}
@@ -87,7 +80,7 @@ void rebound(Object self,Object other, uint8_t cType){
 	}
 
 	else{
-
+		//Other objects will act similar to the player enemy pairing.
 		ux = abs(self->entity->v_x + other->entity->v_x)/2;
 		uy = abs(self->entity->v_y + other->entity->v_y)/2;
 
@@ -116,16 +109,25 @@ void rebound(Object self,Object other, uint8_t cType){
 }
 
 void drag(Object self, uint8_t cff){
-	if(self->type){
-		if(self->type != PLAYER_PROJECTILE && self->type!=ENEMY_PROJECTILE){
-				self->entity->v_x += self->entity->v_x<0? cff: -cff;
-				self->entity->v_y += self->entity->v_y<0? cff: -cff;
-			}
-		else{
+	//Reduce the object velocity by cff.
+	if(self->entity->v_x < -cff){
+		self->entity->v_x += cff;
+	}
+	else if(self->entity->v_x > cff){
+		self->entity->v_x -= cff;
+	}
+	else{
+		self->entity->v_x = 0;
+	}
 
-				self->entity->v_x += self->entity->v_x<0? cff: -cff;
-				self->entity->v_y += self->entity->v_y<0? cff: -cff;
-		}
+	if(self->entity->v_y < -cff){
+		self->entity->v_y += cff;
+	}
+	else if(self->entity->v_y > cff){
+		self->entity->v_y -= cff;
+	}
+	else{
+		self->entity->v_y = 0;
 	}
 }
 
