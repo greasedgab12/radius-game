@@ -17,8 +17,6 @@ typedef union {
 
 #define STOP { { .delay = 0xFFFF, .track = 0, .increment = 0 } }
 
-extern const Event song1[585] PROGMEM;
-extern const Event end[1] PROGMEM;
-extern const Event song2[1553] PROGMEM;
+extern const Event song1[117] PROGMEM;
 
 #endif

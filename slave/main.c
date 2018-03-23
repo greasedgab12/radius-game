@@ -11,6 +11,9 @@
 #include "music.h"
 #include "fx.h"
 
+const Event end[] PROGMEM = {
+     STOP};
+
 #define INTERRUPT_COMPARE 128
 
 void init();
@@ -120,7 +123,7 @@ static inline void update_increment()
     		if(next_music >= 3 )next_music = 1;
 
     		if(next_music == 1){start_playing(song1,1,0);}
-    		else if(next_music ==2){start_playing(song2,1,0);}
+    		
     	}
     }
 

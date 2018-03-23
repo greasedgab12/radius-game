@@ -102,6 +102,7 @@ with open(hfilename, "w") as hfile:
                   + "typedef struct __attribute__((packed)) {\n"
                   + "    uint16_t delay;\n"
                   + "    unsigned track: 2;\n"
+                  
                   + "    unsigned increment: 14;\n"
                   + "} Change;\n")
         hfile.write("typedef union {\n"
@@ -114,9 +115,8 @@ with open(hfilename, "w") as hfile:
         #synth.writeCArray("SpaceJourney1-X.mid", "ingame2", [1,4], timescale=1) # triangle
 #        synth.writeCArray("energyzone.mid", "ingame1", [1,4], timescale=4.5) # triangle
 #
-        synth.writeCArray("stage_6.mid", "song1", [1,4], timescale=1) # music 1 
-        synth.writeCArray("Tyrian2.mid", "song2", [1,4], timescale=3.5) # music 1         
-        
+        synth.writeCArray("music.mid", "song1", [0], timescale=20) # music 1 
+       
         
        # synth.writeCArray("../music/fish forest.MID", "ingame1", [1,3,4], timescale=4)
 #        
